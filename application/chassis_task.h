@@ -10,16 +10,16 @@
 #include "detect_task.h"
 #include "pid.h"
 #include "user_lib.h"
-
-
+#include "vofa_task.h"
 
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR1_SPEED_PID_KP                 0.0f
-#define DRIVE_MOTOR1_SPEED_PID_KI                 0.0f
+#define DRIVE_MOTOR1_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR1_SPEED_PID_KI                 2.0f
 #define DRIVE_MOTOR1_SPEED_PID_KD                 0.0f
-#define DRIVE_MOTOR1_SPEED_PID_MAX_OUT            16000.0f //最大输出值
-#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           0.0f //最大输出电流
+#define DRIVE_MOTOR1_SPEED_PID_MAX_OUT            16384.0f //最大输出值
+#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
+
 
 
 
@@ -43,11 +43,11 @@
 
 /* --------------------------------------舵轮2-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR2_SPEED_PID_KP                 0.0f
-#define DRIVE_MOTOR2_SPEED_PID_KI                 0.0f
+#define DRIVE_MOTOR2_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR2_SPEED_PID_KI                 2.0f
 #define DRIVE_MOTOR2_SPEED_PID_KD                 0.0f
-#define DRIVE_MOTOR2_SPEED_PID_MAX_OUT            16000.0f //最大输出值
-#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           0.0f //最大输出电流
+#define DRIVE_MOTOR2_SPEED_PID_MAX_OUT            16384.0f //最大输出值
+#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
 
 
 
@@ -69,11 +69,11 @@
 
 /* --------------------------------------舵轮3-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR3_SPEED_PID_KP                 0.0f
-#define DRIVE_MOTOR3_SPEED_PID_KI                 0.0f
+#define DRIVE_MOTOR3_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR3_SPEED_PID_KI                 2.0f
 #define DRIVE_MOTOR3_SPEED_PID_KD                 0.0f
-#define DRIVE_MOTOR3_SPEED_PID_MAX_OUT            16000.0f //最大输出值
-#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           0.0f //最大输出电流
+#define DRIVE_MOTOR3_SPEED_PID_MAX_OUT            16384.0f //最大输出值
+#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
 
 
 
@@ -100,7 +100,7 @@
 #define DRIVE_MOTOR4_SPEED_PID_KP                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_KI                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_KD                 0.0f
-#define DRIVE_MOTOR4_SPEED_PID_MAX_OUT            16000.0f //最大输出值
+#define DRIVE_MOTOR4_SPEED_PID_MAX_OUT            16384.0f //最大输出值
 #define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           0.0f //最大输出电流
 
 
@@ -194,7 +194,7 @@ typedef struct
   fp32 course_set_angle[4];       											 //6020最终计算出的角度
 	fp32 course_set_last_angle[4];       											 //6020最终计算出的角度
 
-  fp32 wheel_speed[4]; 																//3508最终计算出的速度	
+  fp32 drive_set_speed[4]; 																//3508最终计算出的速度	
 	
 	fp32 vx_max_speed;  //max forward speed, unit m/s.前进方向最大速度 单位m/s
   fp32 vx_min_speed;  //max backward speed, unit m/s.后退方向最大速度 单位m/s
@@ -207,6 +207,7 @@ typedef struct
   fp32 chassis_pitch; //陀螺仪和云台电机叠加的pitch角度
   fp32 chassis_roll;  //陀螺仪和云台电机叠加的roll角度
 
+	DebugData chassis_debug_data;
 
 	
 } chassis_move_t;
@@ -294,7 +295,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
   */
 void chassis_task(void const * argument);
 void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set,fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
-
+const DebugData* get_chassis_PID_Debug(void);
 
 
 
