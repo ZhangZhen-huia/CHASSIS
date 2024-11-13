@@ -59,7 +59,6 @@
 .\agv_chassis\can_receive.o: ../application/INS_task.h
 .\agv_chassis\can_receive.o: ../components/devices/BMI088driver.h
 .\agv_chassis\can_receive.o: ../application/detect_task.h
-.\agv_chassis\can_receive.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\can_receive.o: ../components/controller/pid.h
 .\agv_chassis\can_receive.o: ../components/algorithm/user_lib.h
 .\agv_chassis\can_receive.o: ../application/vofa_task.h

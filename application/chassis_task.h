@@ -160,13 +160,6 @@ typedef struct
 
 typedef struct
 {
-	fp32 Vx;
-	fp32 Vy;
-	fp32 Wz;
-}chassis_speed_t;
-
-typedef struct
-{
 	const RC_ctrl_t *chassis_RC;               					//底盘使用的遥控器指针, the point to remote control
   chassis_motor_t motor_chassis[8];          					//chassis motor data.底盘电机数据
 	const bmi088_real_data_t *chassis_bmi088_data;     										//获取陀螺仪解算出的欧拉角指针
@@ -184,7 +177,10 @@ typedef struct
   chassis_mode_e chassis_mode;               //底盘控制状态机
   chassis_mode_e last_chassis_mode;          //底盘上次控制状态机
 	
-  chassis_speed_t absolute_chassis_speed;               //底盘设定绝对速度，世界坐标系
+	fp32 vx_set;
+	fp32 vy_set;
+	fp32 wz_set;
+  //chassis_speed_t absolute_chassis_speed;               //底盘设定绝对速度，世界坐标系
 	
   int8_t drct;																					//用于优劣弧，决定驱动电机正反转
 	uint8_t angle_ready;        												//3508等待6020转动到指定角度标志位
@@ -269,7 +265,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
 
 
 #define CHASSIS_TASK_INIT_TIME 1000
-
+#define CHASSIS_CONTROL_TIME_MS 1000
 #define CHASSIS_X_CHANNEL	2
 #define CHASSIS_Y_CHANNEL 3
 #define CHASSIS_W_CHANNEL 0
@@ -294,7 +290,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
   * @retval         none
   */
 void chassis_task(void const * argument);
-void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set,fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
+void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 const DebugData* get_chassis_PID_Debug(void);
 
 

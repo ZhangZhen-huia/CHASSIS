@@ -3,7 +3,7 @@
 #include "Can_receive.h"
 #include "usart.h"
 #include "chassis_task.h"
-
+#include "detect_task.h"
 //µç»úÊý¾Ý¶ÁÈ¡
 #define get_motor_measure(ptr, data)                                 \
 {                                                                    \
@@ -57,15 +57,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 		{
 			case CAN_DRIVE_MOTOR1_ID:
 				get_motor_measure(&drive_motor[0],rx_data1);
+				detect_hook(DRIVE_MOTOR1_TOE);
 				break;
+			
 			case CAN_DRIVE_MOTOR2_ID:
 				get_motor_measure(&drive_motor[1],rx_data1);
+				detect_hook(DRIVE_MOTOR2_TOE);
 				break;
+			
 			case CAN_DRIVE_MOTOR3_ID:
 				get_motor_measure(&drive_motor[2],rx_data1);
+				detect_hook(DRIVE_MOTOR3_TOE);
 				break;
+					
 			case CAN_DRIVE_MOTOR4_ID:
 				get_motor_measure(&drive_motor[3],rx_data1);
+				detect_hook(DRIVE_MOTOR4_TOE);
 				break;
 
 		}
@@ -77,15 +84,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 		{
 			case CAN_COURSE_MOTOR1_ID:
 				get_motor_measure(&course_motor[0],rx_data2);
+				detect_hook(COURSE_MOTOR1_TOE);
 				break;
+			
 			case CAN_COURSE_MOTOR2_ID:
 				get_motor_measure(&course_motor[1],rx_data2);
+				detect_hook(COURSE_MOTOR2_TOE);
 				break;
+			
 			case CAN_COURSE_MOTOR3_ID:
 				get_motor_measure(&course_motor[2],rx_data2);
+				detect_hook(COURSE_MOTOR3_TOE);			
 				break;
+			
 			case CAN_COURSE_MOTOR4_ID:
 				get_motor_measure(&course_motor[3],rx_data2);
+				detect_hook(COURSE_MOTOR4_TOE);
 				break;
 		}
 	}

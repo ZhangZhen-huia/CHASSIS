@@ -198,11 +198,11 @@ static void chassis_agv_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, f
         return;
     }
 
-    chassis_rc_to_control_vector(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
+    chassis_rc_to_control_vector(vx_set,vy_set,wz_set,chassis_move_rc_to_vector);
 
-		chassis_move_rc_to_vector->absolute_chassis_speed.Vx = *vx_set;
-		chassis_move_rc_to_vector->absolute_chassis_speed.Vy = *vy_set;
-		chassis_move_rc_to_vector->absolute_chassis_speed.Wz = *wz_set;
+//		chassis_move_rc_to_vector->absolute_chassis_speed.Vx = *vx_set;
+//		chassis_move_rc_to_vector->absolute_chassis_speed.Vy = *vy_set;
+//		chassis_move_rc_to_vector->absolute_chassis_speed.Wz = *wz_set;
 }
 
 
@@ -223,5 +223,5 @@ static void chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_s
         return;
     }
 
-    chassis_rc_to_control_vector(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
+    //chassis_rc_to_control_vector(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
 }

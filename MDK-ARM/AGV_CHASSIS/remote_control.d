@@ -59,8 +59,7 @@
 .\agv_chassis\remote_control.o: ..\application\INS_task.h
 .\agv_chassis\remote_control.o: ../components/devices/BMI088driver.h
 .\agv_chassis\remote_control.o: ..\application\detect_task.h
-.\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-.\agv_chassis\remote_control.o: ../Inc/usart.h
 .\agv_chassis\remote_control.o: ../components/controller/pid.h
 .\agv_chassis\remote_control.o: ../components/algorithm/user_lib.h
 .\agv_chassis\remote_control.o: ..\application\vofa_task.h
+.\agv_chassis\remote_control.o: ../Inc/usart.h

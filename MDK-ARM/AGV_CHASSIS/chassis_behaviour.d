@@ -59,8 +59,7 @@
 .\agv_chassis\chassis_behaviour.o: ..\application\INS_task.h
 .\agv_chassis\chassis_behaviour.o: ../components/devices/BMI088driver.h
 .\agv_chassis\chassis_behaviour.o: ..\application\detect_task.h
-.\agv_chassis\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-.\agv_chassis\chassis_behaviour.o: ../Inc/usart.h
 .\agv_chassis\chassis_behaviour.o: ../components/controller/pid.h
 .\agv_chassis\chassis_behaviour.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_behaviour.o: ..\application\vofa_task.h
+.\agv_chassis\chassis_behaviour.o: ../Inc/usart.h
