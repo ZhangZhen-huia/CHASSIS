@@ -94,6 +94,9 @@
 #define ISKEYDOWN_V(RC_Data_Point)      ((RC_Data_Point->key.v & KEY_PRESSED_OFFSET_V)		== KEY_PRESSED_OFFSET_V ? 1 : 0)
 #define ISKEYDOWN_B(RC_Data_Point)      ((RC_Data_Point->key.v & KEY_PRESSED_OFFSET_B)		== KEY_PRESSED_OFFSET_B ? 1 : 0)
 /* ----------------------- Data Struct ------------------------------------- */
+
+#define RC_sl_channel 1
+#define RC_sr_channel 0
 typedef __packed struct
 {
         __packed struct
@@ -141,6 +144,7 @@ extern void remote_control_init(void);
   */
 extern const RC_ctrl_t *get_remote_control_point(void);
 
+extern RC_ctrl_t rc_ctrl;
 
 
 uint8_t RC_data_is_error(void);

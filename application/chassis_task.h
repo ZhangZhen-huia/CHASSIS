@@ -24,7 +24,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR1_ANGLE_PID_KP                 	65.0f//105
+#define COURSE_MOTOR1_ANGLE_PID_KP                 	10.0f//105
 #define COURSE_MOTOR1_ANGLE_PID_KI                	0.10f
 #define COURSE_MOTOR1_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR1_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -33,7 +33,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR1_SPEED_PID_KP                 	35.0f
+#define COURSE_MOTOR1_SPEED_PID_KP                 	10.0f
 #define COURSE_MOTOR1_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR1_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR1_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -136,16 +136,6 @@ typedef enum
 } chassis_mode_e;
 
 
-//typedef enum
-//{
-//	CHASSIS_ZERO_FORCE = 0, //无力模式
-//	CHASSIS_RC_TOP_MOVE = 1, //遥控器 小陀螺模式
-//	CHASSIS_RC_Normal = 2, //遥控器 小陀螺模式
-//	CHASSIS_PC_CONTROL = 3, //PC 键鼠模式
-//		
-//}REMOTE_MODE; //遥控器模式
-
-
 
 typedef struct
 {
@@ -173,31 +163,30 @@ typedef struct
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_wz;  //一阶低通滤波减缓设定值
 	
+	fp32 course_angle[4];																//6020角度
+  
+  fp32 course_set_angle[4];       										//6020最终设定角度
+	fp32 course_set_last_angle[4];       								//6020上次设定角度
+
+  fp32 drive_set_speed[4]; 														//3508最终计算出的速度	
+
 	
-  chassis_mode_e chassis_mode;               //底盘控制状态机
-  chassis_mode_e last_chassis_mode;          //底盘上次控制状态机
+  chassis_mode_e chassis_mode;               					//底盘控制状态机
+  chassis_mode_e last_chassis_mode;          					//底盘上次控制状态机
 	
 	fp32 vx_set;
 	fp32 vy_set;
 	fp32 wz_set;
-  //chassis_speed_t absolute_chassis_speed;               //底盘设定绝对速度，世界坐标系
 	
-  int8_t drct;																					//用于优劣弧，决定驱动电机正反转
 	uint8_t angle_ready;        												//3508等待6020转动到指定角度标志位
 	
-	fp32 course_angle[4];
-  
-  fp32 course_set_angle[4];       											 //6020最终计算出的角度
-	fp32 course_set_last_angle[4];       											 //6020最终计算出的角度
-
-  fp32 drive_set_speed[4]; 																//3508最终计算出的速度	
 	
-	fp32 vx_max_speed;  //max forward speed, unit m/s.前进方向最大速度 单位m/s
-  fp32 vx_min_speed;  //max backward speed, unit m/s.后退方向最大速度 单位m/s
-  fp32 vy_max_speed;  //max letf speed, unit m/s.左方向最大速度 单位m/s
-  fp32 vy_min_speed;  //max right speed, unit m/s.右方向最大速度 单位m/s
-  fp32 wz_max_speed;  //max letf speed, unit m/s.左方向最大速度 单位m/s
-  fp32 wz_min_speed;  //max right speed, unit m/s.右方向最大速度 单位m/s
+	fp32 vx_max_speed;  //前进方向最大速度 单位m/s
+  fp32 vx_min_speed;  //后退方向最大速度 单位m/s
+  fp32 vy_max_speed;  //左方向最大速度 单位m/s
+  fp32 vy_min_speed;  //右方向最大速度 单位m/s
+  fp32 wz_max_speed;  //左方向最大速度 单位m/s
+  fp32 wz_min_speed;  //右方向最大速度 单位m/s
 	
 	fp32 chassis_yaw;   //陀螺仪和云台电机叠加的yaw角度
   fp32 chassis_pitch; //陀螺仪和云台电机叠加的pitch角度

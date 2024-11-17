@@ -57,6 +57,7 @@ osThreadId CHASSIS_TASKHandle;
 osThreadId INS_TASKHandle;
 osThreadId DETECT_TASKHandle;
 osThreadId VOFA_TASKHandle;
+osThreadId USER_TASKHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -68,6 +69,7 @@ void chassis_task(void const * argument);
 void INS_task(void const * argument);
 void detect_task(void const * argument);
 void vofa_task(void const * argument);
+void user_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -136,7 +138,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of TEST_TASK */
-  osThreadDef(TEST_TASK, test_task, osPriorityBelowNormal, 0, 128);
+  osThreadDef(TEST_TASK, test_task, osPriorityLow, 0, 128);
   TEST_TASKHandle = osThreadCreate(osThread(TEST_TASK), NULL);
 
   /* definition and creation of CHASSIS_TASK */
@@ -152,8 +154,12 @@ void MX_FREERTOS_Init(void) {
   DETECT_TASKHandle = osThreadCreate(osThread(DETECT_TASK), NULL);
 
   /* definition and creation of VOFA_TASK */
-  osThreadDef(VOFA_TASK, vofa_task, osPriorityBelowNormal, 0, 128);
+  osThreadDef(VOFA_TASK, vofa_task, osPriorityIdle, 0, 128);
   VOFA_TASKHandle = osThreadCreate(osThread(VOFA_TASK), NULL);
+
+  /* definition and creation of USER_TASK */
+  osThreadDef(USER_TASK, user_task, osPriorityBelowNormal, 0, 256);
+  USER_TASKHandle = osThreadCreate(osThread(USER_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -250,6 +256,24 @@ __weak void vofa_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END vofa_task */
+}
+
+/* USER CODE BEGIN Header_user_task */
+/**
+* @brief Function implementing the USER_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_user_task */
+__weak void user_task(void const * argument)
+{
+  /* USER CODE BEGIN user_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END user_task */
 }
 
 /* Private application code --------------------------------------------------*/

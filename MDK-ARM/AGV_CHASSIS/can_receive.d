@@ -62,3 +62,4 @@
 .\agv_chassis\can_receive.o: ../components/controller/pid.h
 .\agv_chassis\can_receive.o: ../components/algorithm/user_lib.h
 .\agv_chassis\can_receive.o: ../application/vofa_task.h
+.\agv_chassis\can_receive.o: ../application/user_task.h

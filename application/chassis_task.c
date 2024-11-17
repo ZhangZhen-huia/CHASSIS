@@ -18,7 +18,7 @@ static uint8_t chassis_motor_detect(void);
 static void chassis_init(chassis_move_t *init);
 static void chassis_feedback_update(chassis_move_t *feedback_update);
 static fp32 Find_min_Angle(int16_t angle1,fp32 angle2);
-void angle_judge(chassis_move_t *chassis_move_control_loop);
+bool_t judgeWheelPrepared(chassis_move_t *judge);
 
 static void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
 static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed[4],fp32 vx_set,fp32 vy_set,fp32 wz_set);
@@ -74,12 +74,12 @@ void chassis_task(void const * argument)
 			}
 			else
 			{
-				angle_judge(&chassis_move);
+				
 				CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
-				if(chassis_move.angle_ready)
-				{
+//				if(judgeWheelPrepared(&chassis_move))
+//				{
 					CAN_cmd_drive(chassis_move.chassis_drive_speed_pid[0].out,chassis_move.chassis_drive_speed_pid[1].out,chassis_move.chassis_drive_speed_pid[2].out,chassis_move.chassis_drive_speed_pid[3].out);
-				}
+//				}
 			}
 			osDelay(1);//控制频率为1khz，与can接收中断频率一致
 		}
@@ -119,7 +119,6 @@ static void chassis_init(chassis_move_t *init)
   const static fp32 chassis_w_order_filter[1] = {CHASSIS_ACCEL_W_NUM};
 	
 	
-	init->drct=1;
 	init->angle_ready=0;
 	init->chassis_RC=get_remote_control_point();
 	init->chassis_bmi088_data = get_INS_data_point();
@@ -255,8 +254,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 					chassis_move_control_loop->chassis_course_angle_pid[i].out);
 		}
 
-	//等待6020角度转到位在转3508
-	angle_judge(chassis_move_control_loop);
+
 }
 
 
@@ -351,6 +349,17 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 //    }
 }
 
+float My_Max(float *data)
+{
+	int i;
+	float result=0;
+	for(i=0;*(data+i) !=NULL;i++)
+		if(data[i]>result)
+			result=data[i];
+	return result;
+		
+}
+
 
 static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed[4],fp32 vx_set,fp32 vy_set,fp32 wz_set)
 {
@@ -360,6 +369,12 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	
 	//0
 	wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f);//(0 -- 360)
+	
+	//寻找最小转角然后驱动3508正反转，然后再由pid的过零处理算出来正确的err
+	//比如：ref:30   set:130  
+	//经以下函数得wheel_angle[0] = 130+180 = 310;
+	//pid计算ecd_zero(set, ref, ecd_range);算出来err=-80，
+	//然后计算后得数据就是让6020反转80度到达-50度，与130度刚好构成180度，此时让drct取反了，所以优劣弧生效
 	if(fabs(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))>90)
 	{
 			wheel_angle[0] += 180;		
@@ -514,17 +529,27 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chas
   * @retval 
   * @attention	
   */
-void angle_judge(chassis_move_t *chassis_move_control_loop)
+
+bool_t judgeWheelPrepared(chassis_move_t *judge)
 {
-	if(fabs(chassis_move_control_loop->course_angle[0] - chassis_move_control_loop->course_set_angle[0]) < 10)//当角度偏差为50时使能3508转动
-		chassis_move_control_loop->angle_ready=1;
+	float maxError;
+	float Error[4];
+	for(uint8_t i=0;i<4;i++)
+	Error[i] = fabs(judge->course_angle[i] - judge->course_set_angle[i]);
+	
+	maxError = My_Max(Error);
+	if(maxError < 10)
+		return 1;
 	else
-		chassis_move_control_loop->angle_ready=0;
+		return 0;
+
 }
 
 
+
+
 /**
-	* @brief 当电机转子转向内侧时 修正方向0-360
+	* @brief 寻找最小转动角度
 	* @param  angle1,angle2 一个为目标角度，一个为当前角度
   * @retval 角度差值
   * @attention	返回的差值是经过计算后限制在0-360之间的
@@ -543,9 +568,9 @@ static fp32 Find_min_Angle(int16_t angle1,fp32 angle2)
 
 static uint8_t chassis_motor_detect(void)
 {
-	return 		toe_is_error(DRIVE_MOTOR1_TOE)  //|| toe_is_error(DRIVE_MOTOR2_TOE)  || toe_is_error(DRIVE_MOTOR3_TOE)  || toe_is_error(DRIVE_MOTOR4_TOE)
+	return 		//toe_is_error(COURSE_MOTOR1_TOE)  || toe_is_error(DRIVE_MOTOR2_TOE)  || toe_is_error(DRIVE_MOTOR3_TOE)  || toe_is_error(DRIVE_MOTOR4_TOE)
 //				 || toe_is_error(COURSE_MOTOR1_TOE) || toe_is_error(COURSE_MOTOR2_TOE) || toe_is_error(COURSE_MOTOR3_TOE) || toe_is_error(COURSE_MOTOR4_TOE)
-				 || toe_is_error(DBUS_TOE);
+				  toe_is_error(DBUS_TOE);
 }
 
 

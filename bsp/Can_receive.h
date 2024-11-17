@@ -40,6 +40,9 @@ typedef enum
 	CAN_COURSE_MOTOR4_ID = 0x208,
 	
 	
+	
+/*----------can1双板通信接收id---------*/
+	RC_ID = 0x111,
 } can_msg_id_e;
 
 

@@ -4,15 +4,19 @@
 #include "usart.h"
 #include "chassis_task.h"
 #include "detect_task.h"
+#include "user_task.h"
+
 //µç»úÊı¾İ¶ÁÈ¡
 #define get_motor_measure(ptr, data)                                 \
 {                                                                    \
 	(ptr)->last_ecd = (ptr)->ecd;                                      \
 	(ptr)->ecd = (uint16_t)((data)[0] << 8 | (data)[1]);               \
-	(ptr)->rpm = (uint16_t)((data)[2] << 8 | (data)[3]);         \
+	(ptr)->rpm = (uint16_t)((data)[2] << 8 | (data)[3]);         			 \
 	(ptr)->given_current = (uint16_t)((data)[4] << 8 | (data)[5]);     \
 	(ptr)->temperate = (data)[6];                                      \
 }
+
+
 
 
 motor_measure_t drive_motor[4], course_motor[4];
@@ -74,7 +78,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖĞ¶
 				get_motor_measure(&drive_motor[3],rx_data1);
 				detect_hook(DRIVE_MOTOR4_TOE);
 				break;
-
+			case RC_ID:
+				get_rc_data(&rc_data,rx_data1);
+				break;
 		}
 	}
 	else if(hcan->Instance==CAN2)
@@ -157,6 +163,9 @@ void CAN_cmd_course(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
     chassis_can_send_data[7] = M4;
     HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
+
+
+
 
 
 /**
