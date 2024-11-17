@@ -11,6 +11,7 @@
 #include "pid.h"
 #include "user_lib.h"
 #include "vofa_task.h"
+#include "user_task.h"
 
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
@@ -153,7 +154,7 @@ typedef struct
 	const RC_ctrl_t *chassis_RC;               					//底盘使用的遥控器指针, the point to remote control
   chassis_motor_t motor_chassis[8];          					//chassis motor data.底盘电机数据
 	const bmi088_real_data_t *chassis_bmi088_data;     										//获取陀螺仪解算出的欧拉角指针
-	
+	const gimbal_data_t *get_gimbal_data;								//底盘获得云台数据
   pid_type_def chassis_drive_speed_pid[4];             //驱动电机速度pid
   pid_type_def chassis_course_angle_pid[4];            //航向电机角度pid
   pid_type_def chassis_course_speed_pid[4];						 //航向电机速度pid	

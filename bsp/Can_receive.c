@@ -20,7 +20,7 @@
 
 
 motor_measure_t drive_motor[4], course_motor[4];
-uint8_t rx_data1[7],rx_data2[7];
+uint8_t rx_data1[8],rx_data2[8];
 
 
 void canfilter_init_start(void)
@@ -79,8 +79,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 				detect_hook(DRIVE_MOTOR4_TOE);
 				break;
 			case RC_ID:
-				get_rc_data(&rc_data,rx_data1);
+				get_rc_data(&gimbal_data,rx_data1);
 				break;
+			case GIMBAL_ID:
+				get_gimbal_data(&gimbal_data,rx_data1);
+					break;
 		}
 	}
 	else if(hcan->Instance==CAN2)

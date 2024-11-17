@@ -63,3 +63,4 @@
 .\agv_chassis\chassis_behaviour.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_behaviour.o: ..\application\vofa_task.h
 .\agv_chassis\chassis_behaviour.o: ../Inc/usart.h
+.\agv_chassis\chassis_behaviour.o: ..\application\user_task.h

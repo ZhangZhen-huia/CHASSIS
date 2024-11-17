@@ -63,3 +63,4 @@
 .\agv_chassis\remote_control.o: ../components/algorithm/user_lib.h
 .\agv_chassis\remote_control.o: ..\application\vofa_task.h
 .\agv_chassis\remote_control.o: ../Inc/usart.h
+.\agv_chassis\remote_control.o: ..\application\user_task.h

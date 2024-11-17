@@ -1,6 +1,6 @@
 #include "chassis_behaviour.h"
 #include "chassis_task.h"
-
+#include "user_task.h"
 
 static void chassis_zero_force_control(fp32 *vx_can_set, fp32 *vy_can_set, fp32 *wz_can_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, chassis_move_t *chassis_move_rc_to_vector);
@@ -33,16 +33,16 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 //    {
 //        chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
 //    }
-//		//µ×ÅÌ¸úËæµ×ÅÌyaw
-//    else if (switch_is_down(chassis_move_mode->chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
-//    {
+		//µ×ÅÌ¸úËæµ×ÅÌyaw
+    if (switch_is_down(chassis_move_mode->get_gimbal_data->rc_data.rc_sl))//chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
+    {
         chassis_behaviour_mode = CHASSIS_AGV_FOLLOW_CHASSIS_YAW;
-//    }
-//		//¸úËæÔÆÌ¨
-//    else if (switch_is_up(chassis_move_mode->chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
-//    {
-//        chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
-//    }
+    }
+		//¸úËæÔÆÌ¨
+    else if (switch_is_up(chassis_move_mode->get_gimbal_data->rc_data.rc_sl))//chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
+    {
+        chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
+    }
 
 //    //when gimbal in some mode, such as init mode, chassis must's move
 //    //µ±ÔÆÌ¨ÔÚÄ³Ð©Ä£Ê½ÏÂ£¬Ïñ³õÊ¼»¯£¬ µ×ÅÌ²»¶¯
@@ -71,17 +71,17 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 //        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW; 
 //    }
 //		
-//		//¸úËæµ×ÅÌ
-//		else if(chassis_behaviour_mode == CHASSIS_AGV_FOLLOW_CHASSIS_YAW)
-//		{
+		//¸úËæµ×ÅÌ
+		if(chassis_behaviour_mode == CHASSIS_AGV_FOLLOW_CHASSIS_YAW)
+		{
 			  chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW;
 
-//		}
-//		//¸úËæÔÆÌ¨
-//    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
-//    {
-//        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 
-//    }
+		}
+		//¸úËæÔÆÌ¨
+    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
+    {
+        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 
+    }
 //		//²»¸úËæÔÆÌ¨
 //    else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)
 //    {

@@ -16,18 +16,25 @@ typedef struct
 
 
 
+typedef struct
+{
+	int16_t gimbal_yaw;
+	int16_t gimbal_mode;
+	rc_data_t rc_data;
+}gimbal_data_t;
+
+
+
+
+void get_rc_data(gimbal_data_t *gimbal_data,uint8_t *buf);
+void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf);
 
 
 
 
 
-void get_rc_data(rc_data_t *rc_data,uint8_t *buf);
-
-
-
-
-
-extern rc_data_t rc_data;
+extern gimbal_data_t gimbal_data;
+const gimbal_data_t * get_gimbal_data_point(void);
 
 
 
