@@ -29,10 +29,7 @@ void imu_turn(void);
 
 void INS_task(void const * argument)
 {
-//	while(*get_ins_flag_point() != 1)
-//	{
-//		osDelay(100);
-//	}	
+
 	//bmi088≥ı ºªØ
 	while(BMI088_init())
 	{

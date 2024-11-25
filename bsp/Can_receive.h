@@ -42,8 +42,7 @@ typedef enum
 	
 	
 /*----------can1双板通信接收id---------*/
-	RC_ID = 0x111,
-	GIMBAL_ID = 0x222,
+	GIMBAL_ID = 0x111,
 } can_msg_id_e;
 
 

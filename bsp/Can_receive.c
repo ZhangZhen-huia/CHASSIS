@@ -77,13 +77,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 			case CAN_DRIVE_MOTOR4_ID:
 				get_motor_measure(&drive_motor[3],rx_data1);
 				detect_hook(DRIVE_MOTOR4_TOE);
-				break;
-			case RC_ID:
-				get_rc_data(&gimbal_data,rx_data1);
-				break;
+				break;				
 			case GIMBAL_ID:
 				get_gimbal_data(&gimbal_data,rx_data1);
-					break;
+				break;
+
 		}
 	}
 	else if(hcan->Instance==CAN2)

@@ -25,7 +25,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR1_ANGLE_PID_KP                 	10.0f//105
+#define COURSE_MOTOR1_ANGLE_PID_KP                 	4.0f//105
 #define COURSE_MOTOR1_ANGLE_PID_KI                	0.10f
 #define COURSE_MOTOR1_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR1_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -34,7 +34,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR1_SPEED_PID_KP                 	10.0f
+#define COURSE_MOTOR1_SPEED_PID_KP                 	150.0f
 #define COURSE_MOTOR1_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR1_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR1_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -53,7 +53,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR2_ANGLE_PID_KP                 	15.0f//20
+#define COURSE_MOTOR2_ANGLE_PID_KP                 	3.0f//20
 #define COURSE_MOTOR2_ANGLE_PID_KI                	0.10f
 #define COURSE_MOTOR2_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR2_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -62,7 +62,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR2_SPEED_PID_KP                 	65.0f
+#define COURSE_MOTOR2_SPEED_PID_KP                 	100.0f
 #define COURSE_MOTOR2_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR2_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR2_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -79,7 +79,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR3_ANGLE_PID_KP                 	20.0f//35
+#define COURSE_MOTOR3_ANGLE_PID_KP                 	3.0f//35
 #define COURSE_MOTOR3_ANGLE_PID_KI                	0.10f
 #define COURSE_MOTOR3_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR3_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -88,7 +88,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR3_SPEED_PID_KP                 	50.0f
+#define COURSE_MOTOR3_SPEED_PID_KP                 	250.0f
 #define COURSE_MOTOR3_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR3_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR3_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -98,7 +98,7 @@
 
 /* --------------------------------------舵轮4-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR4_SPEED_PID_KP                 0.0f
+#define DRIVE_MOTOR4_SPEED_PID_KP                 30000.0f
 #define DRIVE_MOTOR4_SPEED_PID_KI                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_MAX_OUT            16384.0f //最大输出值
@@ -107,7 +107,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR4_ANGLE_PID_KP                 	25.0f//11
+#define COURSE_MOTOR4_ANGLE_PID_KP                 	3.0f//11
 #define COURSE_MOTOR4_ANGLE_PID_KI                	0.10f
 #define COURSE_MOTOR4_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR4_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -116,7 +116,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR4_SPEED_PID_KP                 	40.0f
+#define COURSE_MOTOR4_SPEED_PID_KP                 	200.0f
 #define COURSE_MOTOR4_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR4_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR4_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -132,7 +132,7 @@ typedef enum
   CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
   CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW,  //chassis will have yaw angle(chassis_yaw) close-looped control.底盘有底盘角度控制闭环
   CHASSIS_VECTOR_NO_FOLLOW_YAW,       //chassis will have rotation speed control. 底盘有旋转速度控制
-  CHASSIS_VECTOR_RAW,                 //control-current will be sent to CAN bus derectly.
+  CHASSIS_VECTOR_ZERO_FORCE,                 //control-current will be sent to CAN bus derectly.
 
 } chassis_mode_e;
 
@@ -163,7 +163,6 @@ typedef struct
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_wz;  //一阶低通滤波减缓设定值
-	
 	fp32 course_angle[4];																//6020角度
   
   fp32 course_set_angle[4];       										//6020最终设定角度
@@ -174,7 +173,7 @@ typedef struct
 	
   chassis_mode_e chassis_mode;               					//底盘控制状态机
   chassis_mode_e last_chassis_mode;          					//底盘上次控制状态机
-	
+	int8_t drct;
 	fp32 vx_set;
 	fp32 vy_set;
 	fp32 wz_set;
