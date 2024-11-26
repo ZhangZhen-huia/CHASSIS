@@ -12,6 +12,15 @@
 #include "user_lib.h"
 #include "vofa_task.h"
 #include "user_task.h"
+/* --------------------------------------yaw轴-------------------------------------------------*/
+
+#define YAW_ANGLE_PID_KP                 0.2f
+#define YAW_ANGLE_PID_KI                 0.0f
+#define YAW_ANGLE_PID_KD                 0.0f
+#define YAW_PID_MAX_OUT            1.8f //最大输出值
+#define YAW_PID_MAX_IOUT           0.0f //最大输出电流
+
+
 
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
@@ -158,7 +167,7 @@ typedef struct
   pid_type_def chassis_drive_speed_pid[4];             //驱动电机速度pid
   pid_type_def chassis_course_angle_pid[4];            //航向电机角度pid
   pid_type_def chassis_course_speed_pid[4];						 //航向电机速度pid	
-	
+	pid_type_def yaw_pid;
 
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值

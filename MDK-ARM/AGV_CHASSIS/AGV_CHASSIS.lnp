@@ -25,6 +25,7 @@
 ".\agv_chassis\chassis_behaviour.o"
 ".\agv_chassis\chassis_task.o"
 ".\agv_chassis\user_task.o"
+".\agv_chassis\trig_task.o"
 ".\agv_chassis\bmi088driver.o"
 ".\agv_chassis\bmi088middleware.o"
 ".\agv_chassis\ahrs_middleware.o"

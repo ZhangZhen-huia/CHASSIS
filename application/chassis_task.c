@@ -100,6 +100,8 @@ static void chassis_init(chassis_move_t *init)
 																			 COURSE_MOTOR3_SPEED_PID_KP,COURSE_MOTOR3_SPEED_PID_KI,COURSE_MOTOR3_SPEED_PID_KD,
 																			 COURSE_MOTOR4_SPEED_PID_KP,COURSE_MOTOR4_SPEED_PID_KI,COURSE_MOTOR4_SPEED_PID_KD};
 	
+	static float YAW_ANGLE_PID[3] = {YAW_ANGLE_PID_KP,YAW_ANGLE_PID_KI,YAW_ANGLE_PID_KD};
+	
 	static float SPEED_PID_MAX_OUT_DRIVE[4]={DRIVE_MOTOR1_SPEED_PID_MAX_OUT,DRIVE_MOTOR2_SPEED_PID_MAX_OUT,DRIVE_MOTOR3_SPEED_PID_MAX_OUT,DRIVE_MOTOR4_SPEED_PID_MAX_OUT}; 
 	static float SPEED_PID_MAX_IOUT_DRIVE[4]={DRIVE_MOTOR1_SPEED_PID_MAX_IOUT,DRIVE_MOTOR2_SPEED_PID_MAX_IOUT,DRIVE_MOTOR3_SPEED_PID_MAX_IOUT,DRIVE_MOTOR4_SPEED_PID_MAX_IOUT}; 
 	
@@ -108,7 +110,8 @@ static void chassis_init(chassis_move_t *init)
 
 	static float ANGLE_PID_MAX_OUT_COURSE[4] = {COURSE_MOTOR1_ANGLE_PID_MAX_OUT,COURSE_MOTOR2_ANGLE_PID_MAX_OUT,COURSE_MOTOR3_ANGLE_PID_MAX_OUT,COURSE_MOTOR4_ANGLE_PID_MAX_OUT};
 	static float ANGLE_PID_MAX_IOUT_COURSE[4] = {COURSE_MOTOR1_ANGLE_PID_MAX_IOUT,COURSE_MOTOR2_ANGLE_PID_MAX_IOUT,COURSE_MOTOR3_ANGLE_PID_MAX_IOUT,COURSE_MOTOR4_ANGLE_PID_MAX_IOUT};
-
+	
+	static float YAW_PID_MAX[2] = {YAW_PID_MAX_OUT,YAW_PID_MAX_IOUT};
 	const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
   const static fp32 chassis_y_order_filter[1] = {CHASSIS_ACCEL_Y_NUM};
   const static fp32 chassis_w_order_filter[1] = {CHASSIS_ACCEL_W_NUM};
@@ -118,6 +121,9 @@ static void chassis_init(chassis_move_t *init)
 	init->chassis_RC=get_remote_control_point();
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
+	
+	PID_init(&init->yaw_pid,PID_POSITION,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
+
 	//初始化驱动速度PID 并获取电机数据
 	for(i=0;i<4;i++)
 	{
@@ -273,7 +279,7 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
 		yaw_diff = feedback_update->chassis_yaw;
 	else if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
-		yaw_diff = feedback_update->get_gimbal_data->gimbal_yaw - feedback_update->chassis_yaw;
+		yaw_diff = feedback_update->get_gimbal_data->gimbal_yaw- feedback_update->chassis_yaw;
 	
 	
 	for(i=0;i<4;i++)
@@ -307,11 +313,13 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//跟随云台yaw
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
-			fp32 angle_diff=yaw_diff* PI / 180.0f;
-			chassis_move_control->vx_set = -vx_set * cos(angle_diff) + vy_set * sin(angle_diff);
-			chassis_move_control->vy_set = -vx_set * sin(angle_diff) - vy_set * cos(angle_diff);
-
-			chassis_move_control->wz_set = 0;//yaw_diff*0.01f;
+			fp32 angle_diff=rad_format(yaw_diff* PI / 180.0f+1.57f);
+			chassis_move_control->vx_set = -vx_set * cos(-angle_diff) + vy_set * sin(-angle_diff);
+			chassis_move_control->vy_set = -vx_set * sin(-angle_diff) - vy_set * cos(-angle_diff);
+			
+			 PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
+			
+			chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
 
 			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
 			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);

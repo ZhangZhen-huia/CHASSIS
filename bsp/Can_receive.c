@@ -19,7 +19,7 @@
 
 
 
-motor_measure_t drive_motor[4], course_motor[4];
+motor_measure_t drive_motor[4], course_motor[4],trigger_motor;
 uint8_t rx_data1[8],rx_data2[8];
 
 
@@ -108,6 +108,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 				get_motor_measure(&course_motor[3],rx_data2);
 				detect_hook(COURSE_MOTOR4_TOE);
 				break;
+			case TRIG_MOTOR_ID:
+				get_motor_measure(&trigger_motor,rx_data2);
+			break;
 		}
 	}
 }
@@ -166,7 +169,24 @@ void CAN_cmd_course(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 }
 
 
+void CAN_cmd_trig(int16_t current)
+{
+	uint32_t send_mail_box;
+	CAN_TxHeaderTypeDef chassis_tx_message;
+	uint8_t    chassis_can_send_data[2];
+	
+  chassis_tx_message.StdId = CAN_TRIG_CMD_ID;
+  chassis_tx_message.IDE = CAN_ID_STD;
+  chassis_tx_message.RTR = CAN_RTR_DATA;
+  chassis_tx_message.DLC = 0x02;
+	
+	chassis_can_send_data[0] = (current >> 8);
+  chassis_can_send_data[1] = current;
+	
+  HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 
+	
+}
 
 
 /**
@@ -190,4 +210,9 @@ const motor_measure_t *get_chassis_course_motor_measure_point(uint8_t i)
 }
 
 
+//trigger
+const motor_measure_t *get_gimbal_trigger_motor_measure_point(void)
+{
+    return &trigger_motor;
+}
 

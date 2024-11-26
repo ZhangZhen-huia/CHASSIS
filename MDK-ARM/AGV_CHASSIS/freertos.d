@@ -50,3 +50,10 @@
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\freertos.o: ../Inc/tim.h
+.\agv_chassis\freertos.o: ../application/remote_control.h
+.\agv_chassis\freertos.o: ../bsp/boards/bsp_rc.h
+.\agv_chassis\freertos.o: ../application/trig_task.h
+.\agv_chassis\freertos.o: ../components/controller/pid.h
+.\agv_chassis\freertos.o: ../bsp/Can_receive.h
+.\agv_chassis\freertos.o: ../Inc/can.h
+.\agv_chassis\freertos.o: ../application/user_task.h

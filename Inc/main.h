@@ -43,7 +43,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+extern EventGroupHandle_t my_shootEventGroupHandle;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

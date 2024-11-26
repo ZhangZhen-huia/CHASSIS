@@ -4,6 +4,7 @@
 
 #include "main.h"
 
+
 typedef struct
 {
 	int16_t vx_set;
@@ -28,7 +29,6 @@ typedef struct
 
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf);
-void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf);
 
 bool_t rc_is_error(void);
 
@@ -37,6 +37,7 @@ bool_t rc_is_error(void);
 
 extern gimbal_data_t gimbal_data;
 const gimbal_data_t * get_gimbal_data_point(void);
+const rc_data_t * get_gimbal_rc_data_point(void);
 
 
 

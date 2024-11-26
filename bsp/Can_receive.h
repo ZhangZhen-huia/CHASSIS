@@ -26,6 +26,7 @@ typedef enum
 	/*---6020---*/
 	CAN_CHASSIS_COURSE_ALL_ID = 0x1FF,
 	
+	CAN_TRIG_CMD_ID = 0x200,
 	
 /*----------can1接收id----------*/
 	CAN_DRIVE_MOTOR1_ID = 0x201,
@@ -38,7 +39,7 @@ typedef enum
 	CAN_COURSE_MOTOR2_ID = 0x206,
 	CAN_COURSE_MOTOR3_ID = 0x207,
 	CAN_COURSE_MOTOR4_ID = 0x208,
-	
+	TRIG_MOTOR_ID = 0x201,
 	
 	
 /*----------can1双板通信接收id---------*/
@@ -50,6 +51,8 @@ typedef enum
 
 
 void canfilter_init_start(void);
+const motor_measure_t *get_gimbal_trigger_motor_measure_point(void);
+void CAN_cmd_trig(int16_t current);
 
 const motor_measure_t *get_chassis_drive_motor_measure_point(uint8_t ID);
 const motor_measure_t *get_chassis_course_motor_measure_point(uint8_t ID);

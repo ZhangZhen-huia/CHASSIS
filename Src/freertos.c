@@ -28,6 +28,8 @@
 
 #include "event_groups.h"
 #include "tim.h"
+#include "remote_control.h"
+#include "trig_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +60,8 @@ osThreadId INS_TASKHandle;
 osThreadId DETECT_TASKHandle;
 osThreadId VOFA_TASKHandle;
 osThreadId USER_TASKHandle;
+osThreadId TRIG_TASKHandle;
+osTimerId ShootTimerHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -70,6 +74,8 @@ void INS_task(void const * argument);
 void detect_task(void const * argument);
 void vofa_task(void const * argument);
 void user_task(void const * argument);
+void trig_task(void const * argument);
+void ShootTimer_Callback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -128,6 +134,11 @@ void MX_FREERTOS_Init(void) {
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* definition and creation of ShootTimer */
+  osTimerDef(ShootTimer, ShootTimer_Callback);
+  ShootTimerHandle = osTimerCreate(osTimer(ShootTimer), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
@@ -160,6 +171,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of USER_TASK */
   osThreadDef(USER_TASK, user_task, osPriorityBelowNormal, 0, 256);
   USER_TASKHandle = osThreadCreate(osThread(USER_TASK), NULL);
+
+  /* definition and creation of TRIG_TASK */
+  osThreadDef(TRIG_TASK, trig_task, osPriorityNormal, 0, 128);
+  TRIG_TASKHandle = osThreadCreate(osThread(TRIG_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -274,6 +289,36 @@ __weak void user_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END user_task */
+}
+
+/* USER CODE BEGIN Header_trig_task */
+/**
+* @brief Function implementing the TRIG_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_trig_task */
+__weak void trig_task(void const * argument)
+{
+  /* USER CODE BEGIN trig_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END trig_task */
+}
+
+/* ShootTimer_Callback function */
+void ShootTimer_Callback(void const * argument)
+{
+  /* USER CODE BEGIN ShootTimer_Callback */
+	if(switch_is_up(trig_control.rc_data->rc_sl))
+	{
+		//xEventGroupSetBits(my_shootEventGroupHandle,ShootEvent_1);
+		trig_control.trig_fire_mode = Serial_fire;
+	}
+  /* USER CODE END ShootTimer_Callback */
 }
 
 /* Private application code --------------------------------------------------*/
