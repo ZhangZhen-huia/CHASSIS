@@ -19,7 +19,7 @@
 
 
 
-motor_measure_t drive_motor[4], course_motor[4],trigger_motor;
+motor_measure_t drive_motor[4], course_motor[4],trigger_motor,yaw_motor;
 uint8_t rx_data1[8],rx_data2[8];
 
 
@@ -81,6 +81,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 			case GIMBAL_ID:
 				get_gimbal_data(&gimbal_data,rx_data1);
 				break;
+			case 0x209:
+				get_motor_measure(&yaw_motor,rx_data1);
+			break;
 
 		}
 	}

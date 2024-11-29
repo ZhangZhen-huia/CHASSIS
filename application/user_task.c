@@ -1,7 +1,7 @@
 #include "user_task.h"
 #include "remote_control.h"
 #include "can.h"
-
+#include "user_lib.h"
 
 
 gimbal_data_t gimbal_data;
@@ -31,7 +31,7 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 	gimbal_data->rc_err 					= buf[3];
 	gimbal_data->rc_data.rc_sl 		= buf[4];
 	gimbal_data->rc_data.rc_sr 		= buf[5];
-	gimbal_data->gimbal_yaw 			= (buf[6]/100.0f*8.0f-3.14f)*57.2957795f;//*57.2957795f*4.0f/200.0f;
+	gimbal_data->gimbal_yaw 			= theta_format(buf[6]*255.0f-180);///100.0f*4.0f-3.14f)*57.2957795f;//*57.2957795f*4.0f/200.0f;
 	gimbal_data->gimbal_mode 			= buf[7];
 }
 

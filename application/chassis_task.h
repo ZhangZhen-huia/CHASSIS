@@ -14,10 +14,10 @@
 #include "user_task.h"
 /* --------------------------------------yaw轴-------------------------------------------------*/
 
-#define YAW_ANGLE_PID_KP                 0.2f
+#define YAW_ANGLE_PID_KP                 0.3f
 #define YAW_ANGLE_PID_KI                 0.0f
 #define YAW_ANGLE_PID_KD                 0.0f
-#define YAW_PID_MAX_OUT            1.8f //最大输出值
+#define YAW_PID_MAX_OUT            1.80f //最大输出值
 #define YAW_PID_MAX_IOUT           0.0f //最大输出电流
 
 
@@ -135,7 +135,6 @@
 
 
 
-
 typedef enum
 {
   CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
@@ -172,22 +171,20 @@ typedef struct
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_wz;  //一阶低通滤波减缓设定值
-	fp32 course_angle[4];																//6020角度
-  
+	
+	fp32 course_angle[4];																//6020角度 
   fp32 course_set_angle[4];       										//6020最终设定角度
 	fp32 course_set_last_angle[4];       								//6020上次设定角度
-
   fp32 drive_set_speed[4]; 														//3508最终计算出的速度	
 
 	
   chassis_mode_e chassis_mode;               					//底盘控制状态机
   chassis_mode_e last_chassis_mode;          					//底盘上次控制状态机
 	int8_t drct;
-	fp32 vx_set;
-	fp32 vy_set;
-	fp32 wz_set;
-	
-	uint8_t angle_ready;        												//3508等待6020转动到指定角度标志位
+	fp32 vx_set;																				// m/s
+	fp32 vy_set;																				// m/s
+	fp32 wz_set;																				// m/s
+	fp32 wz_rad;																				// rad/s
 	
 	
 	fp32 vx_max_speed;  //前进方向最大速度 单位m/s
@@ -226,40 +223,43 @@ extern chassis_move_t chassis_move;//底盘运动数据
 #define HALF_ECD_RANGE  4096
 #define ECD_RANGE       8191
 
-
-//m3508转化成底盘速度(m/s)的比例-->1.840825  m/s
-#define M3508_MOTOR_RPM_TO_VECTOR 2.066837236842105e-4	//2*PI*R/60/19
+//1:14减速比
+#define M3508_MOTOR_RPM_TO_VECTOR 	WHEEL_CIRCUMFERENCE/60.0f/14	
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
-#define M3508_MOTOR_VECTOR_TO_RPM 254.6479132908f
 
 
-//小陀螺半径 m 
-#define MOTOR_DISTANCE_TO_CENTER 0.235619445f
+//轮距300mm 0.3m
+#define TRACK_WIDTH							0.3f
+//轴距300mm 0.3m
+#define WHEEL_BASE							0.3f
+
+//小陀螺半径 m 车体是正方形则直接×1.414
+#define MOTOR_DISTANCE_TO_CENTER 	WHEEL_BASE/2.0f*1.414f
 
 //小陀螺周长
-#define SMALL_TOP_CIRCUMFERENCE	 	MOTOR_DISTANCE_TO_CENTER*2*3.1415926f			//1.480440609656214f
+#define SMALL_TOP_CIRCUMFERENCE	 	MOTOR_DISTANCE_TO_CENTER*2*3.1415926f			
 
-//轮子半径  m
-#define WHEEL_HALF_SIZE 	0.0375f
+//轮子半径  m 
+#define WHEEL_HALF_SIZE 	0.054f
 
 //轮子周长	m
-#define WHEEL_CIRCUMFERENCE				0.235619445f          //WHEEL_HALF_SIZE*2*3.1415926f  	
+#define WHEEL_CIRCUMFERENCE				WHEEL_HALF_SIZE*2*3.1415926f  	
 
-//前进最大速度  1.84175866175m/s   --8911
+//前进最大速度  3.597498/s   --8911
 //									0						0
-#define NORMAL_MAX_CHASSIS_SPEED_X 1.840f
-#define NORMAL_MAX_CHASSIS_SPEED_Y 1.840f
-#define NORMAL_MAX_CHASSIS_SPEED_W 1.840f
+#define NORMAL_MAX_CHASSIS_SPEED_X 3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_Y 3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_W 3.597498f
 
-//减速比19，rpm: 圈/min
+//减速比14，rpm: 圈/min
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例	
-#define CHASSIS_VX_RC_SEN             0.0027272727272727
+#define CHASSIS_VX_RC_SEN            0.0054507f
 
 //遥控器左右摇杆（max 660）转化成车体左右速度（m/s）的比例
-#define CHASSIS_VY_RC_SEN 					 0.0027272727272727 
+#define CHASSIS_VY_RC_SEN 					 0.0054507f
 
 //不跟随云台的时候 遥控器的yaw遥杆（max 660）转化成车体旋转速度的比例
-#define CHASSIS_WZ_RC_SEN 					  0.0027272727272727		
+#define CHASSIS_WZ_RC_SEN 					 0.0054507f
 
 
 #define CHASSIS_TASK_INIT_TIME 1000
@@ -282,6 +282,10 @@ extern chassis_move_t chassis_move;//底盘运动数据
 //选择底盘状态 开关通道号
 #define CHASSIS_MODE_CHANNEL 0
 
+//电机编码值转化成角度值
+#ifndef MOTOR_ECD_TO_RAD
+#define MOTOR_ECD_TO_RAD 0.0439453125f //      2*  PI  /8192
+#endif
 /**
   * @brief          底盘任务，间隔 CHASSIS_CONTROL_TIME_MS 2ms
   * @param[in]      pvParameters: 空

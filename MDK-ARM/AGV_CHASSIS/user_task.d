@@ -52,3 +52,4 @@
 .\agv_chassis\user_task.o: ..\application\remote_control.h
 .\agv_chassis\user_task.o: ../bsp/boards/bsp_rc.h
 .\agv_chassis\user_task.o: ../Inc/can.h
+.\agv_chassis\user_task.o: ../components/algorithm/user_lib.h

@@ -48,7 +48,7 @@ typedef enum
 
 
 
-
+extern motor_measure_t yaw_motor;
 
 void canfilter_init_start(void);
 const motor_measure_t *get_gimbal_trigger_motor_measure_point(void);

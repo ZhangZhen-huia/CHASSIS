@@ -102,7 +102,7 @@ int main(void)
 	remote_control_init();
 	Buzzer_Init();
 	canfilter_init_start();
-
+	
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

@@ -29,11 +29,11 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 chassis_move_t chassis_move;
 
 
-static fp32 COURSE_INIT_ECD[4] = {4355.0f,3737.0f,3098.0f,5020.0f};
+static fp32 COURSE_INIT_ECD[4] = {4362.0f,3693.0f,3132.0f,5025.0f};
 
 
 fp32 yaw_diff=0;
-
+fp32 gimbal_yaw_init=0;
 //底盘总任务
 void chassis_task(void const * argument)
 {
@@ -117,11 +117,9 @@ static void chassis_init(chassis_move_t *init)
   const static fp32 chassis_w_order_filter[1] = {CHASSIS_ACCEL_W_NUM};
 	
 	
-	init->angle_ready=0;
 	init->chassis_RC=get_remote_control_point();
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
-	
 	PID_init(&init->yaw_pid,PID_POSITION,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
 
 	//初始化驱动速度PID 并获取电机数据
@@ -155,6 +153,7 @@ static void chassis_init(chassis_move_t *init)
   init->wz_max_speed = NORMAL_MAX_CHASSIS_SPEED_W;
   init->wz_min_speed = -NORMAL_MAX_CHASSIS_SPEED_W;
 	
+	gimbal_yaw_init = init->get_gimbal_data->gimbal_yaw;
 	//更新底盘数据
 	chassis_feedback_update(init);
 }
@@ -256,6 +255,26 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 
 
 }
+/**
+  * @brief          计算ecd与offset_ecd之间的相对角度
+  * @param[in]      ecd: 电机当前编码
+  * @param[in]      offset_ecd: 电机中值编码
+  * @retval         相对角度，单位rad
+  */
+static fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd)
+{
+    int32_t relative_ecd = ecd - offset_ecd;
+    if (relative_ecd > HALF_ECD_RANGE)
+    {
+        relative_ecd -= ECD_RANGE;
+    }
+    else if (relative_ecd < -HALF_ECD_RANGE)
+    {
+        relative_ecd += ECD_RANGE;
+    }
+
+    return relative_ecd * MOTOR_ECD_TO_RAD;
+}
 
 
 /**
@@ -267,19 +286,21 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 {
 	uint8_t i = 0;
 	
-	//更新驱动电机实际速度-->额定1.84m/s
+	//更新驱动电机实际速度-->额定3.54m/s
 	for (i = 0; i < 4; i++)
 	{
-		feedback_update->motor_chassis[i].speed = feedback_update->motor_chassis[i].chassis_motor_measure->rpm * CHASSIS_MOTOR_RPM_TO_VECTOR_SEN;
+		feedback_update->motor_chassis[i].speed = feedback_update->motor_chassis[i].chassis_motor_measure->rpm * (CHASSIS_MOTOR_RPM_TO_VECTOR_SEN);
 	}
+	
+	feedback_update->wz_rad = feedback_update->chassis_bmi088_data->gyro[INS_GYRO_X_ADDRESS_OFFSET];
 	
 	feedback_update->chassis_yaw = feedback_update->chassis_bmi088_data->INS_angle[INS_YAW_ADDRESS_OFFSET];
 
 	
-	if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
-		yaw_diff = feedback_update->chassis_yaw;
-	else if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
-		yaw_diff = feedback_update->get_gimbal_data->gimbal_yaw- feedback_update->chassis_yaw;
+//	if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
+//		yaw_diff = theta_format(feedback_update->chassis_yaw);
+//	else if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
+		yaw_diff = motor_ecd_to_angle_change(yaw_motor.ecd,3170);//theta_format(feedback_update->get_gimbal_data->gimbal_yaw - feedback_update->chassis_yaw);
 	
 	
 	for(i=0;i<4;i++)
@@ -304,7 +325,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
         return;
     }
 			//设置速度
-
+		
     fp32 vx_set = 0.0f, vy_set = 0.0f, wz_set = 0.0f;
 
 			//根据底盘状态设置来计算vx_set，vy_set，wz_set
@@ -313,28 +334,32 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//跟随云台yaw
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
-			fp32 angle_diff=rad_format(yaw_diff* PI / 180.0f+1.57f);
-			chassis_move_control->vx_set = -vx_set * cos(-angle_diff) + vy_set * sin(-angle_diff);
-			chassis_move_control->vy_set = -vx_set * sin(-angle_diff) - vy_set * cos(-angle_diff);
-			
-			 PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
-			
-			chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
-
+			fp32 angle_diff=rad_format(yaw_diff* PI / 180.0f);
+			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+			if(fabs(angle_diff*57.2957f)>10)
+			{
+				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
+				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
+			}
+			else
+				chassis_move_control->wz_set=0;
+		
 			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
 			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
 			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 			
 		}
 		
-		//跟随底盘yaw
+		//不跟随云台
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
 		{
 			 fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
-			 chassis_move_control->vx_set = -vx_set * cos(angle_diff) + vy_set * sin(angle_diff);
-			 chassis_move_control->vy_set = -vx_set * sin(angle_diff) - vy_set * cos(angle_diff);
-			 chassis_move_control->wz_set = wz_set;
+			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+			 chassis_move_control->wz_set = 0.5f;
+		
 				
 				
 			 chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);

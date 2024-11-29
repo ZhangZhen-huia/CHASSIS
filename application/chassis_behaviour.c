@@ -1,7 +1,8 @@
+#include "stdlib.h"
 #include "chassis_behaviour.h"
 #include "chassis_task.h"
 #include "user_task.h"
-
+#include "time.h"
 static void chassis_zero_force_control(fp32 *vx_can_set, fp32 *vy_can_set, fp32 *wz_can_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_agv_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
@@ -205,7 +206,7 @@ static void chassis_agv_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, f
     }
 
     chassis_rc_to_control_vector(vx_set,vy_set,wz_set,chassis_move_rc_to_vector);
-
+//		*wz_set =rand();
 //		chassis_move_rc_to_vector->absolute_chassis_speed.Vx = *vx_set;
 //		chassis_move_rc_to_vector->absolute_chassis_speed.Vy = *vy_set;
 //		chassis_move_rc_to_vector->absolute_chassis_speed.Wz = *wz_set;

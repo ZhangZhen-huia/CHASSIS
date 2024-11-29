@@ -1,4 +1,5 @@
 .\agv_chassis\chassis_behaviour.o: ..\application\chassis_behaviour.c
+.\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdlib.h
 .\agv_chassis\chassis_behaviour.o: ..\application\chassis_behaviour.h
 .\agv_chassis\chassis_behaviour.o: ../Inc/main.h
 .\agv_chassis\chassis_behaviour.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
@@ -64,3 +65,4 @@
 .\agv_chassis\chassis_behaviour.o: ..\application\vofa_task.h
 .\agv_chassis\chassis_behaviour.o: ../Inc/usart.h
 .\agv_chassis\chassis_behaviour.o: ..\application\user_task.h
+.\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\time.h
