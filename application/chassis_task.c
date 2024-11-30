@@ -334,10 +334,17 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//¸úËæÔÆÌ¨yaw
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
-			fp32 angle_diff=rad_format(yaw_diff* PI / 180.0f);
+			static fp32 last_angle_diff;
+			fp32 angle_diff;
+			
+			last_angle_diff = angle_diff;
+			angle_diff=rad_format(yaw_diff* PI / 180.0f);
+			
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			if(fabs(angle_diff*57.2957f)>10)
+			
+			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 5)
+			//if(fabs(angle_diff*57.2957f)>10)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
