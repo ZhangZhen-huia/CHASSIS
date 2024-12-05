@@ -1,9 +1,11 @@
 #include "trig_task.h"
 #include "tim.h"
-#include "user_task.h"
+#include "communicate_task.h"
+#include "detect_task.h"
 
-
+#ifdef CASCADE
 static int64_t  trig_ecd_sum=0;
+#endif
 
 shoot_control_t trig_control;
 
@@ -13,9 +15,11 @@ static void trig_feedback_update(shoot_control_t *feedback_update);
 static void trig_motor_control(shoot_control_t * control_loop);
 static void shoot_control_loop(shoot_control_t *control_loop);
 void shoot_trig_motor_mode_set(shoot_control_t *shoot_mode);
-int64_t trig_block_detect(shoot_control_t * control_loop,int64_t angle_set);
+int64_t trig_block_detect_cascade(shoot_control_t * control_loop,int64_t angle_set);
 static void shoot_motor_control(shoot_motor_t *shoot_motor);
 static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour);
+static fp32 trig_block_detect_single(shoot_control_t * control_loop);
+bool_t trig_detect(void);
 
 
 
@@ -25,6 +29,12 @@ void trig_task(void const * argument)
 
     trig_init(&trig_control);
 
+		
+		//判断拨弹盘2006电机是否在线
+		while(trig_detect())
+		{
+			vTaskDelay(TRIG_TASK_CONTROL_TIME);
+		}
 		while(1)
 		{
 		  trig_feedback_update(&trig_control);			//发射电机数据更新
@@ -57,8 +67,9 @@ void trig_task(void const * argument)
   */
 static void trig_init(shoot_control_t *shoot_init)
 {
-	static const fp32 Shoot_trig_speed_pid[3] = {TRIG_SPEED_PID_KP,TRIG_SPEED_PID_KI,TRIG_SPEED_PID_KD};
-	static const fp32 Shoot_trig_angle_pid[3] = {TRIG_ANGLE_PID_KP,TRIG_ANGLE_PID_KI,TRIG_ANGLE_PID_KD};
+	static const fp32 Shoot_trig_speed_pid_cascade[3] = {TRIG_SPEED_PID_KP_CASCADE,TRIG_SPEED_PID_KI_CASCADE,TRIG_SPEED_PID_KD_CASCADE};
+	static const fp32 Shoot_trig_angle_pid_cascade[3] = {TRIG_ANGLE_PID_KP_CASCADE,TRIG_ANGLE_PID_KI_CASCADE,TRIG_ANGLE_PID_KD_CASCADE};
+	static const fp32 Shoot_trig_speed_pid_single[3]	= {TRIG_SPEED_PID_KP_SINGLE,TRIG_SPEED_PID_KI_SINGLE,TRIG_SPEED_PID_KD_SINGLE};
 	
 	shoot_init->shoot_trig_motor.shoot_motor_measure = get_gimbal_trigger_motor_measure_point();
 	
@@ -66,8 +77,10 @@ static void trig_init(shoot_control_t *shoot_init)
 	shoot_init->rc_data = get_gimbal_rc_data_point();
 
 	//初始化Trig电机速度pid
-	K_FF_init(&shoot_init->shoot_trig_motor.shoot_speed_pid,PID_POSITION,Shoot_trig_speed_pid,TRIG_SPEED_PID_MAX_OUT,TRIG_SPEED_PID_MAX_IOUT,TRIG_SPEED_KF_STATIC,TRIG_SPEED_KF_DYNAMIC);
-	K_FF_init(&shoot_init->shoot_trig_motor.shoot_angle_pid,PID_POSITION,Shoot_trig_angle_pid,TRIG_ANGLE_PID_MAX_OUT,TRIG_ANGLE_PID_MAX_IOUT,TRIG_ANGLE_KF_STATIC,TRIG_ANGLE_KF_DYNAMIC);
+	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_cascade,TRIG_SPEED_PID_MAX_OUT_CASCADE,TRIG_SPEED_PID_MAX_IOUT_CASCADE);
+	PID_init(&shoot_init->shoot_trig_motor.shoot_angle_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_angle_pid_cascade,TRIG_ANGLE_PID_MAX_OUT_CASCADE,TRIG_ANGLE_PID_MAX_IOUT_CASCADE);
+	
+	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_single,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_single,TRIG_SPEED_PID_MAX_OUT_SINGLE,TRIG_SPEED_PID_MAX_OUT_SINGLE);
 	
 	shoot_init->trig_fire_mode = Cease_fire;
 	
@@ -77,7 +90,7 @@ static void trig_init(shoot_control_t *shoot_init)
 
 static void trig_feedback_update(shoot_control_t *feedback_update)
 {
-	feedback_update->shoot_trig_motor.motor_speed = feedback_update->shoot_trig_motor.shoot_motor_measure->rpm;//*TRIG_RPM_TO_SPEED_SEN;//rpm最大14000以上
+	feedback_update->shoot_trig_motor.motor_speed = feedback_update->shoot_trig_motor.shoot_motor_measure->rpm*TRIG_RPM_TO_SPEED_SEN;
 
 }
 
@@ -106,18 +119,22 @@ static void shoot_control_loop(shoot_control_t *control_loop)
   */
 static void trig_motor_control(shoot_control_t * control_loop)
 {
+	shoot_trig_motor_mode_set(control_loop);
+#ifdef CASCADE
 	static int16_t trig_ecd_error;
 	
-	shoot_trig_motor_mode_set(control_loop);
-
 	//拨弹盘过零检测
 	trig_ecd_error = control_loop->shoot_trig_motor.shoot_motor_measure->ecd -control_loop->shoot_trig_motor.shoot_motor_measure->last_ecd;
 	trig_ecd_error = trig_ecd_error >  4095 ?   trig_ecd_error - 8191 : trig_ecd_error;
 	trig_ecd_error = trig_ecd_error < -4095 ?   trig_ecd_error + 8191 : trig_ecd_error;
 	trig_ecd_sum += trig_ecd_error;
 	
-	trig_ecd_sum = trig_block_detect(control_loop,trig_ecd_sum);
+	trig_ecd_sum = trig_block_detect_cascade(control_loop,trig_ecd_sum);
 	
+#else
+	control_loop->shoot_trig_motor.motor_speed_set = trig_block_detect_single(control_loop);
+	
+#endif
 }
 
 
@@ -127,7 +144,7 @@ static void trig_motor_control(shoot_control_t * control_loop)
 	* @param[out]     angle_set:圈数设置量
   * @retval         圈数设置量
   */
-int64_t trig_block_detect(shoot_control_t * control_loop,int64_t angle_set)
+int64_t trig_block_detect_cascade(shoot_control_t * control_loop,int64_t angle_set)
 {
 	EventBits_t shootEnevnt_rec;
 	shootEnevnt_rec = xEventGroupWaitBits(my_shootEventGroupHandle,ShootEvent_1,pdTRUE,pdFALSE,0); 
@@ -162,6 +179,77 @@ int64_t trig_block_detect(shoot_control_t * control_loop,int64_t angle_set)
 }
 
 
+
+static fp32 trig_block_detect_single(shoot_control_t * control_loop)
+{
+	static fp32 trig_speed_set;
+	static uint8_t block_flag = 0;
+	static uint16_t block_counter = 0;
+	 
+	//拨弹盘转一圈拨出去8个
+	//2006减速比为36:1
+	//rpm/60/36 为拨弹盘一秒转的圈数
+	//*8等于一秒发弹
+	//
+	//开火
+	if(control_loop->trig_fire_mode != Cease_fire)
+	{
+		if(block_flag == 0)
+		{
+			trig_speed_set = TRIG_BASE_SPEED;
+		}
+
+		//未堵转
+		if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm>20 && block_flag == 0)
+		{
+			trig_speed_set = TRIG_BASE_SPEED;
+			block_counter = 0;
+		}
+		//堵转
+		else if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm>0 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm<20 && block_flag == 0)
+		{
+				trig_speed_set = TRIG_BASE_SPEED;
+				block_counter++;
+				if( block_counter >= 10 ) 
+			    {
+				   block_flag = 1;//堵转了
+				   block_counter = 150;//反转计次
+			    }
+
+		}
+		//确认堵转
+		else if(block_flag != 0)
+		{
+			trig_speed_set = -TRIG_BASE_SPEED;
+			block_counter--;
+			if(block_counter <=0)
+			{
+				block_flag = 0;
+				block_counter = 0;
+			}
+			//反转的时候堵转了
+			if(block_flag == 1 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm<0 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm>-20)
+			{
+				block_flag = 0;
+				block_counter = 0;
+				trig_speed_set = TRIG_BASE_SPEED;
+			}
+		}
+
+	}
+	//不开火
+	else 
+	{
+			trig_speed_set = 0;
+	}
+	
+	//遥控器掉线
+	if(rc_is_error())
+		trig_speed_set = 0;
+	
+	return trig_speed_set;
+}
+
 /**
   * @brief          控制循环，根据控制设定值，计算电机电流值，进行控制
   * @param[out]     shoot_motor:"shoot_motor_t"变量指针.
@@ -173,75 +261,109 @@ static void shoot_motor_control(shoot_motor_t *shoot_motor)
     {
         return;
     }
-
-		shoot_motor->motor_speed_set = K_FF_Cal(&shoot_motor->shoot_angle_pid,trig_ecd_sum,0/*trig_angle_set*8191*/);
-		shoot_motor->current_set = K_FF_Cal(&shoot_motor->shoot_speed_pid,shoot_motor->shoot_motor_measure->rpm,shoot_motor->motor_speed_set);
-	
-
+#ifdef CASCADE
+		shoot_motor->motor_speed_set = PID_calc(&shoot_motor->shoot_angle_pid_cascade,trig_ecd_sum,0/*trig_angle_set*8191*/);
+		shoot_motor->current_set = PID_calc(&shoot_motor->shoot_speed_pid_cascade,shoot_motor->shoot_motor_measure->rpm,shoot_motor->motor_speed_set);
+#else
+		shoot_motor->current_set = PID_calc(&shoot_motor->shoot_speed_pid_single,shoot_motor->motor_speed,shoot_motor->motor_speed_set);
+#endif
 
 }
 
-extern osTimerId ShootTimerHandle;
 
 
+
+
+
+//static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
+//{
+//	if(switch_is_mid(shoot_behaviour->rc_data->rc_sr))
+//	{
+//		if(switch_is_up(shoot_behaviour->rc_data->rc_sl))
+//		{
+//			shoot_behaviour->trig_fire_mode = Serial_fire;
+//		}
+//		else if(switch_is_down(shoot_behaviour->rc_data->rc_sl))
+//		{
+//			shoot_behaviour->trig_fire_mode = Single_fire;
+//		}
+//		else if(switch_is_mid(shoot_behaviour->rc_data->rc_sl))
+//		{
+//			shoot_behaviour->trig_fire_mode = Cease_fire;
+//		}
+//	}
+//	else
+//	{
+//			shoot_behaviour->trig_fire_mode = Cease_fire;
+//	}
+//	if (rc_is_error())
+//	{
+//		shoot_behaviour->trig_fire_mode = Cease_fire;
+//	}
+
+//	shoot_behaviour->last_trig_fire_mode = shoot_behaviour->trig_fire_mode;
+//}
 
 
 static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
 {
+#ifdef CASCADE
+	static uint8_t first=1;
 	if(switch_is_mid(shoot_behaviour->rc_data->rc_sr))
 	{
 		if(switch_is_up(shoot_behaviour->rc_data->rc_sl))
 		{
+			if(first)
+			{
+				osTimerStart(ShootTimerHandle,500);
+				first=0;
+			}
+			if(shoot_behaviour->last_trig_fire_mode == Cease_fire)
+			shoot_behaviour->trig_fire_mode = Single_fire;
+
+		}
+	}
+//	else if(switch_is_down(shoot_behaviour->rc_data->rc_sl))
+//	{
+//		first=1;
+//		shoot_behaviour->trig_fire_mode = Cease_fire;
+//	}
+	else
+	{
+		first=1;
+		shoot_behaviour->trig_fire_mode = Cease_fire;
+	}
+	if(rc_is_error())
+	{
+		first=1;
+		shoot_behaviour->trig_fire_mode = Cease_fire;
+	}
+	
+#else
+	if(switch_is_mid(shoot_behaviour->rc_data->rc_sr))
+	{
+		if(switch_is_mid(shoot_behaviour->rc_data->rc_sl))
+		{
 			shoot_behaviour->trig_fire_mode = Serial_fire;
 		}
-		else if(switch_is_down(shoot_behaviour->rc_data->rc_sl))
-		{
-			shoot_behaviour->trig_fire_mode = Single_fire;
-		}
-		else if(switch_is_mid(shoot_behaviour->rc_data->rc_sl))
+		else
 		{
 			shoot_behaviour->trig_fire_mode = Cease_fire;
 		}
 	}
 	else
 	{
-			shoot_behaviour->trig_fire_mode = Cease_fire;
+		shoot_behaviour->trig_fire_mode = Cease_fire;
 	}
-	if (rc_is_error())
+	if(rc_is_error())
 	{
 		shoot_behaviour->trig_fire_mode = Cease_fire;
 	}
-
+	
+#endif
+	
 	shoot_behaviour->last_trig_fire_mode = shoot_behaviour->trig_fire_mode;
 }
-
-
-//static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
-//{
-//	static uint8_t first=1;
-//	if(switch_is_up(shoot_behaviour->rc_data->rc_sl))
-//	{
-//		if(first)
-//		{
-//			osTimerStart(ShootTimerHandle,500);
-//			first=0;
-//		}
-//		if(shoot_behaviour->last_trig_fire_mode == Cease_fire)
-//		shoot_behaviour->trig_fire_mode = Single_fire;
-
-//	}
-////	else if(switch_is_down(shoot_behaviour->rc_data->rc_sl))
-////	{
-////		first=1;
-////		shoot_behaviour->trig_fire_mode = Cease_fire;
-////	}
-//	else
-//	{
-//		first=1;
-//		shoot_behaviour->trig_fire_mode = Cease_fire;
-//	}
-//	shoot_behaviour->last_trig_fire_mode = shoot_behaviour->trig_fire_mode;
-//}
 
 
 
@@ -252,7 +374,8 @@ static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
 void shoot_trig_motor_mode_set(shoot_control_t *shoot_mode)
 {
 	shoot_trig_motor_behaviour_set(shoot_mode);
-	
+
+#ifdef CASCADE
 	if(shoot_mode->trig_fire_mode ==Serial_fire)
 	{
 		HAL_TIM_Base_Stop_IT(&htim5);
@@ -271,6 +394,12 @@ void shoot_trig_motor_mode_set(shoot_control_t *shoot_mode)
 	{
 			HAL_TIM_Base_Stop_IT(&htim5);
 	}
+#endif
 }
 
 
+
+bool_t trig_detect(void)
+{
+	return toe_is_error(TRIGGER_MOTOR_TOE);
+}

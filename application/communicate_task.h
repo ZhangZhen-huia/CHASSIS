@@ -1,8 +1,11 @@
-#ifndef USER_TASK_H
-#define USER_TASK_H
+#ifndef COMMUNICATE_TASK_H
+#define COMMUNICATE_TASK_H
 
 
 #include "main.h"
+
+#define USART_RX_BUF_LENGHT     512
+#define REFEREE_FIFO_BUF_LENGTH 1024
 
 
 typedef struct
@@ -39,6 +42,7 @@ extern gimbal_data_t gimbal_data;
 const gimbal_data_t * get_gimbal_data_point(void);
 const rc_data_t * get_gimbal_rc_data_point(void);
 
+void Chassis_data_transfer(void);
 
 
 

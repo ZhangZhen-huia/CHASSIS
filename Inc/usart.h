@@ -27,7 +27,8 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+extern DMA_HandleTypeDef hdma_usart6_rx;
+extern DMA_HandleTypeDef hdma_usart6_tx;
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;

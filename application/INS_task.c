@@ -6,7 +6,7 @@
 #include "math.h"
 #include "bsp_spi.h"
 #include "stm32f4xx_hal_spi.h"
-
+#include "communicate_task.h"
 
 bmi088_real_data_t bmi088_real_data;
 
@@ -39,7 +39,7 @@ void INS_task(void const * argument)
 	//读三轴角速度和加速度，温度
 	BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
 	
-	PID_init(&imu_temp_pid, PID_POSITION, imu_temp_PID, TEMPERATURE_PID_MAX_OUT, TEMPERATURE_PID_MAX_IOUT);
+	PID_init(&imu_temp_pid, PID_POSITION,DATA_NORMAL, imu_temp_PID, TEMPERATURE_PID_MAX_OUT, TEMPERATURE_PID_MAX_IOUT);
 	
 	//四元数初始化
 	AHRS_init(INS_quat);
@@ -69,7 +69,7 @@ void INS_task(void const * argument)
 		}		
 
 		bmi088_real_data.INS_angle[1] *= -1.0f;
-
+		//Chassis_data_transfer();
 	//	CAN_cmd_INS(bmi088_real_data.INS_angle[0], -bmi088_real_data.INS_angle[1], bmi088_real_data.gyro[2], bmi088_real_data.gyro[1]);
 		//计算周期为2ms（与四元数解算中的解算频率有关）
 		osDelay(1);

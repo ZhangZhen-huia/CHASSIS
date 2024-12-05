@@ -2,7 +2,7 @@
 #include "cmsis_os.h"
 #include "chassis_behaviour.h"
 #include "arm_math.h"
-#include "user_task.h"
+#include "communicate_task.h"
 
 
 
@@ -29,11 +29,11 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 chassis_move_t chassis_move;
 
 
-static fp32 COURSE_INIT_ECD[4] = {4362.0f,3693.0f,3132.0f,5025.0f};
+static fp32 INIT_ECD[5] = {4362.0f,3693.0f,3132.0f,5025.0f,565.0f};
 
 
 fp32 yaw_diff=0;
-fp32 gimbal_yaw_init=0;
+
 //底盘总任务
 void chassis_task(void const * argument)
 {
@@ -120,13 +120,13 @@ static void chassis_init(chassis_move_t *init)
 	init->chassis_RC=get_remote_control_point();
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
-	PID_init(&init->yaw_pid,PID_POSITION,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
+	PID_init(&init->yaw_pid,PID_POSITION,DATA_NORMAL,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
 
 	//初始化驱动速度PID 并获取电机数据
 	for(i=0;i<4;i++)
 	{
 		init->motor_chassis[i].chassis_motor_measure = get_chassis_drive_motor_measure_point(i);//获取底盘3508的数据，接收电机的反馈结构体		
-		PID_init(&init->chassis_drive_speed_pid[i],PID_POSITION,PID_SPEED_DRIVE[i],SPEED_PID_MAX_OUT_DRIVE[i],SPEED_PID_MAX_IOUT_DRIVE[i]);//初始化底盘PID
+		PID_init(&init->chassis_drive_speed_pid[i],PID_POSITION,DATA_NORMAL,PID_SPEED_DRIVE[i],SPEED_PID_MAX_OUT_DRIVE[i],SPEED_PID_MAX_IOUT_DRIVE[i]);//初始化底盘PID
 		init->drive_set_speed[i]=0.0f;
 	}
 	
@@ -134,8 +134,8 @@ static void chassis_init(chassis_move_t *init)
 	for(i=0;i<4;i++)
 	{
 		init->motor_chassis[i+4].chassis_motor_measure = get_chassis_course_motor_measure_point(i);//获取航向电机的数据，接收电机的反馈结构体
-		PID_init(&init->chassis_course_speed_pid[i],PID_POSITION,PID_SPEED_COURSE[i],SPEED_PID_MAX_OUT_COURSE[i],SPEED_PID_MAX_IOUT_COURSE[i]);//初始化速度PID
-		PID_init(&init->chassis_course_angle_pid[i],PID_POSITION,PID_ANGLE_COURSE[i],ANGLE_PID_MAX_OUT_COURSE[i],ANGLE_PID_MAX_IOUT_COURSE[i]);//初始化角度PID
+		PID_init(&init->chassis_course_speed_pid[i],PID_POSITION,DATA_NORMAL,PID_SPEED_COURSE[i],SPEED_PID_MAX_OUT_COURSE[i],SPEED_PID_MAX_IOUT_COURSE[i]);//初始化速度PID
+		PID_init(&init->chassis_course_angle_pid[i],PID_POSITION,DATA_NORMAL,PID_ANGLE_COURSE[i],ANGLE_PID_MAX_OUT_COURSE[i],ANGLE_PID_MAX_IOUT_COURSE[i]);//初始化角度PID
 		init->course_set_angle[i]=0.0f;
 	}
 	//用一阶滤波
@@ -153,7 +153,7 @@ static void chassis_init(chassis_move_t *init)
   init->wz_max_speed = NORMAL_MAX_CHASSIS_SPEED_W;
   init->wz_min_speed = -NORMAL_MAX_CHASSIS_SPEED_W;
 	
-	gimbal_yaw_init = init->get_gimbal_data->gimbal_yaw;
+	
 	//更新底盘数据
 	chassis_feedback_update(init);
 }
@@ -297,14 +297,11 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	feedback_update->chassis_yaw = feedback_update->chassis_bmi088_data->INS_angle[INS_YAW_ADDRESS_OFFSET];
 
 	
-//	if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
-//		yaw_diff = theta_format(feedback_update->chassis_yaw);
-//	else if(feedback_update->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
-		yaw_diff = motor_ecd_to_angle_change(yaw_motor.ecd,3170);//theta_format(feedback_update->get_gimbal_data->gimbal_yaw - feedback_update->chassis_yaw);
+		yaw_diff = motor_ecd_to_angle_change(yaw_motor.ecd,INIT_ECD[4]);
 	
 	
 	for(i=0;i<4;i++)
-	feedback_update->course_angle[i] = Angle_Limit((feedback_update->motor_chassis[4+i].chassis_motor_measure->ecd - COURSE_INIT_ECD[i])*360/8192,360);
+	feedback_update->course_angle[i] = Angle_Limit((feedback_update->motor_chassis[4+i].chassis_motor_measure->ecd - INIT_ECD[i])*360/8192,360);
 	
 	#ifdef CHASSIS_DEBUG
 	Chassis_Debug_get_data();
@@ -343,8 +340,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
 			
-			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 5)
-			//if(fabs(angle_diff*57.2957f)>10)
+			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 10)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
@@ -382,17 +378,6 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			 chassis_move_control->vx_set = vx_set;
 			 chassis_move_control->vy_set = wz_set;
     }
-		
-//	 else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_RAW)
-//    {
-//        //in raw mode, set-point is sent to CAN bus
-//        //在原始模式，设置值是发送到CAN总线
-//        chassis_move_control->vx_set = vx_set;
-//        chassis_move_control->vy_set = vy_set;
-//        chassis_move_control->wz_set = angle_set;
-//        chassis_move_control->chassis_cmd_slow_set_vx.out = 0.0f;
-//        chassis_move_control->chassis_cmd_slow_set_vy.out = 0.0f;
-//    }
 }
 
 float My_Max(float *data)
@@ -476,7 +461,7 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	wheel_speed[3] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 
-		Speed_Toggle(&chassis_move);
+		
 		if(vx_set == 0 && vy_set == 0 && wz_set == 0)//摇杆回中时，保持6020角度
 		{
 			for(int i=0;i<4;i++)//memcpy狗都不用
@@ -619,8 +604,7 @@ static fp32 Find_min_Angle(int16_t angle1,fp32 angle2)
 static uint8_t chassis_motor_detect(void)
 {
 	return 	toe_is_error(COURSE_MOTOR1_TOE)  || toe_is_error(DRIVE_MOTOR2_TOE)  || toe_is_error(DRIVE_MOTOR3_TOE)  || toe_is_error(DRIVE_MOTOR4_TOE)
-				 || toe_is_error(COURSE_MOTOR1_TOE) || toe_is_error(COURSE_MOTOR2_TOE) || toe_is_error(COURSE_MOTOR3_TOE) || toe_is_error(COURSE_MOTOR4_TOE)
-				  || rc_is_error();
+				 || toe_is_error(COURSE_MOTOR1_TOE) || toe_is_error(COURSE_MOTOR2_TOE) || toe_is_error(COURSE_MOTOR3_TOE) || toe_is_error(COURSE_MOTOR4_TOE);
 }
 
 
@@ -644,18 +628,4 @@ const DebugData* get_chassis_PID_Debug(void)
 	return &chassis_move.chassis_debug_data;
 }
 
-void Speed_Toggle(chassis_move_t *chassis_move_control_Speed)
-{
-		if(fabs(Find_min_Angle(chassis_move_control_Speed->course_angle[0],chassis_move_control_Speed->course_set_angle[0]))>90)
-	{
-		for(int i=0;i<4;i++)
-		{
-			chassis_move_control_Speed->course_set_angle[i] += 180;		
-			chassis_move_control_Speed->course_set_angle[i]=Angle_Limit(chassis_move_control_Speed->course_set_angle[i],360);
-		}
-			chassis_move_control_Speed->drct = -1;
-	}
-	else
-			chassis_move_control_Speed->drct=1;
-}
 

@@ -4,7 +4,7 @@
 #include "usart.h"
 #include "chassis_task.h"
 #include "detect_task.h"
-#include "user_task.h"
+#include "communicate_task.h"
 
 //µç»úÊý¾Ý¶ÁÈ¡
 #define get_motor_measure(ptr, data)                                 \
@@ -81,7 +81,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 			case GIMBAL_ID:
 				get_gimbal_data(&gimbal_data,rx_data1);
 				break;
-			case 0x209:
+			case CAN_YAW_MOTOR_ID:
 				get_motor_measure(&yaw_motor,rx_data1);
 			break;
 

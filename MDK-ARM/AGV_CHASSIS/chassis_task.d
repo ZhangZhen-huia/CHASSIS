@@ -62,7 +62,7 @@
 .\agv_chassis\chassis_task.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_task.o: ..\application\vofa_task.h
 .\agv_chassis\chassis_task.o: ../Inc/usart.h
-.\agv_chassis\chassis_task.o: ..\application\user_task.h
+.\agv_chassis\chassis_task.o: ..\application\communicate_task.h
 .\agv_chassis\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\chassis_task.o: ..\application\chassis_behaviour.h
 .\agv_chassis\chassis_task.o: ../components/algorithm/Include/arm_math.h

@@ -59,7 +59,7 @@ osThreadId CHASSIS_TASKHandle;
 osThreadId INS_TASKHandle;
 osThreadId DETECT_TASKHandle;
 osThreadId VOFA_TASKHandle;
-osThreadId USER_TASKHandle;
+osThreadId COMMUNICATE_TASHandle;
 osThreadId TRIG_TASKHandle;
 osTimerId ShootTimerHandle;
 
@@ -73,7 +73,7 @@ void chassis_task(void const * argument);
 void INS_task(void const * argument);
 void detect_task(void const * argument);
 void vofa_task(void const * argument);
-void user_task(void const * argument);
+void communicate_task(void const * argument);
 void trig_task(void const * argument);
 void ShootTimer_Callback(void const * argument);
 
@@ -118,12 +118,16 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+	
+	#ifdef CASCADE
 	my_shootEventGroupHandle = xEventGroupCreate();
 	if(my_shootEventGroupHandle == NULL)
 	{
 		return;
 	}
+	#endif
 	HAL_TIM_Base_Start_IT(&htim5);
+	
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -140,6 +144,7 @@ void MX_FREERTOS_Init(void) {
   ShootTimerHandle = osTimerCreate(osTimer(ShootTimer), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
+	
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
@@ -168,9 +173,9 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(VOFA_TASK, vofa_task, osPriorityIdle, 0, 128);
   VOFA_TASKHandle = osThreadCreate(osThread(VOFA_TASK), NULL);
 
-  /* definition and creation of USER_TASK */
-  osThreadDef(USER_TASK, user_task, osPriorityBelowNormal, 0, 256);
-  USER_TASKHandle = osThreadCreate(osThread(USER_TASK), NULL);
+  /* definition and creation of COMMUNICATE_TAS */
+  osThreadDef(COMMUNICATE_TAS, communicate_task, osPriorityNormal, 0, 256);
+  COMMUNICATE_TASHandle = osThreadCreate(osThread(COMMUNICATE_TAS), NULL);
 
   /* definition and creation of TRIG_TASK */
   osThreadDef(TRIG_TASK, trig_task, osPriorityNormal, 0, 128);
@@ -273,22 +278,22 @@ __weak void vofa_task(void const * argument)
   /* USER CODE END vofa_task */
 }
 
-/* USER CODE BEGIN Header_user_task */
+/* USER CODE BEGIN Header_communicate_task */
 /**
-* @brief Function implementing the USER_TASK thread.
+* @brief Function implementing the COMMUNICATE_TAS thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_user_task */
-__weak void user_task(void const * argument)
+/* USER CODE END Header_communicate_task */
+__weak void communicate_task(void const * argument)
 {
-  /* USER CODE BEGIN user_task */
+  /* USER CODE BEGIN communicate_task */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END user_task */
+  /* USER CODE END communicate_task */
 }
 
 /* USER CODE BEGIN Header_trig_task */
@@ -313,11 +318,13 @@ __weak void trig_task(void const * argument)
 void ShootTimer_Callback(void const * argument)
 {
   /* USER CODE BEGIN ShootTimer_Callback */
+	#ifndef CASCADE
 	if(switch_is_up(trig_control.rc_data->rc_sl))
 	{
 		//xEventGroupSetBits(my_shootEventGroupHandle,ShootEvent_1);
 		trig_control.trig_fire_mode = Serial_fire;
 	}
+	#endif
   /* USER CODE END ShootTimer_Callback */
 }
 

@@ -184,11 +184,16 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
+	#ifdef CASCADE
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
+	#endif 
 	if(htim->Instance == TIM5)
 	{
+		#ifdef CASCADE
 		xEventGroupSetBitsFromISR(my_shootEventGroupHandle,ShootEvent_1,&xHigherPriorityTaskWoken);
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+		#endif 
+		
 	}
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM6) {

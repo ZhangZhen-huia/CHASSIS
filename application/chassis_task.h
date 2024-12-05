@@ -11,14 +11,14 @@
 #include "pid.h"
 #include "user_lib.h"
 #include "vofa_task.h"
-#include "user_task.h"
+#include "communicate_task.h"
 /* --------------------------------------yaw轴-------------------------------------------------*/
 
-#define YAW_ANGLE_PID_KP                 0.3f
+#define YAW_ANGLE_PID_KP                 1.0f
 #define YAW_ANGLE_PID_KI                 0.0f
-#define YAW_ANGLE_PID_KD                 0.0f
-#define YAW_PID_MAX_OUT            1.80f //最大输出值
-#define YAW_PID_MAX_IOUT           0.0f //最大输出电流
+#define YAW_ANGLE_PID_KD                 2.0f
+#define YAW_PID_MAX_OUT            2.0f //最大输出值
+#define YAW_PID_MAX_IOUT           0.0f //
 
 
 
@@ -43,7 +43,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR1_SPEED_PID_KP                 	150.0f
+#define COURSE_MOTOR1_SPEED_PID_KP                 	160.0f
 #define COURSE_MOTOR1_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR1_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR1_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
@@ -180,7 +180,6 @@ typedef struct
 	
   chassis_mode_e chassis_mode;               					//底盘控制状态机
   chassis_mode_e last_chassis_mode;          					//底盘上次控制状态机
-	int8_t drct;
 	fp32 vx_set;																				// m/s
 	fp32 vy_set;																				// m/s
 	fp32 wz_set;																				// m/s
@@ -208,12 +207,12 @@ extern chassis_move_t chassis_move;//底盘运动数据
 
 /*******************************一节低通滤波参数************************/
 #define CHASSIS_CONTROL_TIME 0.01f   //x和y本次信任参数
-#define CHASSIS_CONTROL_TIME_W 0.01f  //z本次信任参数
+#define CHASSIS_CONTROL_TIME_W 0.05f  //z本次信任参数
 
 //信任上一次参数占比
 #define CHASSIS_ACCEL_X_NUM 0.99f
 #define CHASSIS_ACCEL_Y_NUM 0.99f
-#define CHASSIS_ACCEL_W_NUM 0.99f
+#define CHASSIS_ACCEL_W_NUM 0.95f
 
 /*******************************轮组数据*******************************/
 #define R       MOTOR_DISTANCE_TO_CENTER

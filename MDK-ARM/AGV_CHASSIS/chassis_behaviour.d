@@ -64,5 +64,5 @@
 .\agv_chassis\chassis_behaviour.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_behaviour.o: ..\application\vofa_task.h
 .\agv_chassis\chassis_behaviour.o: ../Inc/usart.h
-.\agv_chassis\chassis_behaviour.o: ..\application\user_task.h
+.\agv_chassis\chassis_behaviour.o: ..\application\communicate_task.h
 .\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\time.h

@@ -33,7 +33,7 @@ typedef enum
 	CAN_DRIVE_MOTOR2_ID = 0x202,
 	CAN_DRIVE_MOTOR3_ID = 0x203,
 	CAN_DRIVE_MOTOR4_ID = 0x204,
-
+	CAN_YAW_MOTOR_ID = 0x209,
 /*----------can2接收id----------*/
 	CAN_COURSE_MOTOR1_ID = 0x205,
 	CAN_COURSE_MOTOR2_ID = 0x206,
@@ -44,6 +44,7 @@ typedef enum
 	
 /*----------can1双板通信接收id---------*/
 	GIMBAL_ID = 0x111,
+	CHASSIS_ID = 0x222,
 } can_msg_id_e;
 
 

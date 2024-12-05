@@ -55,3 +55,4 @@
 .\agv_chassis\ins_task.o: ../components/algorithm/MahonyAHRS.h
 .\agv_chassis\ins_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\ins_task.o: ../bsp/boards/bsp_spi.h
+.\agv_chassis\ins_task.o: ..\application\communicate_task.h
