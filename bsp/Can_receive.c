@@ -113,6 +113,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 				break;
 			case TRIG_MOTOR_ID:
 				get_motor_measure(&trigger_motor,rx_data2);
+				detect_hook(TRIGGER_MOTOR_TOE);
 			break;
 		}
 	}

@@ -64,8 +64,8 @@
 ".\agv_chassis\cmsis_os.o"
 ".\agv_chassis\heap_4.o"
 ".\agv_chassis\port.o"
-".\agv_chassis\crc8_crc16.o"
 ".\agv_chassis\fifo.o"
+".\agv_chassis\crc8_crc16.o"
 --strict --scatter ".\AGV_CHASSIS\AGV_CHASSIS.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

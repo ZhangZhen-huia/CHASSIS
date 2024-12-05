@@ -70,6 +70,8 @@ void Error_Handler(void);
 /* USER CODE BEGIN Private defines */
 #define ShootEvent_1 (1<<1)
 #define Event_2 (1<<2)
+
+//#define CASCADE
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

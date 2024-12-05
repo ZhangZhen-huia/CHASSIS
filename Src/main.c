@@ -19,6 +19,7 @@
 #include "remote_control.h"
 #include "bsp_buzzer.h"
 #include "event_groups.h"
+#include "referee.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,7 +103,7 @@ int main(void)
 	remote_control_init();
 	Buzzer_Init();
 	canfilter_init_start();
-	
+	Referee_Sys_Init();//裁判系统收发初始化
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

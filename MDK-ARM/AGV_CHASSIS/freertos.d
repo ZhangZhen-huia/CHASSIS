@@ -57,3 +57,4 @@
 .\agv_chassis\freertos.o: ../bsp/Can_receive.h
 .\agv_chassis\freertos.o: ../Inc/can.h
 .\agv_chassis\freertos.o: ../application/communicate_task.h
+.\agv_chassis\freertos.o: ../application/referee.h

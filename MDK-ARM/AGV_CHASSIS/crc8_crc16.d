@@ -1,10 +1,5 @@
-.\agv_chassis\crc8_crc16.o: ..\components\support\CRC8_CRC16.c
+.\agv_chassis\crc8_crc16.o: ..\components\support\crc8_crc16.c
 .\agv_chassis\crc8_crc16.o: ..\components\support\crc8_crc16.h
-.\agv_chassis\crc8_crc16.o: ../Inc/main.h
-.\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
-.\agv_chassis\crc8_crc16.o: ../Inc/stm32f4xx_hal_conf.h
-.\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
-.\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/core_cm4.h
@@ -15,6 +10,10 @@
 .\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+.\agv_chassis\crc8_crc16.o: ../Inc/stm32f4xx_hal_conf.h
+.\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
+.\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
+.\agv_chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
 .\agv_chassis\crc8_crc16.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stddef.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
@@ -34,6 +33,7 @@
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 .\agv_chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+.\agv_chassis\crc8_crc16.o: ../Inc/main.h
 .\agv_chassis\crc8_crc16.o: ../Inc/struct_typedef.h
 .\agv_chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 .\agv_chassis\crc8_crc16.o: ../Inc/FreeRTOSConfig.h

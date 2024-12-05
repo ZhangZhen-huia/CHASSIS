@@ -55,5 +55,6 @@
 .\agv_chassis\trig_task.o: ..\application\remote_control.h
 .\agv_chassis\trig_task.o: ../bsp/boards/bsp_rc.h
 .\agv_chassis\trig_task.o: ..\application\communicate_task.h
+.\agv_chassis\trig_task.o: ..\application\referee.h
 .\agv_chassis\trig_task.o: ../Inc/tim.h
 .\agv_chassis\trig_task.o: ..\application\detect_task.h

@@ -8,7 +8,7 @@
 #include "Can_receive.h"
 #include "remote_control.h"
 #include "communicate_task.h"
-
+#include "referee.h"
 
 //任务初始化时间
 #define TRIG_TASK_INIT_TIME    500
@@ -40,7 +40,16 @@
 #define Single_ARR  2500
 #define Serial_ARR 	500
 
-#define TRIG_BASE_SPEED 10.0f
+//定义期望基础拨弹盘拨弹速度 弹/s
+#define TRIG_BASE_SPEED 5.0f
+
+//定义默认卡弹转速(rpm)  
+#define  STANDARD_NOMOVE_RPM          15
+//定义默认卡弹时间 
+#define  STANDARD_NOMOVE_TIME         150
+//定义默认回转时间
+#define  STANDARD_REMOVE_TIME         200
+
 
 #define TIRG_MODE_CHANNEL 1
 
@@ -86,9 +95,12 @@ typedef struct
 {
     const rc_data_t *rc_data;																		//获取遥控器指针
 		shoot_motor_t shoot_trig_motor;		
+		const bool_t * is_fire;
 		trig_fire_mode_e trig_fire_mode;
 		trig_fire_mode_e last_trig_fire_mode;
+		Referee_System_t     *shoot_referee;   //发射机构裁判系统数据
 }shoot_control_t;
+
 
 
 extern osTimerId ShootTimerHandle;

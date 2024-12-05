@@ -26,8 +26,8 @@ typedef struct
 	int16_t gimbal_mode;
 	rc_data_t rc_data;
 	uint8_t rc_err;
+	bool_t fire_flag;
 }gimbal_data_t;
-
 
 
 
@@ -41,6 +41,7 @@ bool_t rc_is_error(void);
 extern gimbal_data_t gimbal_data;
 const gimbal_data_t * get_gimbal_data_point(void);
 const rc_data_t * get_gimbal_rc_data_point(void);
+const bool_t * get_fire_flag_point(void);
 
 void Chassis_data_transfer(void);
 

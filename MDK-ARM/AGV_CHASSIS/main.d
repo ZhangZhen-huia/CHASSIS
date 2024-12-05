@@ -60,3 +60,4 @@
 .\agv_chassis\main.o: ../application/remote_control.h
 .\agv_chassis\main.o: ../bsp/boards/bsp_rc.h
 .\agv_chassis\main.o: ../bsp/boards/bsp_buzzer.h
+.\agv_chassis\main.o: ../application/referee.h

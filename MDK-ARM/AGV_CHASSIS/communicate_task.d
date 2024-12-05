@@ -68,6 +68,5 @@
 .\agv_chassis\communicate_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h
 .\agv_chassis\communicate_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
 .\agv_chassis\communicate_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdlib.h
-.\agv_chassis\communicate_task.o: ..\application\protocol\protocol.h
 .\agv_chassis\communicate_task.o: ..\application\referee.h
 .\agv_chassis\communicate_task.o: ../bsp/boards/bsp_usart.h

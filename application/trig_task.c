@@ -75,7 +75,8 @@ static void trig_init(shoot_control_t *shoot_init)
 	
 	//遥控器数据指针获取
 	shoot_init->rc_data = get_gimbal_rc_data_point();
-
+	shoot_init->is_fire = get_fire_flag_point();
+	shoot_init->shoot_referee = get_referee_data_point();
 	//初始化Trig电机速度pid
 	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_cascade,TRIG_SPEED_PID_MAX_OUT_CASCADE,TRIG_SPEED_PID_MAX_IOUT_CASCADE);
 	PID_init(&shoot_init->shoot_trig_motor.shoot_angle_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_angle_pid_cascade,TRIG_ANGLE_PID_MAX_OUT_CASCADE,TRIG_ANGLE_PID_MAX_IOUT_CASCADE);
@@ -183,66 +184,52 @@ int64_t trig_block_detect_cascade(shoot_control_t * control_loop,int64_t angle_s
 static fp32 trig_block_detect_single(shoot_control_t * control_loop)
 {
 	static fp32 trig_speed_set;
-	static uint8_t block_flag = 0;
-	static uint16_t block_counter = 0;
+	static int16_t   NoMove_counter;
+	static uint8_t   NoMove_flag;
+
 	 
 	//拨弹盘转一圈拨出去8个
 	//2006减速比为36:1
 	//rpm/60/36 为拨弹盘一秒转的圈数
 	//*8等于一秒发弹
-	//
 	//开火
 	if(control_loop->trig_fire_mode != Cease_fire)
 	{
-		if(block_flag == 0)
+		if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm >STANDARD_NOMOVE_RPM && NoMove_flag ==0)
 		{
 			trig_speed_set = TRIG_BASE_SPEED;
+			NoMove_counter =0;
 		}
-
-		//未堵转
-		if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm>20 && block_flag == 0)
+		//卡弹转动
+		else if( control_loop->shoot_trig_motor.shoot_motor_measure->rpm <= STANDARD_NOMOVE_RPM && NoMove_flag ==0 )
 		{
-			trig_speed_set = TRIG_BASE_SPEED;
-			block_counter = 0;
-		}
-		//堵转
-		else if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm>0 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm<20 && block_flag == 0)
-		{
-				trig_speed_set = TRIG_BASE_SPEED;
-				block_counter++;
-				if( block_counter >= 10 ) 
-			    {
-				   block_flag = 1;//堵转了
-				   block_counter = 150;//反转计次
-			    }
-
-		}
-		//确认堵转
-		else if(block_flag != 0)
-		{
-			trig_speed_set = -TRIG_BASE_SPEED;
-			block_counter--;
-			if(block_counter <=0)
+			trig_speed_set = TRIG_BASE_SPEED;						
+			NoMove_counter ++;
+			if( NoMove_counter >= STANDARD_NOMOVE_TIME ) 
 			{
-				block_flag = 0;
-				block_counter = 0;
-			}
-			//反转的时候堵转了
-			if(block_flag == 1 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm<0 && control_loop->shoot_trig_motor.shoot_motor_measure->rpm>-20)
+				NoMove_flag = 1;
+				NoMove_counter = STANDARD_REMOVE_TIME;
+			}	
+		}
+		//反向转动
+		else if( NoMove_flag != 0)
+		{
+			trig_speed_set =-TRIG_BASE_SPEED;
+			
+			NoMove_counter--;
+			
+			if(NoMove_counter <= 0)
 			{
-				block_flag = 0;
-				block_counter = 0;
-				trig_speed_set = TRIG_BASE_SPEED;
+			NoMove_flag = 0;
+			NoMove_counter = 0;
 			}
 		}
-
 	}
 	//不开火
 	else 
 	{
-			trig_speed_set = 0;
+		trig_speed_set = 0;
 	}
-	
 	//遥控器掉线
 	if(rc_is_error())
 		trig_speed_set = 0;
@@ -307,11 +294,13 @@ static void shoot_motor_control(shoot_motor_t *shoot_motor)
 
 static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
 {
+	
+	
 #ifdef CASCADE
 	static uint8_t first=1;
 	if(switch_is_mid(shoot_behaviour->rc_data->rc_sr))
 	{
-		if(switch_is_up(shoot_behaviour->rc_data->rc_sl))
+		if(switch_is_mid(shoot_behaviour->rc_data->rc_sl))
 		{
 			if(first)
 			{
@@ -340,6 +329,10 @@ static void shoot_trig_motor_behaviour_set(shoot_control_t *shoot_behaviour)
 	}
 	
 #else
+//	if(shoot_behaviour->is_fire)
+//	{
+//		
+//	}
 	if(switch_is_mid(shoot_behaviour->rc_data->rc_sr))
 	{
 		if(switch_is_mid(shoot_behaviour->rc_data->rc_sl))
