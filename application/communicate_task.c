@@ -51,14 +51,13 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 	gimbal_data->rc_err 					= buf[3];
 	gimbal_data->rc_data.rc_sl 		= buf[4];
 	gimbal_data->rc_data.rc_sr 		= buf[5];
-	gimbal_data->gimbal_yaw 			= theta_format(buf[6]*255.0f-180);///100.0f*4.0f-3.14f)*57.2957795f;//*57.2957795f*4.0f/200.0f;
-	gimbal_data->gimbal_mode 			= buf[7];
+	gimbal_data->gimbal_mode 			= buf[6];
 }
 
 
 void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 {
-	gimbal_data->fire_flag = gimbal_data->gimbal_mode & 0x01;
+	gimbal_data->FireFlag = gimbal_data->gimbal_mode & 0x01;
 }
 
 bool_t rc_is_error(void)
@@ -77,10 +76,10 @@ const rc_data_t * get_gimbal_rc_data_point(void)
 	return &gimbal_data.rc_data;
 }
 
-const bool_t * get_fire_flag_point(void)
-{
-	return &gimbal_data.fire_flag;
-}
+//const uint8_t * get_autofire_flag_point(void)
+//{
+//	return &gimbal_data.FireFlag;
+//}
 static void can_cmd_to_gimbal(CAN_HandleTypeDef*hcan,int16_t can_id,uint8_t *buf,uint8_t num)
 {
 	uint32_t send_mail_box;

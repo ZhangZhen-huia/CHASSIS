@@ -43,6 +43,7 @@
 //定义期望基础拨弹盘拨弹速度 弹/s
 #define TRIG_BASE_SPEED 5.0f
 
+
 //定义默认卡弹转速(rpm)  
 #define  STANDARD_NOMOVE_RPM          15
 //定义默认卡弹时间 
@@ -95,7 +96,7 @@ typedef struct
 {
     const rc_data_t *rc_data;																		//获取遥控器指针
 		shoot_motor_t shoot_trig_motor;		
-		const bool_t * is_fire;
+		const uint8_t * is_fire;
 		trig_fire_mode_e trig_fire_mode;
 		trig_fire_mode_e last_trig_fire_mode;
 		Referee_System_t     *shoot_referee;   //发射机构裁判系统数据

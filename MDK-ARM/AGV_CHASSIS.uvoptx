@@ -153,72 +153,57 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>yaw_motor,0x0A</ItemText>
+          <ItemText>power_heat_data_t,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>trig_control,0x0A</ItemText>
+          <ItemText>buff_musk_t,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gimbal_data,0x0A</ItemText>
+          <ItemText>shoot_data_t,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>chassis_move,0x0A</ItemText>
+          <ItemText>robot_state,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>power_heat_data_t,0x0A</ItemText>
+          <ItemText>block_flag,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>buff_musk_t,0x0A</ItemText>
+          <ItemText>block_counter,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>shoot_data_t,0x0A</ItemText>
+          <ItemText>trig_speed_set</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>robot_state,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>8</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>block_flag,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>9</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>block_counter,0x0A</ItemText>
+          <ItemText>trig_control,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>chassis_move,0x0A</ItemText>
+          <ItemText>trig_speed_set</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>trig_speed_set</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>2</WinNumber>
           <ItemText>block_counter1,0x0A</ItemText>
         </Ww>
         <Ww>
-          <count>3</count>
+          <count>2</count>
           <WinNumber>2</WinNumber>
           <ItemText>block_counter2,0x0A</ItemText>
         </Ww>

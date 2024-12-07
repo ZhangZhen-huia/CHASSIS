@@ -48,7 +48,7 @@ void trig_task(void const * argument)
       }
       else
       {
-				
+				//CAN_cmd_trig(0);
 				CAN_cmd_trig(trig_control.shoot_trig_motor.current_set);
       }
 			osDelay(1);
@@ -75,7 +75,7 @@ static void trig_init(shoot_control_t *shoot_init)
 	
 	//遥控器数据指针获取
 	shoot_init->rc_data = get_gimbal_rc_data_point();
-	shoot_init->is_fire = get_fire_flag_point();
+//	shoot_init->is_fire = get_autofire_flag_point();
 	shoot_init->shoot_referee = get_referee_data_point();
 	//初始化Trig电机速度pid
 	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_cascade,TRIG_SPEED_PID_MAX_OUT_CASCADE,TRIG_SPEED_PID_MAX_IOUT_CASCADE);
@@ -193,7 +193,9 @@ static fp32 trig_block_detect_single(shoot_control_t * control_loop)
 	//rpm/60/36 为拨弹盘一秒转的圈数
 	//*8等于一秒发弹
 	//开火
-	if(control_loop->trig_fire_mode != Cease_fire)
+	
+	if(gimbal_data.FireFlag)
+//	if(control_loop->trig_fire_mode != Cease_fire)
 	{
 		if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm >STANDARD_NOMOVE_RPM && NoMove_flag ==0)
 		{

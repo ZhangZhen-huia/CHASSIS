@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-#define HERO
+//#define STAND_4
 
 //定义接收发送BUFFER数据长度
 #define RS_RX_BUF_NUM  512u
