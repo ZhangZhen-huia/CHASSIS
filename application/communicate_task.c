@@ -20,7 +20,6 @@ void communicate_task(void const * argument)
 	while(1)
 	{
 		dispose_gimbal_mode(&gimbal_data);
-		 //referee_unpack_fifo_data();
 		osDelay(10);
 	}
 }
@@ -58,6 +57,7 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 {
 	gimbal_data->FireFlag = gimbal_data->gimbal_mode & 0x01;
+	gimbal_data->Radar_mode = gimbal_data->gimbal_mode & 0x04;
 }
 
 bool_t rc_is_error(void)
@@ -76,10 +76,7 @@ const rc_data_t * get_gimbal_rc_data_point(void)
 	return &gimbal_data.rc_data;
 }
 
-//const uint8_t * get_autofire_flag_point(void)
-//{
-//	return &gimbal_data.FireFlag;
-//}
+
 static void can_cmd_to_gimbal(CAN_HandleTypeDef*hcan,int16_t can_id,uint8_t *buf,uint8_t num)
 {
 	uint32_t send_mail_box;

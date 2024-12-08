@@ -7,6 +7,7 @@ static void chassis_zero_force_control(fp32 *vx_can_set, fp32 *vy_can_set, fp32 
 static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_agv_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
+static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
 
 
 
@@ -44,7 +45,11 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 //    {
 //        chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
 //    }
-    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
+		if(gimbal_data.Radar_mode)
+		{
+        chassis_behaviour_mode = CHASSIS_FOLLOW_RADAR;
+		}
+    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
     {
         chassis_behaviour_mode = CHASSIS_AGV_FOLLOW_CHASSIS_YAW;
     }
@@ -58,7 +63,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
-
+		
 //    //when gimbal in some mode, such as init mode, chassis must's move
 //    //当云台在某些模式下，像初始化， 底盘不动
 //    if (gimbal_cmd_to_chassis_stop())
@@ -90,8 +95,12 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 
     }
-
-
+		//跟随云台
+    else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
+    {
+        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_RADAR; 
+    }		
+	
 }
 
 
@@ -135,6 +144,10 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, 
     else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)
     {
         chassis_no_follow_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
+    }
+	  else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
+    {
+        chassis_follow_radar_control(vx_set, vy_set, angle_set);
     }
 //    else if (chassis_behaviour_mode == CHASSIS_OPEN)
 //    {
@@ -231,4 +244,23 @@ static void chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_s
     }
 
     //chassis_rc_to_control_vector(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
+}
+
+
+
+static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set)
+{
+    if (vx_set == NULL || vy_set == NULL || wz_set == NULL )
+    {
+        return;
+    }
+//    *vx_set = 0;
+//		*vy_set = 0;
+//		*wz_set = 0;
+    *vx_set = (gimbal_data.rc_data.vx_set/20.0f+33)/100.0f;
+		*vy_set = (gimbal_data.rc_data.vy_set/20.0f+33)/100.0f;
+		*wz_set = (gimbal_data.rc_data.wz_set/20.0f+33)/100.0f;
+		
+		
+		
 }

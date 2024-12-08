@@ -378,6 +378,21 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			 chassis_move_control->vx_set = vx_set;
 			 chassis_move_control->vy_set = wz_set;
     }
+		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_RADAR)
+		{
+			fp32 angle_diff=yaw_diff* PI / 180.0f;
+			 
+			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+			chassis_move_control->wz_set = wz_set;
+		
+				
+				
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -0.5f, 0.5f);
+			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -0.5f, 0.5f);
+			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -0.5f, 0.5f);
+
+		}
 }
 
 float My_Max(float *data)
