@@ -50,13 +50,16 @@
 .\agv_chassis\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\chassis_behaviour.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\chassis_behaviour.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\chassis_behaviour.o: ..\application\chassis_task.h
 .\agv_chassis\chassis_behaviour.o: ../bsp/Can_receive.h
 .\agv_chassis\chassis_behaviour.o: ../Inc/can.h
 .\agv_chassis\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\chassis_behaviour.o: ..\application\remote_control.h
 .\agv_chassis\chassis_behaviour.o: ../bsp/boards/bsp_rc.h
-.\agv_chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\chassis_behaviour.o: ..\application\INS_task.h
 .\agv_chassis\chassis_behaviour.o: ../components/devices/BMI088driver.h
 .\agv_chassis\chassis_behaviour.o: ..\application\detect_task.h

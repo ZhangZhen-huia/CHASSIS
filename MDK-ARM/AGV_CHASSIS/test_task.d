@@ -49,6 +49,10 @@
 .\agv_chassis\test_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\test_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\test_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\test_task.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\test_task.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\test_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\test_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\test_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\test_task.o: ..\application\INS_task.h
 .\agv_chassis\test_task.o: ../components/devices/BMI088driver.h

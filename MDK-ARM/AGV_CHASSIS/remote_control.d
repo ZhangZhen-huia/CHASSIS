@@ -49,13 +49,16 @@
 .\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\remote_control.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\remote_control.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\remote_control.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\remote_control.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\remote_control.o: ../bsp/boards/bsp_rc.h
 .\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\remote_control.o: ..\application\chassis_task.h
 .\agv_chassis\remote_control.o: ../bsp/Can_receive.h
 .\agv_chassis\remote_control.o: ../Inc/can.h
 .\agv_chassis\remote_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-.\agv_chassis\remote_control.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\remote_control.o: ..\application\INS_task.h
 .\agv_chassis\remote_control.o: ../components/devices/BMI088driver.h
 .\agv_chassis\remote_control.o: ..\application\detect_task.h

@@ -25,10 +25,10 @@
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
 #define DRIVE_MOTOR1_SPEED_PID_KP                 30000.0f
-#define DRIVE_MOTOR1_SPEED_PID_KI                 2.0f
+#define DRIVE_MOTOR1_SPEED_PID_KI                 300.0f
 #define DRIVE_MOTOR1_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR1_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
+#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
 
 
 
@@ -54,10 +54,10 @@
 /* --------------------------------------舵轮2-------------------------------------------------*/
 //驱动电机速度环
 #define DRIVE_MOTOR2_SPEED_PID_KP                 30000.0f
-#define DRIVE_MOTOR2_SPEED_PID_KI                 2.0f
+#define DRIVE_MOTOR2_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR2_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR2_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
+#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
 
 
 
@@ -80,10 +80,10 @@
 /* --------------------------------------舵轮3-------------------------------------------------*/
 //驱动电机速度环
 #define DRIVE_MOTOR3_SPEED_PID_KP                 30000.0f
-#define DRIVE_MOTOR3_SPEED_PID_KI                 2.0f
+#define DRIVE_MOTOR3_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR3_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR3_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           100.0f //最大输出电流
+#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
 
 
 
@@ -108,10 +108,10 @@
 /* --------------------------------------舵轮4-------------------------------------------------*/
 //驱动电机速度环
 #define DRIVE_MOTOR4_SPEED_PID_KP                 30000.0f
-#define DRIVE_MOTOR4_SPEED_PID_KI                 0.0f
+#define DRIVE_MOTOR4_SPEED_PID_KI                 300.0f
 #define DRIVE_MOTOR4_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           0.0f //最大输出电流
+#define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           500.0f //最大输出电流
 
 
 
@@ -138,11 +138,11 @@
 typedef enum
 {
   CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
-  CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW,  //chassis will have yaw angle(chassis_yaw) close-looped control.底盘有底盘角度控制闭环
+  CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW,  //chassis will have yaw angle(chassis_yaw) close-looped control.底盘有底盘角度控制闭环
   CHASSIS_VECTOR_NO_FOLLOW_YAW,       //chassis will have rotation speed control. 底盘有旋转速度控制
   CHASSIS_VECTOR_ZERO_FORCE,                 //control-current will be sent to CAN bus derectly.
 	CHASSIS_VECTOR_RADAR,								//自动模式，跟随雷达数据
-	
+	CHASSIS_VECTOR_BUILD_MAP,
 	
 } chassis_mode_e;
 
@@ -218,7 +218,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
 
 /*******************************轮组数据*******************************/
 #define R       MOTOR_DISTANCE_TO_CENTER
-#define PI       3.1415926f
+
 
 //电机码盘值最大以及中值
 #define HALF_ECD_RANGE  4096

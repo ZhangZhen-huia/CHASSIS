@@ -49,8 +49,11 @@
 .\agv_chassis\referee.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\referee.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\referee.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-.\agv_chassis\referee.o: ..\application\detect_task.h
+.\agv_chassis\referee.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\referee.o: ../Drivers/CMSIS/Include/core_cm4.h
 .\agv_chassis\referee.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\referee.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
+.\agv_chassis\referee.o: ..\application\detect_task.h
 .\agv_chassis\referee.o: ../Inc/usart.h
 .\agv_chassis\referee.o: ..\components\support\crc8_crc16.h
 .\agv_chassis\referee.o: ../bsp/boards/bsp_usart.h

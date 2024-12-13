@@ -3,7 +3,7 @@
 #include "chassis_behaviour.h"
 #include "arm_math.h"
 #include "communicate_task.h"
-
+#include "chassis_power_control.h"
 
 
 
@@ -72,9 +72,13 @@ void chassis_task(void const * argument)
 			}
 			else
 			{
-				
-				CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
+					#ifndef POWER
+					CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
 					CAN_cmd_drive(chassis_move.chassis_drive_speed_pid[0].out,chassis_move.chassis_drive_speed_pid[1].out,chassis_move.chassis_drive_speed_pid[2].out,chassis_move.chassis_drive_speed_pid[3].out);
+					#else
+					CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);	
+					CAN_cmd_drive(Chassis_power_control.Chassis_Power_calc.send_current_value[0],Chassis_power_control.Chassis_Power_calc.send_current_value[1],Chassis_power_control.Chassis_Power_calc.send_current_value[2],Chassis_power_control.Chassis_Power_calc.send_current_value[3]);
+					#endif
 			}
 			osDelay(1);//控制频率为1khz，与can接收中断频率一致
 		}
@@ -153,6 +157,7 @@ static void chassis_init(chassis_move_t *init)
   init->wz_max_speed = NORMAL_MAX_CHASSIS_SPEED_W;
   init->wz_min_speed = -NORMAL_MAX_CHASSIS_SPEED_W;
 	
+	chassis_power_init(&Chassis_power_control);
 	
 	//更新底盘数据
 	chassis_feedback_update(init);
@@ -206,7 +211,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 //    }
 //    //change to follow chassis yaw angle
 //    //切入跟随底盘角度模式
-//    else if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
+//    else if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW)
 //    {
 //        chassis_move_transit->chassis_yaw_set = chassis_move_transit->chassis_yaw;
 //    }
@@ -221,7 +226,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 }
 
 
-
+fp32 hhh=0;
 /**
   * @brief          控制循环，根据控制设定值，计算电机电流值，进行控制
   * @param[out]     chassis_move_control_loop:"chassis_move"变量指针.
@@ -233,7 +238,10 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_vector_to_agv_calculate(chassis_move_control_loop->course_set_angle,chassis_move_control_loop->drive_set_speed,
 																	chassis_move_control_loop->vx_set,chassis_move_control_loop->vy_set,chassis_move_control_loop->wz_set);
 
-	
+//	chassis_move_control_loop->drive_set_speed[0] = sqrt(40.0f)*hhh;
+//	chassis_move_control_loop->drive_set_speed[1] = sqrt(40.0f)*hhh;
+//	chassis_move_control_loop->drive_set_speed[2] = sqrt(40.0f)*hhh;
+//	chassis_move_control_loop->drive_set_speed[3] = sqrt(40.0f)*hhh;
 
 	//计算pid
 	for (int i = 0; i < 4; i++)
@@ -252,6 +260,8 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 					chassis_move_control_loop->motor_chassis[i+4].chassis_motor_measure->rpm,
 					chassis_move_control_loop->chassis_course_angle_pid[i].out);
 		}
+		
+		chassis_power_control(&Chassis_power_control);
 
 
 }
@@ -303,6 +313,7 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	for(i=0;i<4;i++)
 	feedback_update->course_angle[i] = Angle_Limit((feedback_update->motor_chassis[4+i].chassis_motor_measure->ecd - INIT_ECD[i])*360/8192,360);
 	
+	chassis_power_feedback(&Chassis_power_control);
 	#ifdef CHASSIS_DEBUG
 	Chassis_Debug_get_data();
 	#endif
@@ -355,7 +366,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		}
 		
 		//不跟随云台
-    else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
+    else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW)
 		{
 			 fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
@@ -371,13 +382,30 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
 		}
 		
-		//不跟随云台
+		//底盘无力
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_ZERO_FORCE)
     {
-			 chassis_move_control->wz_set = vy_set;
-			 chassis_move_control->vx_set = vx_set;
-			 chassis_move_control->vy_set = wz_set;
+
+				 chassis_move_control->vx_set = 0;
+				 chassis_move_control->vy_set = 0;
+				 chassis_move_control->wz_set = 0;	
+			
     }
+		
+		
+		//建图模式
+		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_BUILD_MAP)
+		{
+			chassis_move_control->vx_set = vx_set;
+			chassis_move_control->vy_set = vy_set;
+			chassis_move_control->wz_set = wz_set;
+			
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
+		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+
+		}
+		//雷达模式
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_RADAR)
 		{
 			fp32 angle_diff=yaw_diff* PI / 180.0f;
@@ -469,10 +497,10 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	{
 			wheel_angle[3] += 180;		
 			wheel_angle[3]=Angle_Limit(wheel_angle[3],360);
-			drct[3] = -1;
+			drct[3] = 1;
 	}
 	else
-			drct[3]=1;
+			drct[3]=-1;
 	wheel_speed[3] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 

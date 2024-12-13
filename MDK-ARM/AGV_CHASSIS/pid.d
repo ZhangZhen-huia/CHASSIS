@@ -49,4 +49,8 @@
 .\agv_chassis\pid.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\pid.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\pid.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\pid.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\pid.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h

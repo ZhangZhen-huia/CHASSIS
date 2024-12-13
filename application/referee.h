@@ -743,6 +743,14 @@ void  Referee_Sys_Init(void);      //裁判系统初始化
 Referee_System_t *get_referee_data_point(void);  //获取裁判系统指针
 void Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num);	//发送图形数据到裁判系统
 
+void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer);
+extern void get_shoot_heat1_limit_and_heat1(uint16_t *heat1_limit, uint16_t *heat1);
+extern void get_shoot_heat0_limit_and_heat0(uint16_t *heat0_limit, uint16_t *heat0);
+extern uint8_t get_robot_id(void);
+
+extern Referee_System_t  Referee_System;
+
+
 #endif
 
 

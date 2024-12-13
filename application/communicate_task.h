@@ -27,7 +27,9 @@ typedef struct
 	rc_data_t rc_data;
 	uint8_t rc_err;
 	uint8_t FireFlag;
-	uint8_t Radar_mode;
+//	uint8_t Radar_mode;
+//	uint8_t Build_map_mode;
+	uint8_t Gimbal_init;
 }gimbal_data_t;
 
 

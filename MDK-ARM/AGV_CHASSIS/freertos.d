@@ -48,6 +48,10 @@
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\freertos.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\freertos.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\freertos.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\freertos.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 .\agv_chassis\freertos.o: ../Inc/tim.h
 .\agv_chassis\freertos.o: ../application/remote_control.h

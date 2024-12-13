@@ -28,6 +28,7 @@
 ".\agv_chassis\trig_task.o"
 ".\agv_chassis\referee.o"
 ".\agv_chassis\communicate_task.o"
+".\agv_chassis\chassis_power_control.o"
 ".\agv_chassis\bmi088driver.o"
 ".\agv_chassis\bmi088middleware.o"
 ".\agv_chassis\ahrs_middleware.o"

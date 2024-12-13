@@ -49,6 +49,10 @@
 .\agv_chassis\trig_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\agv_chassis\trig_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\agv_chassis\trig_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\agv_chassis\trig_task.o: ../components/algorithm/Include/arm_math.h
+.\agv_chassis\trig_task.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\agv_chassis\trig_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+.\agv_chassis\trig_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\trig_task.o: ../components/controller/pid.h
 .\agv_chassis\trig_task.o: ../bsp/Can_receive.h
 .\agv_chassis\trig_task.o: ../Inc/can.h

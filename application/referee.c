@@ -52,7 +52,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 			
 			Referee_Data_Process(Referee_System.RS_rx_buf[0]);
-//			DetectHook(REFEREE_TOE);
+			detect_hook(REFEREE_TOE);
 		}
 		else
 		{
@@ -63,7 +63,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 		
 		Referee_Data_Process(Referee_System.RS_rx_buf[1]);
-//		DetectHook(REFEREE_TOE);
+		detect_hook(REFEREE_TOE);
 		}
 	}   
 }
@@ -179,6 +179,46 @@ void Referee_0x0301Data_Receive(uint8_t *data)
 		}
 	}
 }
+
+
+
+
+
+
+
+
+//获取底盘功率和缓冲功率
+void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer)
+{
+    *power =  Referee_System.ext_power_heat_data.chassis_power;
+    *buffer =  Referee_System.ext_power_heat_data.chassis_power_buffer;
+
+}
+
+
+//获得机器人id
+uint8_t get_robot_id(void)
+{
+    return Referee_System.ext_game_robot_state.robot_id;
+}
+
+
+//获得摩擦轮0的冷却和热量
+void get_shoot_heat0_limit_and_heat0(uint16_t *heat0_limit, uint16_t *heat0)
+{
+    *heat0_limit = Referee_System.ext_game_robot_state.shooter_id1_17mm_cooling_limit;
+    *heat0 = Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat;
+}
+
+//获得摩擦轮1的冷却和热量
+void get_shoot_heat1_limit_and_heat1(uint16_t *heat1_limit, uint16_t *heat1)
+{
+    *heat1_limit = Referee_System.ext_game_robot_state.shooter_id2_17mm_cooling_limit;
+    *heat1 = Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat;
+}
+
+
+
 
 /*------------------------------------------------------*/	
 /*            裁判系统数据规整和发送                    */	

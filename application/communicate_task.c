@@ -44,20 +44,50 @@ void Chassis_data_transfer(void)
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 {
-	gimbal_data->rc_data.vx_set 	= (buf[0]-33)*20;
-	gimbal_data->rc_data.vy_set 	= (buf[1]-33)*20;
-	gimbal_data->rc_data.wz_set 	= (buf[2]-33)*20;
+	gimbal_data->gimbal_mode 			= buf[6];
+	if(chassis_move.chassis_mode == CHASSIS_VECTOR_RADAR)
+	{
+		#ifdef RADAR
+		gimbal_data->rc_data.vx_set 	= buf[0]/42.0f - 5.0f;
+		gimbal_data->rc_data.vy_set 	= buf[1]/42.0f - 5.0f;
+		gimbal_data->rc_data.wz_set 	= buf[2]/42.0f - 5.0f;
+		#else
+		gimbal_data->rc_data.vx_set 	= 0.0f;
+		gimbal_data->rc_data.vy_set 	= 0.0f;
+		gimbal_data->rc_data.wz_set 	= 0.0f;
+		#endif
+	}
+	else//底盘不是雷达模式
+	{
+		//并且云台也不是雷达模式
+		if(gimbal_data->gimbal_mode & 0x04)
+		{
+			gimbal_data->rc_data.vx_set 	= 0;
+			gimbal_data->rc_data.vy_set 	= 0;
+			gimbal_data->rc_data.wz_set 	= 0;
+		}
+		//云台是雷达模式
+		else
+		{
+			gimbal_data->rc_data.vx_set 	= (buf[0]-33)*20;
+			gimbal_data->rc_data.vy_set 	= (buf[1]-33)*20;
+			gimbal_data->rc_data.wz_set 	= (buf[2]-33)*20;
+
+		}
+
+	}
 	gimbal_data->rc_err 					= buf[3];
 	gimbal_data->rc_data.rc_sl 		= buf[4];
 	gimbal_data->rc_data.rc_sr 		= buf[5];
-	gimbal_data->gimbal_mode 			= buf[6];
 }
 
 
 void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 {
 	gimbal_data->FireFlag = gimbal_data->gimbal_mode & 0x01;
-	gimbal_data->Radar_mode = gimbal_data->gimbal_mode & 0x04;
+//	gimbal_data->Radar_mode = gimbal_data->gimbal_mode & 0x04;
+//	gimbal_data->Build_map_mode = gimbal_data->gimbal_mode & 0x08;
+	gimbal_data->Gimbal_init = gimbal_data->gimbal_mode & 0x02;
 }
 
 bool_t rc_is_error(void)

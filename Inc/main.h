@@ -36,7 +36,7 @@ extern "C" {
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "event_groups.h"
-
+#include "arm_math.h"
 
 
 /* USER CODE END Includes */
@@ -71,7 +71,10 @@ void Error_Handler(void);
 #define ShootEvent_1 (1<<1)
 #define Event_2 (1<<2)
 
+
+//#define RADAR
 //#define CASCADE
+#define POWER 
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
