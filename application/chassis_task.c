@@ -345,7 +345,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			//根据底盘状态设置来计算vx_set，vy_set，wz_set
     chassis_behaviour_control_set(&vx_set,&vy_set,&wz_set,chassis_move_control);
     
-		//跟随云台yaw
+		//跟随云台yaw,左上
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
 			static fp32 last_angle_diff;
@@ -374,7 +374,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
 		}
 		
-		//不跟随云台
+		//不跟随云台，左下
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW)
 		{
 			 fp32 angle_diff=yaw_diff* PI / 180.0f;
@@ -391,7 +391,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
 		}
 		
-		//底盘无力
+		//底盘无力，左中
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_ZERO_FORCE)
     {
 
@@ -414,27 +414,31 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 
 		}
-		//雷达模式
+		//雷达模式，左下
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_RADAR)
 		{
 			fp32 angle_diff;
-			
-	
+//			
+//	
 			angle_diff=rad_format(yaw_diff* PI / 180.0f);
-			
-			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
-			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			
-			
+//			
+//			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+//			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+//			
+//			
 			PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 			chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
+
+			chassis_move_control->vx_set = vx_set;
+			chassis_move_control->vy_set = vy_set;
+			//chassis_move_control->wz_set = wz_set;
 			
-			
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -1.0f, 1.0f);
-		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -1.0f, 1.0f);
-		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -1.0f, 1.0f);
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
+		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -1.50f,1.50f);
+		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -1.50f,1.50f);
 
 		}
+		//飞坡模式，左中
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_FLY)
 		{
 			static fp32 last_angle_diff;

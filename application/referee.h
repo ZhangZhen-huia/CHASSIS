@@ -1,16 +1,16 @@
-#ifndef __REFEREE_DATA_H
-#define __REFEREE_DATA_H
+#ifndef __REFEREE_H
+#define __REFEREE_H
 
 #include "main.h"
 
-//#define STAND_4
+#include "user_lib.h"
 
 //¶¨Òå½ÓÊÕ·¢ËÍBUFFERÊı¾İ³¤¶È
 #define RS_RX_BUF_NUM  512u
 #define RS_TX_BUF_NUM  128u
 
 #define Sentry_Decide_Order   0x0120
-
+#define HERO
 
 
 // ¶¨Òå¸÷¸ö±ÈÌØÎ»µÄÎ»ÖÃ
@@ -126,7 +126,7 @@ typedef struct  //±ÈÈü×´Ì¬Êı¾İ£º0x0001¡£·¢ËÍÆµÂÊ£º1Hz£¬·¢ËÍ·¶Î§£ºËùÓĞ»úÆ÷ÈË¡£
 	uint8_t  game_progress : 4;
 
 	uint16_t stage_remain_time;//µ±Ç°½×¶ÎÊ£ÓàÊ±¼ä£¬µ¥Î»s
-		
+	uint64_t SyncTimeStamp; 
 } ext_game_status_t;
 
 		
@@ -263,7 +263,7 @@ typedef struct //²ÃÅĞ¾¯¸æĞÅÏ¢£ºcmd_id (0x0104)¡£·¢ËÍÆµÂÊ£º¾¯¸æ·¢Éúºó·¢ËÍ£¬·¢ËÍ·¶
 	1¼¶ÒÔ¼°5¼¶¾¯¸æÊ±£¬»úÆ÷ÈËIDÎª0
 	¶şÈıËÄ¼¶¾¯¸æÊ±£¬»úÆ÷ÈËIDÎª·¸¹æ»úÆ÷ÈËID*/
 	uint8_t foul_robot_id;
-
+   uint8_t count; 
 }ext_referee_warning_t;
 	
 	
@@ -272,7 +272,7 @@ typedef struct //·ÉïÚ·¢Éä¿Úµ¹¼ÆÊ±£ºcmd_id (0x0105)¡£·¢ËÍÆµÂÊ£º1HzÖÜÆÚ·¢ËÍ£¬·¢ËÍ·
 {
 	//15s µ¹¼ÆÊ±
 	uint8_t dart_remaining_time;
- 
+  uint16_t dart_info; 
 }ext_dart_remaining_time_t;
 	
 	
@@ -294,27 +294,16 @@ typedef struct //±ÈÈü»úÆ÷ÈË×´Ì¬£º0x0201¡£·¢ËÍÆµÂÊ£º10Hz£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË¡£
 	107£ºÀ¶·½ÉÚ±ø»úÆ÷ÈË¡£
 	108£ºÀ¶·½·ÉïÚ»úÆ÷ÈË£»
 	109£ºÀ¶·½À×´ïÕ¾¡£*/
-	uint8_t robot_id;
-	uint8_t robot_level;  //»úÆ÷ÈËµÈ¼¶£º1£ºÒ»¼¶£»2£º¶ş¼¶£»3£ºÈı¼¶
-	uint16_t remain_HP;   //»úÆ÷ÈËÊ£ÓàÑªÁ¿
-	uint16_t max_HP;      //»úÆ÷ÈËÉÏÏŞÑªÁ¿
-	uint16_t shooter_id1_17mm_cooling_rate;   //»úÆ÷ÈË1ºÅ17mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-  uint16_t shooter_id1_17mm_cooling_limit;  //»úÆ÷ÈË1ºÅ17mmÇ¹¿ÚÈÈÁ¿ÉÏÏŞ
-  uint16_t shooter_id1_17mm_speed_limit;    //»úÆ÷ÈË1ºÅ17mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-			
-	uint16_t shooter_id2_17mm_cooling_rate;    //»úÆ÷ÈË2ºÅ17mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-  uint16_t shooter_id2_17mm_cooling_limit;   //»úÆ÷ÈË2ºÅ17mmÇ¹¿ÚÈÈÁ¿ÉÏÏŞ
-  uint16_t shooter_id2_17mm_speed_limit;    //»úÆ÷ÈË2ºÅ17mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-			
-	uint16_t shooter_id1_42mm_cooling_rate;   //»úÆ÷ÈË1ºÅ42mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-  uint16_t shooter_id1_42mm_cooling_limit;  //»úÆ÷ÈË1ºÅ42mmÇ¹¿ÚÈÈÁ¿ÉÏÏŞ
-  uint16_t shooter_id1_42mm_speed_limit;    //»úÆ÷ÈË1ºÅ42mmÇ¹¿ÚÃ¿ÃëÀäÈ´Öµ
-	uint16_t max_chassis_power;              //»úÆ÷ÈË×î´óµ×ÅÌ¹¦ÂÊ£¬ µ¥Î» w
-	
-	uint8_t mains_power_gimbal_output :  1;   //gimbal ¿ÚÊä³ö£º 1 ÎªÓĞ 24V Êä³ö£¬0 ÎªÎŞ 24v Êä³ö£»
-	uint8_t mains_power_chassis_output : 1;   //chassis ¿ÚÊä³ö£º1 ÎªÓĞ 24V Êä³ö£¬0 ÎªÎŞ 24v Êä³ö£»
-	uint8_t mains_power_shooter_output : 1;   //shooter ¿ÚÊä³ö£º1 ÎªÓĞ 24V Êä³ö£¬0 ÎªÎŞ 24v Êä³ö£»
-	
+  uint8_t robot_id; 
+  uint8_t robot_level; 
+  uint16_t current_HP;  
+  uint16_t maximum_HP; 
+  uint16_t shooter_barrel_cooling_value; 
+  uint16_t shooter_barrel_heat_limit; 
+  uint16_t chassis_power_limit;  
+  uint8_t power_management_gimbal_output : 1; 
+  uint8_t power_management_chassis_output : 1;  
+  uint8_t power_management_shooter_output : 1; 
 
 	
 } ext_game_robot_state_t;
@@ -339,7 +328,7 @@ typedef struct //»úÆ÷ÈËÎ»ÖÃ£º0x0203¡£·¢ËÍÆµÂÊ£º10Hz£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË¡£
 {
 	float x;  //Î»ÖÃx×ø±ê£¬µ¥Î»m
 	float y;  //Î»ÖÃy×ø±ê£¬µ¥Î»m
-	float z;  //Î»ÖÃz×ø±ê£¬µ¥Î»m
+//	float z;  //Î»ÖÃz×ø±ê£¬µ¥Î»m
 	float yaw; //Î»ÖÃÇ¹¿Ú£¬µ¥Î»¶È
 
 }ext_game_robot_pos_t;
@@ -348,25 +337,18 @@ typedef struct //»úÆ÷ÈËÎ»ÖÃ£º0x0203¡£·¢ËÍÆµÂÊ£º10Hz£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË¡£
 
 typedef struct  //»úÆ÷ÈËÔöÒæ£º0x0204¡£·¢ËÍÆµÂÊ£º1HzÖÜÆÚ·¢ËÍ£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË¡£
 {
-	//bit 0£º»úÆ÷ÈËÑªÁ¿²¹Ñª×´Ì¬
-	uint8_t power_Tonic_state: 1 ;	
-	//bit 1£ºÇ¹¿ÚÈÈÁ¿ÀäÈ´¼ÓËÙ
-	uint8_t heat_cooling_acceleration: 1 ;	
-	//bit 2£º»úÆ÷ÈË·ÀÓù¼Ó³É
-	uint8_t Defense_bonus: 1 ;	
-    //bit 3£º»úÆ÷ÈË¹¥»÷¼Ó³É 
-	uint8_t Attack_bonus:  1 ;	
-	
-	uint8_t : 4;
-	
+  uint8_t recovery_buff;  
+  uint8_t cooling_buff;  
+  uint8_t defence_buff;  
+  uint8_t vulnerability_buff; 
+  uint16_t attack_buff; 
 }ext_buff_t;
 	
 
 typedef struct //¿ÕÖĞ»úÆ÷ÈËÄÜÁ¿×´Ì¬£º0x0205¡£·¢ËÍÆµÂÊ£º10Hz£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË
 {
-	
-	uint8_t  attack_time;   //¿É¹¥»÷Ê±¼ä µ¥Î» s¡£30s µİ¼õÖÁ0
-
+  uint8_t airforce_status; 
+  uint8_t time_remain; 
 }ext_aerial_robot_energy_t;
 
 
@@ -392,25 +374,19 @@ typedef struct //ÉËº¦×´Ì¬£º0x0206¡£·¢ËÍÆµÂÊ£ºÉËº¦·¢Éúºó·¢ËÍ£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷È
 
 typedef struct //ÊµÊ±Éä»÷ĞÅÏ¢£º0x0207¡£·¢ËÍÆµÂÊ£ºÉä»÷ºó·¢ËÍ£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË
 {
-	uint8_t bullet_type;  //×Óµ¯ÀàĞÍ: 1£º17mm µ¯Íè 2£º42mm µ¯Íè
-	uint8_t bullet_freq;  //×Óµ¯ÉäÆµ µ¥Î» Hz
-	/*·¢Éä»ú¹¹ ID£º
-		1£º 1 ºÅ 17mm ·¢Éä»ú¹¹
-		2£º 2 ºÅ 17mm ·¢Éä»ú¹¹
-		3£º 42mm ·¢Éä»ú¹¹	
-	*/
-	uint8_t shooter_id;
-	float bullet_speed;   //×Óµ¯ÉäËÙ µ¥Î» m/s
-	
+  uint8_t bullet_type;  
+  uint8_t shooter_number; 
+  uint8_t launching_frequency;  
+  float initial_speed;  
 } ext_shoot_data_t;
 
 
 
 typedef struct  //×Óµ¯Ê£Óà·¢ÉäÊı£º0x0208¡£·¢ËÍÆµÂÊ£º1HzÖÜÆÚ·¢ËÍ£¬¿ÕÖĞ»úÆ÷ÈË£¬ÉÚ±ø»úÆ÷ÈËÒÔ¼°ICRA»úÆ÷ÈËÖ÷¿Ø·¢ËÍ£¬·¢ËÍ·¶Î§£ºµ¥Ò»»úÆ÷ÈË¡£
 { 
-	
-    uint16_t bullet_remaining_num_17mm; //×Óµ¯Ê£Óà·¢ÉäÊıÄ¿
-	
+  uint16_t projectile_allowance_17mm; 
+  uint16_t projectile_allowance_42mm;  
+  uint16_t remaining_gold_coin;
 } ext_bullet_remaining_t;
 
 
@@ -712,13 +688,9 @@ typedef struct
 	uint8_t  RS_tx_buf[RS_TX_BUF_NUM];    //Ô­Ê¼·¢ËÍÊı¾İ
 	
 	uint16_t  this_time_rx_len;            //µ±´Î½ÓÊÕµ½µÄÊı¾İ³¤¶È
-	uint32_t  sentry_gun_count;				//ÉÚ±ø³É¹¦¶Ò»»µÄ·¢µ¯Á¿Öµ
-	uint32_t  sentry_gun_exchange_count;   //ÉÚ±ø³É¹¦Ô¶³Ì¶Ò»»·¢µ¯Á¿µÄ´ÎÊı
-	uint32_t  sentry_hp_exchange_count;    //ÉÚ±ø³É¹¦Ô¶³Ì¶Ò»»ÑªÁ¿µÄ´ÎÊı
 
-
-    RS_frame_point_t    *RS_frame_point;    //²ÃÅĞÏµÍ³Ö¡Í·¸ñÊ½Ö¸Õë
-    Data_frame_point_t  *Data_frame_point;  //Êı¾İ¶ÎÖ¡Í·¸ñÊ½Ö¸Õë
+  RS_frame_point_t    *RS_frame_point;    //²ÃÅĞÏµÍ³Ö¡Í·¸ñÊ½Ö¸Õë
+  Data_frame_point_t  *Data_frame_point;  //Êı¾İ¶ÎÖ¡Í·¸ñÊ½Ö¸Õë
 	
 	/*²ÃÅĞÏµÍ³Êı¾İ*/
 	ext_game_status_t				 ext_game_status;//±ÈÈü×´Ì¬ĞÅÏ¢
@@ -728,6 +700,7 @@ typedef struct
 	ext_rfid_status_t                ext_rfid_status;  //RFID×´Ì¬ĞÅÏ¢
 	ext_robot_hurt_t                 ext_robot_hurt;        //ÉËº¦×´Ì¬Êı¾İ
 	ext_supply_projectile_action_t   ext_supply_projectile_action;  //²¹µ¯×´Ì¬Êı¾İ
+
 	ext_shoot_data_t	             ext_shoot_data;  		//ÉäËÙÊı¾İ
 	ext_robot_radar_command_t		 ext_robot_radar_command;//À×´ïĞ¡µØÍ¼Êı¾İ
 	ext_bullet_remaining_t           ext_bullet_remaining;//Ê£Óà×Óµ¯ÊıÁ¿
@@ -742,13 +715,8 @@ typedef struct
 void  Referee_Sys_Init(void);      //²ÃÅĞÏµÍ³³õÊ¼»¯
 Referee_System_t *get_referee_data_point(void);  //»ñÈ¡²ÃÅĞÏµÍ³Ö¸Õë
 void Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num);	//·¢ËÍÍ¼ĞÎÊı¾İµ½²ÃÅĞÏµÍ³
-
 void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer);
-extern void get_shoot_heat1_limit_and_heat1(uint16_t *heat1_limit, uint16_t *heat1);
-extern void get_shoot_heat0_limit_and_heat0(uint16_t *heat0_limit, uint16_t *heat0);
-extern uint8_t get_robot_id(void);
-
-extern Referee_System_t  Referee_System;
+uint8_t get_robot_id(void);
 
 
 #endif

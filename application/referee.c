@@ -5,9 +5,11 @@
 #include "crc8_crc16.h"
 #include "bsp_usart.h"
 
+
 static void Referee_Data_Process(uint8_t *data);
 static void Referee_Data_Receive(uint8_t *data);
 static void Referee_0x0301Data_Receive(uint8_t *data);
+//static void Referee_Data_sentry_process();
 /*------------------------------------------------------*/	
 /*                       裁判系统结构体变量             */	
 /*------------------------------------------------------*/	
@@ -52,7 +54,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 			
 			Referee_Data_Process(Referee_System.RS_rx_buf[0]);
-			detect_hook(REFEREE_TOE);
+//			DetectHook(REFEREE_TOE);
 		}
 		else
 		{
@@ -63,7 +65,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 		
 		Referee_Data_Process(Referee_System.RS_rx_buf[1]);
-		detect_hook(REFEREE_TOE);
+//		DetectHook(REFEREE_TOE);
 		}
 	}   
 }
@@ -113,10 +115,10 @@ void Referee_Data_Receive(uint8_t *data)
 	switch(Referee_System.RS_frame_point->cmd_id)
 	{
 		case 0x0001:
-		  memmove(&Referee_System.ext_game_status ,data, 3);
+		  memmove(&Referee_System.ext_game_status ,data, 11);
 		  break;
 		  		
-		case 0x003:
+		case 0x0003:
 		  memmove(&Referee_System.ext_game_robot_HP, data, 32);	
 		  break;
 
@@ -125,7 +127,7 @@ void Referee_Data_Receive(uint8_t *data)
 		  break;
 
 		case 0x0201:
-		  memmove(&Referee_System.ext_game_robot_state ,data,27);
+		  memmove(&Referee_System.ext_game_robot_state ,data,13);
 		  break;
 			
 		case 0x0202:
@@ -133,7 +135,7 @@ void Referee_Data_Receive(uint8_t *data)
 		  break;
 	
 		case 0x0206:
-		  memmove(&Referee_System.ext_robot_hurt ,data,6);
+		  memmove(&Referee_System.ext_robot_hurt ,data,1);
 		  break;
 		
 		case 0x0207:
@@ -144,12 +146,7 @@ void Referee_Data_Receive(uint8_t *data)
 		  memmove(&Referee_System.ext_rfid_status ,data,4);
 		  break;
 		
-		case 0x020D:
-		  memmove(&sentry_info ,data,4);
-		   Referee_System.sentry_gun_count = sentry_info & GUN_COUNT_MASK;           // 提取位 0-10 的数据
-		   Referee_System.sentry_gun_exchange_count = (sentry_info & GUN_EXCHANGE_MASK) >> 11;  // 提取位 11-14 的数据
-		   Referee_System.sentry_hp_exchange_count = (sentry_info & HP_EXCHANGE_MASK) >> 15;    // 提取位 15-18 的数据
-		  break;
+
 
 		case 0x0301:
 		  Referee_0x0301Data_Receive(data);
@@ -180,10 +177,48 @@ void Referee_0x0301Data_Receive(uint8_t *data)
 	}
 }
 
+/*------------------------------------------------------*/	
+/*            裁判系统数据规整和发送                    */	
+/*------------------------------------------------------*/
+void   Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num)
+{
+		//帧头
+		Referee_System.RS_tx_buf[0] = 0xA5;
 
+		//数据长度
+		*(uint16_t*)(&Referee_System.RS_tx_buf[1]) = num + 6;
 
+		//包序号
+		static uint8_t seq = 0;
+		seq++;
+		Referee_System.RS_tx_buf[3] = seq;
 
+		//CRC8校验
+		Append_CRC8_Check_Sum(Referee_System.RS_tx_buf,5);
 
+		//cmd-id
+		*(uint16_t*)(&Referee_System.RS_tx_buf[5]) = 0x0301;//cmd id:0x0301//命令码
+
+		//数据内容ID
+		*(uint16_t*)(&Referee_System.RS_tx_buf[7]) = cmd;//子内容
+
+		//发送者ID
+		*(uint16_t*)(&Referee_System.RS_tx_buf[9]) = (uint16_t)(Referee_System.ext_game_robot_state.robot_id);
+
+		//接收者ID
+		
+		*(uint16_t*)(&Referee_System.RS_tx_buf[11]) = (uint16_t)0x8080;
+		
+	
+
+		//图形数据
+		memcpy(&Referee_System.RS_tx_buf[13],data,num);
+
+		//CRC16校验
+		Append_CRC16_Check_Sum(Referee_System.RS_tx_buf,15+num);
+
+		Referee_DMA_TX(15+num);
+}
 
 
 
@@ -203,62 +238,6 @@ uint8_t get_robot_id(void)
 }
 
 
-//获得摩擦轮0的冷却和热量
-void get_shoot_heat0_limit_and_heat0(uint16_t *heat0_limit, uint16_t *heat0)
-{
-    *heat0_limit = Referee_System.ext_game_robot_state.shooter_id1_17mm_cooling_limit;
-    *heat0 = Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat;
-}
-
-//获得摩擦轮1的冷却和热量
-void get_shoot_heat1_limit_and_heat1(uint16_t *heat1_limit, uint16_t *heat1)
-{
-    *heat1_limit = Referee_System.ext_game_robot_state.shooter_id2_17mm_cooling_limit;
-    *heat1 = Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat;
-}
 
 
 
-
-/*------------------------------------------------------*/	
-/*            裁判系统数据规整和发送                    */	
-/*------------------------------------------------------*/
-//void   Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num)
-//{
-//		//帧头
-//		Referee_System.RS_tx_buf[0] = 0xA5;
-
-//		//数据长度
-//		*(uint16_t*)(&Referee_System.RS_tx_buf[1]) = num + 6;
-
-//		//包序号
-//		static uint8_t seq = 0;
-//		seq++;
-//		Referee_System.RS_tx_buf[3] = seq;
-
-//		//CRC8校验
-//		Append_CRC8_Check_Sum(Referee_System.RS_tx_buf,5);
-
-//		//cmd-id
-//		*(uint16_t*)(&Referee_System.RS_tx_buf[5]) = 0x0301;//cmd id:0x0301//命令码
-
-//		//数据内容ID
-//		*(uint16_t*)(&Referee_System.RS_tx_buf[7]) = cmd;//子内容
-
-//		//发送者ID
-//		*(uint16_t*)(&Referee_System.RS_tx_buf[9]) = (uint16_t)(Referee_System.ext_game_robot_state.robot_id);
-
-//		//接收者ID
-//		
-//		*(uint16_t*)(&Referee_System.RS_tx_buf[11]) = (uint16_t)0x8080;
-//		
-//	
-
-//		//图形数据
-//		memcpy(&Referee_System.RS_tx_buf[13],data,num);
-
-//		//CRC16校验
-//		Append_CRC16_Check_Sum(Referee_System.RS_tx_buf,15+num);
-
-//		Referee_DMA_TX(15+num);
-//}

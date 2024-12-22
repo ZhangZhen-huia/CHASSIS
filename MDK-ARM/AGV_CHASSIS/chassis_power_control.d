@@ -56,6 +56,7 @@
 .\agv_chassis\chassis_power_control.o: ..\application\vofa_task.h
 .\agv_chassis\chassis_power_control.o: ../Inc/usart.h
 .\agv_chassis\chassis_power_control.o: ..\application\referee.h
+.\agv_chassis\chassis_power_control.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_power_control.o: ..\application\detect_task.h
 .\agv_chassis\chassis_power_control.o: ..\application\chassis_task.h
 .\agv_chassis\chassis_power_control.o: ../bsp/Can_receive.h
@@ -66,5 +67,4 @@
 .\agv_chassis\chassis_power_control.o: ..\application\INS_task.h
 .\agv_chassis\chassis_power_control.o: ../components/devices/BMI088driver.h
 .\agv_chassis\chassis_power_control.o: ../components/controller/pid.h
-.\agv_chassis\chassis_power_control.o: ../components/algorithm/user_lib.h
 .\agv_chassis\chassis_power_control.o: ..\application\communicate_task.h

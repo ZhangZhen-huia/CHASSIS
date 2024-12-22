@@ -53,6 +53,7 @@
 .\agv_chassis\referee.o: ../Drivers/CMSIS/Include/core_cm4.h
 .\agv_chassis\referee.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
 .\agv_chassis\referee.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
+.\agv_chassis\referee.o: ../components/algorithm/user_lib.h
 .\agv_chassis\referee.o: ..\application\detect_task.h
 .\agv_chassis\referee.o: ../Inc/usart.h
 .\agv_chassis\referee.o: ..\components\support\crc8_crc16.h

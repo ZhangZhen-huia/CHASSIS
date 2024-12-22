@@ -62,3 +62,4 @@
 .\agv_chassis\freertos.o: ../Inc/can.h
 .\agv_chassis\freertos.o: ../application/communicate_task.h
 .\agv_chassis\freertos.o: ../application/referee.h
+.\agv_chassis\freertos.o: ../components/algorithm/user_lib.h

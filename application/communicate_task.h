@@ -10,9 +10,9 @@
 
 typedef struct
 {
-	int16_t vx_set;
-	int16_t vy_set;
-	int16_t wz_set;
+	fp32 vx_set;
+	fp32 vy_set;
+	fp32 wz_set;
 	uint8_t rc_sl;
 	uint8_t rc_sr;
 	

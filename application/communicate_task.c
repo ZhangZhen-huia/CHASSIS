@@ -9,7 +9,6 @@
 #include "bsp_usart.h"
 
 gimbal_data_t gimbal_data;
-static void can_cmd_to_gimbal(CAN_HandleTypeDef*hcan,int16_t can_id,uint8_t *buf,uint8_t num);
 void dispose_gimbal_mode(gimbal_data_t *gimbal_data);
 
 
@@ -29,19 +28,7 @@ void communicate_task(void const * argument)
 
 
 
-
-void Chassis_data_transfer(void)
-{
-
-	uint8_t buf[1];
-	fp32 pitch;
-	
-	pitch = chassis_move.chassis_bmi088_data->INS_angle[INS_ROLL_ADDRESS_OFFSET]/57.2957795f;
-	
-	buf[0] = (pitch+3.1415926f)*40.0f;
-	
-	can_cmd_to_gimbal(&hcan1,CHASSIS_ID,buf,1);
-}
+int speed[3];
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 {
@@ -49,9 +36,14 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 	if(chassis_move.chassis_mode == CHASSIS_VECTOR_RADAR)
 	{
 		#ifdef RADAR
-		gimbal_data->rc_data.vx_set 	= buf[0]/42.0f - 5.0f;
-		gimbal_data->rc_data.vy_set 	= buf[1]/42.0f - 5.0f;
-		gimbal_data->rc_data.wz_set 	= buf[2]/42.0f - 5.0f;
+		speed[0]=buf[0];
+		speed[1]=buf[1];
+		speed[2]=buf[2];
+
+		
+		gimbal_data->rc_data.vx_set 	= buf[0]*0.02-2.0f;//(float)buf[0]/100.0f - 1.0f;
+		gimbal_data->rc_data.vy_set 	= buf[1]*0.02-2.0f;//(float)buf[1]/100.0f - 1.0f;
+		gimbal_data->rc_data.wz_set 	= buf[2]*0.02-2.0f;//(float)buf[2]/100.0f - 1.0f;
 		#else
 		gimbal_data->rc_data.vx_set 	= 0.0f;
 		gimbal_data->rc_data.vy_set 	= 0.0f;
@@ -109,22 +101,4 @@ const rc_data_t * get_gimbal_rc_data_point(void)
 }
 
 
-static void can_cmd_to_gimbal(CAN_HandleTypeDef*hcan,int16_t can_id,uint8_t *buf,uint8_t num)
-{
-	uint32_t send_mail_box;
-	CAN_TxHeaderTypeDef chassis_tx_message;
-	uint8_t    chassis_can_send_data[num];
-	
-	chassis_tx_message.StdId = can_id;
-	chassis_tx_message.DLC = num;
-	chassis_tx_message.IDE = CAN_ID_STD;
-	chassis_tx_message.RTR = CAN_RTR_DATA;
-	for(uint8_t i=0;i<num;i++)
-	chassis_can_send_data[i] = buf[i];
-
-
-
-	HAL_CAN_AddTxMessage(hcan,&chassis_tx_message,chassis_can_send_data, &send_mail_box);
-
-}
 

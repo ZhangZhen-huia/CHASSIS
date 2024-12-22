@@ -14,10 +14,10 @@
 #include "communicate_task.h"
 /* --------------------------------------yaw轴-------------------------------------------------*/
 
-#define YAW_ANGLE_PID_KP                 1.0f
+#define YAW_ANGLE_PID_KP                 1.20f
 #define YAW_ANGLE_PID_KI                 0.0f
 #define YAW_ANGLE_PID_KD                 2.0f
-#define YAW_PID_MAX_OUT            3.00f //最大输出值
+#define YAW_PID_MAX_OUT            3.50f //最大输出值
 #define YAW_PID_MAX_IOUT           0.0f //
 
 
@@ -243,6 +243,7 @@ typedef struct
   pid_type_def chassis_course_speed_pid[4];						 //航向电机速度pid	
 	pid_type_def yaw_pid;
 	pid_type_def GM6020_pid;
+	
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_wz;  //一阶低通滤波减缓设定值
@@ -281,13 +282,13 @@ typedef struct
 extern chassis_move_t chassis_move;//底盘运动数据
 
 /*******************************一节低通滤波参数************************/
-#define CHASSIS_CONTROL_TIME 0.01f   //x和y本次信任参数
-#define CHASSIS_CONTROL_TIME_W 0.05f  //z本次信任参数
+#define CHASSIS_CONTROL_TIME 1.0f   //x和y本次信任参数
+#define CHASSIS_CONTROL_TIME_W 0.5f  //z本次信任参数
 
 //信任上一次参数占比
-#define CHASSIS_ACCEL_X_NUM 0.99f
-#define CHASSIS_ACCEL_Y_NUM 0.99f
-#define CHASSIS_ACCEL_W_NUM 0.95f
+#define CHASSIS_ACCEL_X_NUM 0.0f
+#define CHASSIS_ACCEL_Y_NUM 0.0f
+#define CHASSIS_ACCEL_W_NUM 0.5f
 
 /*******************************轮组数据*******************************/
 #define R       MOTOR_DISTANCE_TO_CENTER

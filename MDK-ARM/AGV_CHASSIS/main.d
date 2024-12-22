@@ -65,3 +65,4 @@
 .\agv_chassis\main.o: ../bsp/boards/bsp_rc.h
 .\agv_chassis\main.o: ../bsp/boards/bsp_buzzer.h
 .\agv_chassis\main.o: ../application/referee.h
+.\agv_chassis\main.o: ../components/algorithm/user_lib.h
