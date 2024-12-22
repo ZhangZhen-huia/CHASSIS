@@ -47,7 +47,7 @@
 //定义默认卡弹转速(rpm)  
 #define  STANDARD_NOMOVE_RPM          15
 //定义默认卡弹时间 
-#define  STANDARD_NOMOVE_TIME         150
+#define  STANDARD_NOMOVE_TIME         250
 //定义默认回转时间
 #define  STANDARD_REMOVE_TIME         200
 

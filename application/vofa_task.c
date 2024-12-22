@@ -3,14 +3,14 @@
 #include "task.h"
 #include "main.h"
 #include "cmsis_os.h"
-
-
+#include "chassis_power_control.h"
+#include "chassis_task.h"
 
 
 
 const DebugData *shoot_debug;
 const DebugData *chassis_debug;
-
+const DebugData *chassis_power_debug;
 
 float Vofa_Data[6];
 
@@ -27,9 +27,9 @@ void vofa_task(void const * argument)
 	
 	while(1)
 	{
-		Vofa_Send(shoot_debug->data1, shoot_debug->data2, shoot_debug->data3,shoot_debug->data4, shoot_debug->data5, shoot_debug->data6);
+		Vofa_Send(chassis_power_debug->data1, chassis_power_debug->data2, chassis_power_debug->data3,chassis_power_debug->data4, chassis_power_debug->data5, chassis_power_debug->data6);
 		
-		vTaskDelay(5);
+		osDelay(10);
 	}
 	
 
@@ -39,11 +39,13 @@ void vofa_task(void const * argument)
 
 const DebugData* get_shoot_PID_Debug(void);
 const DebugData* get_chassis_PID_Debug(void);
+const DebugData* get_chassis_power(void);
 
 void VofaInit(void)
 {
 	//shoot_debug = get_shoot_PID_Debug();
-	chassis_debug = get_chassis_PID_Debug();
+	//chassis_debug = get_chassis_PID_Debug();
+	chassis_power_debug = get_chassis_power();
 }
 
 

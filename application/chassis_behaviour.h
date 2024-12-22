@@ -21,8 +21,9 @@ typedef enum
 	CHASSIS_FOLLOW_RADAR,									//底盘跟随雷达数据
 	CHASSIS_BUILD_MAP,
 	CHASSIS_AGV_TOP_FOLLOW_GIMBAL_YAW,				//底盘跟随底盘yaw
-  CHASSIS_OPEN                          //the value of remote control will mulitiply a value, get current value that will be sent to can bus
+  CHASSIS_OPEN,                          //the value of remote control will mulitiply a value, get current value that will be sent to can bus
                                         // 遥控器的值乘以比例成电流值 直接发送到can总线上
+	CHASSIS_FLY														//飞坡
 } chassis_behaviour_e;
 
 

@@ -20,6 +20,7 @@ void communicate_task(void const * argument)
 	while(1)
 	{
 		dispose_gimbal_mode(&gimbal_data);
+		
 		osDelay(10);
 	}
 }
@@ -59,14 +60,15 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 	}
 	else//底盘不是雷达模式
 	{
-		//并且云台也不是雷达模式
+		//并且云台也是雷达模式
 		if(gimbal_data->gimbal_mode & 0x04)
 		{
 			gimbal_data->rc_data.vx_set 	= 0;
 			gimbal_data->rc_data.vy_set 	= 0;
 			gimbal_data->rc_data.wz_set 	= 0;
+
 		}
-		//云台是雷达模式
+		//云台不是雷达模式
 		else
 		{
 			gimbal_data->rc_data.vx_set 	= (buf[0]-33)*20;

@@ -43,11 +43,11 @@ void chassis_task(void const * argument)
     //底盘初始化
     chassis_init(&chassis_move);
 
-    //判断底盘电机是否都在线
-    while (chassis_motor_detect())
-    {
-        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
-    }
+//    //判断底盘电机是否都在线
+//    while (chassis_motor_detect())
+//    {
+//        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
+//    }
 		
     while (1)
 		{
@@ -72,13 +72,8 @@ void chassis_task(void const * argument)
 			}
 			else
 			{
-					#ifndef POWER
 					CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
 					CAN_cmd_drive(chassis_move.chassis_drive_speed_pid[0].out,chassis_move.chassis_drive_speed_pid[1].out,chassis_move.chassis_drive_speed_pid[2].out,chassis_move.chassis_drive_speed_pid[3].out);
-					#else
-					CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);	
-					CAN_cmd_drive(Chassis_power_control.Chassis_Power_calc.send_current_value[0],Chassis_power_control.Chassis_Power_calc.send_current_value[1],Chassis_power_control.Chassis_Power_calc.send_current_value[2],Chassis_power_control.Chassis_Power_calc.send_current_value[3]);
-					#endif
 			}
 			osDelay(1);//控制频率为1khz，与can接收中断频率一致
 		}
@@ -104,6 +99,10 @@ static void chassis_init(chassis_move_t *init)
 																			 COURSE_MOTOR3_SPEED_PID_KP,COURSE_MOTOR3_SPEED_PID_KI,COURSE_MOTOR3_SPEED_PID_KD,
 																			 COURSE_MOTOR4_SPEED_PID_KP,COURSE_MOTOR4_SPEED_PID_KI,COURSE_MOTOR4_SPEED_PID_KD};
 	
+	static float GM6020_SPEED_PID[3] = {GM6020_SPEED_PID_KP,GM6020_SPEED_PID_KI,GM6020_SPEED_PID_KD};
+	static float GM6020_PID_MAX_OUT[2] = {GM6020_SPEED_PID_MAX_OUT,GM6020_SPEED_PID_MAX_IOUT};
+	
+	
 	static float YAW_ANGLE_PID[3] = {YAW_ANGLE_PID_KP,YAW_ANGLE_PID_KI,YAW_ANGLE_PID_KD};
 	
 	static float SPEED_PID_MAX_OUT_DRIVE[4]={DRIVE_MOTOR1_SPEED_PID_MAX_OUT,DRIVE_MOTOR2_SPEED_PID_MAX_OUT,DRIVE_MOTOR3_SPEED_PID_MAX_OUT,DRIVE_MOTOR4_SPEED_PID_MAX_OUT}; 
@@ -125,7 +124,8 @@ static void chassis_init(chassis_move_t *init)
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
 	PID_init(&init->yaw_pid,PID_POSITION,DATA_NORMAL,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
-
+	PID_init(&init->GM6020_pid,PID_POSITION,DATA_NORMAL,GM6020_SPEED_PID,GM6020_PID_MAX_OUT[0],GM6020_PID_MAX_OUT[1]);
+	
 	//初始化驱动速度PID 并获取电机数据
 	for(i=0;i<4;i++)
 	{
@@ -226,7 +226,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 }
 
 
-fp32 hhh=0;
+fp32 speed_set;
 /**
   * @brief          控制循环，根据控制设定值，计算电机电流值，进行控制
   * @param[out]     chassis_move_control_loop:"chassis_move"变量指针.
@@ -242,6 +242,10 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 //	chassis_move_control_loop->drive_set_speed[1] = sqrt(40.0f)*hhh;
 //	chassis_move_control_loop->drive_set_speed[2] = sqrt(40.0f)*hhh;
 //	chassis_move_control_loop->drive_set_speed[3] = sqrt(40.0f)*hhh;
+//	chassis_move_control_loop->course_set_angle[0] = current_set_angle;
+//	chassis_move_control_loop->course_set_angle[1] = current_set_angle;
+//	chassis_move_control_loop->course_set_angle[2] = current_set_angle;
+//	chassis_move_control_loop->course_set_angle[3] = current_set_angle;
 
 	//计算pid
 	for (int i = 0; i < 4; i++)
@@ -260,8 +264,10 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 					chassis_move_control_loop->motor_chassis[i+4].chassis_motor_measure->rpm,
 					chassis_move_control_loop->chassis_course_angle_pid[i].out);
 		}
-		
-		chassis_power_control(&Chassis_power_control);
+//				PID_calc(&chassis_move_control_loop->GM6020_pid,
+//					chassis_move_control_loop->motor_chassis[7].chassis_motor_measure->rpm,
+//					speed_set);
+		//chassis_power_control();
 
 
 }
@@ -351,7 +357,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
 			
-			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 10)
+			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 5)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
@@ -359,6 +365,9 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			else
 				chassis_move_control->wz_set=0;
 		
+			
+
+			
 			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
 			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
 			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
@@ -372,7 +381,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			 
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			 chassis_move_control->wz_set = 0.5f;
+			 chassis_move_control->wz_set = 1.5f;
 		
 				
 				
@@ -408,18 +417,50 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//雷达模式
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_RADAR)
 		{
-			fp32 angle_diff=yaw_diff* PI / 180.0f;
-			 
+			fp32 angle_diff;
+			
+	
+			angle_diff=rad_format(yaw_diff* PI / 180.0f);
+			
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			chassis_move_control->wz_set = wz_set;
-		
-				
-				
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -0.5f, 0.5f);
-			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -0.5f, 0.5f);
-			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -0.5f, 0.5f);
+			
+			
+			PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
+			chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
+			
+			
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -1.0f, 1.0f);
+		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -1.0f, 1.0f);
+		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -1.0f, 1.0f);
 
+		}
+		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_FLY)
+		{
+			static fp32 last_angle_diff;
+			fp32 angle_diff;
+			
+			last_angle_diff = angle_diff;
+			angle_diff=rad_format(yaw_diff* PI / 180.0f);
+			
+			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+			
+			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 10)
+			{
+				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
+				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
+			}
+			else
+				chassis_move_control->wz_set=0;
+		
+			
+
+			
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
+			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+			
 		}
 }
 
@@ -440,69 +481,89 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	//上一次角度
 	static fp32 last_wheel_angle[4];
 	
-	
-	//0
-	wheel_angle[0]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
-	
-	//寻找最小转角然后驱动3508正反转，然后再由pid的过零处理算出来正确的err
-	//比如：ref:30   set:130  
-	//经以下函数得wheel_angle[0] = 130+180 = 310;
-	//pid计算ecd_zero(set, ref, ecd_range);算出来err=-80，
-	//然后计算后得数据就是让6020反转80度到达-50度，与130度刚好构成180度，此时让drct取反了，所以优劣弧生效
-	if(fabs(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))>90)
+	if(chassis_move.chassis_mode != CHASSIS_VECTOR_FLY)
 	{
-			wheel_angle[0] += 180;		
-			wheel_angle[0]=Angle_Limit(wheel_angle[0],360);
-			drct[0] = -1;
+		//0
+		wheel_angle[0]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
+		
+		//寻找最小转角然后驱动3508正反转，然后再由pid的过零处理算出来正确的err
+		//比如：ref:30   set:130  
+		//经以下函数得wheel_angle[0] = 130+180 = 310;
+		//pid计算ecd_zero(set, ref, ecd_range);算出来err=-80，
+		//然后计算后得数据就是让6020反转80度到达-50度，与130度刚好构成180度，此时让drct取反了，所以优劣弧生效
+		if(fabs(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))>90)
+		{
+				wheel_angle[0] += 180;		
+				wheel_angle[0]=Angle_Limit(wheel_angle[0],360);
+				drct[0] = -1;
+		}
+		else
+				drct[0]=1;
+		wheel_speed[0] = drct[0]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+		
+		
+		
+		
+		//1
+		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
+		if(fabs(Find_min_Angle(chassis_move.course_angle[1],wheel_angle[1]))>90)
+		{
+				wheel_angle[1] += 180;		
+				wheel_angle[1]=Angle_Limit(wheel_angle[1],360);
+				drct[1] = -1;
+		}
+		else
+				drct[1]=1;
+		wheel_speed[1] = drct[1]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+
+		
+		
+		
+		//2
+		wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
+		if(fabs(Find_min_Angle(chassis_move.course_angle[2],wheel_angle[2]))>90)
+		{
+				wheel_angle[2] += 180;		
+				wheel_angle[2]=Angle_Limit(wheel_angle[2],360);
+				drct[2] = -1;
+		}
+		else
+				drct[2]=1;
+		wheel_speed[2] = drct[2]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+
+
+		//3
+		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); // -45(0 -- 360)
+		
+		if(fabs(Find_min_Angle(chassis_move.course_angle[3],wheel_angle[3]))>90)
+		{
+				wheel_angle[3] += 180;		
+				wheel_angle[3]=Angle_Limit(wheel_angle[3],360);
+				drct[3] = 1;
+		}
+		else
+				drct[3]=-1;
+		wheel_speed[3] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 	}
 	else
-			drct[0]=1;
-	wheel_speed[0] = drct[0]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
-	
-	
-	
-	
-	//1
-	wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
-	if(fabs(Find_min_Angle(chassis_move.course_angle[1],wheel_angle[1]))>90)
 	{
-			wheel_angle[1] += 180;		
-			wheel_angle[1]=Angle_Limit(wheel_angle[1],360);
-			drct[1] = -1;
+		//0
+		wheel_angle[0]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
+		wheel_speed[0] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+
+		//1
+		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
+		wheel_speed[1] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+
+	
+		//2
+		wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
+		wheel_speed[2] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+
+		//3
+		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0+180.0f,360.0f); // -45(0 -- 360)
+		wheel_speed[3] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 	}
-	else
-			drct[1]=1;
-	wheel_speed[1] = drct[1]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
-
-	
-	
-	
-	//2
-	wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
-	if(fabs(Find_min_Angle(chassis_move.course_angle[2],wheel_angle[2]))>90)
-	{
-			wheel_angle[2] += 180;		
-			wheel_angle[2]=Angle_Limit(wheel_angle[2],360);
-			drct[2] = -1;
-	}
-	else
-			drct[2]=1;
-	wheel_speed[2] = drct[2]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
-
-
-	//3
-	wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); // -45(0 -- 360)
-	
-	if(fabs(Find_min_Angle(chassis_move.course_angle[3],wheel_angle[3]))>90)
-	{
-			wheel_angle[3] += 180;		
-			wheel_angle[3]=Angle_Limit(wheel_angle[3],360);
-			drct[3] = 1;
-	}
-	else
-			drct[3]=-1;
-	wheel_speed[3] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
-
 
 		
 		if(vx_set == 0 && vy_set == 0 && wz_set == 0)//摇杆回中时，保持6020角度

@@ -5,100 +5,165 @@
 #include "chassis_task.h"
 
 
+
 Chassis_power_control_t Chassis_power_control;
+static void Chassis_power(void);
 
 
 
 
-void chassis_power_control(Chassis_power_control_t *power_control);
-fp32 chassis_RobotLevel_power_limit(uint8_t grade);
+void chassis_power_control(void);
 
 void chassis_power_init(Chassis_power_control_t *chassis_power_control)
 {
-	chassis_power_control->Chassis_Power_K.K1 = POWER_K1;
-	chassis_power_control->Chassis_Power_K.K2 = POWER_K2;
-	chassis_power_control->Chassis_Power_K.constant = POWER_CONSTANT;
-	chassis_power_control->SuperPower_state = 0;
-	chassis_power_control->Buffer_set = 60;
-	chassis_power_control->Chassis_Power_K.Cap_power_open=CAP_POWER_OPEN;
-	chassis_power_control->Chassis_Power_K.Cap_power_close=CAP_POWER_CLOSE;
+//	chassis_power_control->Chassis_Power_K.K1 = POWER_K1;
+//	chassis_power_control->Chassis_Power_K.K2 = POWER_K2;
+//	
+
+//	
+//	chassis_power_control->Chassis_Power_K.constant = POWER_CONSTANT;
+//	chassis_power_control->SuperPower_state = 0;
+//	chassis_power_control->Buffer_set = 60;
+//	chassis_power_control->Chassis_Power_K.Cap_power_open=CAP_POWER_OPEN;
+//	chassis_power_control->Chassis_Power_K.Cap_power_close=CAP_POWER_CLOSE;
+	
+		chassis_power_control->Chassis_Power_limit.Chassis_Max_power = MAX_POWER;//Referee_System.ext_game_robot_state.max_chassis_power;
+
 }
 
 
 void chassis_power_feedback(Chassis_power_control_t *chassis_power_control)
 {
 	get_chassis_power_and_buffer(&chassis_power_control->Chassis_Power_limit.Chassis_judge_power,&chassis_power_control->Chassis_Power_limit.power_buffer_out);
-	chassis_power_control->Chassis_Power_limit.Chassis_Max_power = 50;//Referee_System.ext_game_robot_state.max_chassis_power;
+//	chassis_power_control->Chassis_Power_limit.Chassis_Max_power = MAX_POWER;//Referee_System.ext_game_robot_state.max_chassis_power;
 	
-	for(uint8_t i=0;i<4;i++)
-	{
-		chassis_power_control->Chassis_Power_calc.chassis_speed_rpm[i] = chassis_move.motor_chassis[i].chassis_motor_measure->rpm;
-		chassis_power_control->Chassis_Power_calc.send_current_value[i] = chassis_move.chassis_drive_speed_pid[i].out;
-	}
-	
+//	for(uint8_t i=0;i<4;i++)
+//	{
+//		chassis_power_control->Chassis_Power_calc.chassis_speed_rpm[i] = chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm;
+//		chassis_power_control->Chassis_Power_calc.send_current_value[i] = chassis_move.chassis_course_speed_pid[i].out;
+//	}
+	//chassis_power_control->Chassis_Power_calc.send_current_value[3] = chassis_move.GM6020_pid.out;
+	Chassis_power();
 }
 
 
-
-void chassis_power_control(Chassis_power_control_t *power_control)
+#define RPM_TO_RADPS (2.0f * PI / 60.0f)
+void chassis_power_control(void)
 {
+		float Current_To_Out = 16384.0f / 3.0f;
+		fp32 a,b,c,temp;
+		fp32 course_consume_power,drive_consume_power;
+		fp32 course_initial_give_power[4],drive_initial_give_power[4];
+		fp32 sum_available_power,course_available_power,drive_available_power;
+		fp32 drive_factor,course_factor;
+		sum_available_power = Chassis_power_control.Chassis_Power_limit.Chassis_Max_power;//获取可用功率
 
-    uint8_t robot_id = get_robot_id();
-	
-
-		
-		for(uint8_t i=0;i<4;i++)//当前电机功率模型计算
-			 power_control->Chassis_Power_calc.initial_give_power[i] = TOQUE_COEFFICIENT*(power_control->Chassis_Power_calc.send_current_value[i])*(power_control->Chassis_Power_calc.chassis_speed_rpm[i])//,力矩和转速（力矩使用电流发送值代替，因为其是线性关系）
-																																 +power_control->Chassis_Power_K.K1*power_control->Chassis_Power_calc.send_current_value[i]*power_control->Chassis_Power_calc.send_current_value[i]//,力矩平方
-																																 +power_control->Chassis_Power_K.K2*power_control->Chassis_Power_calc.chassis_speed_rpm[i]*power_control->Chassis_Power_calc.chassis_speed_rpm[i];//,转速平方
-
-				//当前四个3508总功率
-				power_control->Chassis_Power_calc.initial_total_power=power_control->Chassis_Power_calc.initial_give_power[0]+power_control->Chassis_Power_calc.initial_give_power[1]
-																			+power_control->Chassis_Power_calc.initial_give_power[2]+power_control->Chassis_Power_calc.initial_give_power[3];//,当前总功率（4个3508加起来）
-
-		//计算出来的功率大于最大功率时进行功率限制和分配
-		if(power_control->Chassis_Power_calc.initial_total_power > power_control->Chassis_Power_limit.Chassis_Max_power)
+		/*--	计算预测的功率		--*/
+		for(uint8_t i=0;i<4;i++)
 		{
-			float a,b,c,temp;
-			float power_scale=power_control->Chassis_Power_limit.Chassis_Max_power / power_control->Chassis_Power_calc.initial_total_power;//缩放系数计算
-			
-			//计算缩放之后的功率
-			for(uint8_t i=0;i<4;i++)
-			{
-				power_control->Chassis_Power_calc.scaled_give_power[i] = power_control->Chassis_Power_calc.initial_give_power[i] * power_scale;
-			}
-			
-			//缩放之后的总功率
-			power_control->Chassis_Power_calc.scaled_total_power = power_control->Chassis_Power_calc.scaled_give_power[0] + power_control->Chassis_Power_calc.scaled_give_power[1] + power_control->Chassis_Power_calc.scaled_give_power[2] + power_control->Chassis_Power_calc.scaled_give_power[3];
-			
-			a = power_control->Chassis_Power_K.K1;//二元一次方程的a
-			
-			for(uint8_t i = 0;i<4;i++)
-			{
-				b = TOQUE_COEFFICIENT*power_control->Chassis_Power_calc.chassis_speed_rpm[i];//二元一次方程的b
-				c = power_control->Chassis_Power_K.K2*power_control->Chassis_Power_calc.chassis_speed_rpm[i]*power_control->Chassis_Power_calc.chassis_speed_rpm[i]-power_control->Chassis_Power_calc.scaled_give_power[i];//，二元一次方程的c
-				if(power_control->Chassis_Power_calc.send_current_value[i]>0)//,向前走取正解
-				{
-					 temp=(-b+sqrt(b*b-4*a*c))/(2*a);//二元一次方程的正解
-					if(temp>16000)//，限制最大解
-						power_control->Chassis_Power_calc.send_current_value[i]=16000;
-					else
-						power_control->Chassis_Power_calc.send_current_value[i]=temp;
-				}
-				else//,向后走取负解
-				{
-					 temp=(-b-sqrt(b*b-4*a*c))/(2*a);//二元一次方程的负解
-					if(temp<-16000)//，限制最大解
-						power_control->Chassis_Power_calc.send_current_value[i]=-16000;
-					else
-						power_control->Chassis_Power_calc.send_current_value[i]=temp;		
-				}
-			}
+			//3508功率计算
+			drive_initial_give_power[i] = TOQUE_COEFFICIENT_3508 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.motor_chassis[i].chassis_motor_measure->rpm	//,力矩和转速（力矩使用电流发送值代替，因为其是线性关系）
+																																	 +POWER_3508_K1 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.chassis_drive_speed_pid[i].out//,力矩平方
+																																	 +POWER_3508_K2 * chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm + POWER_CONSTANT;//,转速平方
+			//正功计入消耗	，负功计入补偿
+			if(drive_initial_give_power[i] > 0)
+				drive_consume_power +=drive_initial_give_power[i];
+			else
+				sum_available_power -=drive_initial_give_power[i];
 				
-			
-			
+			//6020功率计算
+			course_initial_give_power[i] = TOQUE_COEFFICIENT_6020 * chassis_move.chassis_course_speed_pid[i].out / Current_To_Out * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS		//,力矩和转速（力矩使用电流发送值代替，因为其是线性关系）
+																																	 +POWER_6020_K1 * chassis_move.chassis_course_speed_pid[i].out  / Current_To_Out * chassis_move.chassis_course_speed_pid[i].out / Current_To_Out //,力矩平方
+																																	 +POWER_6020_K2 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS+1.3715f;// + POWER_CONSTANT;//,转速平方
+			//正功计入消耗，负功计入补偿
+			if(course_initial_give_power[i] > 0)
+				course_consume_power +=course_initial_give_power[i];
+			else
+				sum_available_power -=course_initial_give_power[i];
 		}
+		
+		/*--	分配总功率	 --*/
+		course_available_power = sum_available_power * 0.4f;
+		drive_available_power = sum_available_power * 0.6f;
+		
+		
+		/*-- 判断是否超功率 --*/
+		if(drive_consume_power > drive_available_power)
+			drive_factor = drive_available_power/drive_consume_power;
+		else
+			drive_factor = 1.0f;
+		
+		
+		if(course_consume_power > course_available_power)
+			course_factor = course_available_power/course_consume_power;
+		else
+			course_factor = 1.0f;
+		
+		
+		/*--	功率分配 	--*/
+		for(uint8_t i=0;i<4;i++)
+		{
+			
+			a = POWER_3508_K1;
+			b	= TOQUE_COEFFICIENT_3508*chassis_move.motor_chassis[i].chassis_motor_measure->rpm;
+			c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_initial_give_power[i] * drive_factor + POWER_CONSTANT;	//二元一次方程的c
+			
+			if(chassis_move.chassis_drive_speed_pid[i].out > 0)
+			{
+					temp=(-b+sqrt(b*b-4*a*c))/(2*a);//二元一次方程的正解
+					if(temp>16000)//限制最大解
+						chassis_move.chassis_drive_speed_pid[i].out = 16000;
+					else
+						chassis_move.chassis_drive_speed_pid[i].out = temp;
+			}
+			else//向后走取负解
+			{
+				 temp=(-b-sqrt(b*b-4*a*c))/(2*a);//二元一次方程的负解
+				if(temp<-16000)//限制最大解
+					chassis_move.chassis_drive_speed_pid[i].out = -16000;
+				else
+					chassis_move.chassis_drive_speed_pid[i].out = temp;		
+			}
 
+			a = POWER_6020_K1;
+			b	= TOQUE_COEFFICIENT_6020 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS;
+			c = POWER_6020_K2 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS - course_initial_give_power[i] * course_factor+1.3715f;// + POWER_CONSTANT;	//二元一次方程的c
+			
+			if(chassis_move.chassis_course_speed_pid[i].out > 0)
+			{
+					temp=(-b+sqrt(b*b-4*a*c))/(2*a);//二元一次方程的正解
+					if(temp>3)//限制最大解
+						chassis_move.chassis_course_speed_pid[i].out = 16000;
+					else
+						chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out ;
+			}
+			else//向后走取负解
+			{
+				 temp=(-b-sqrt(b*b-4*a*c))/(2*a);//二元一次方程的负解
+				if(temp<-3)//限制最大解
+					chassis_move.chassis_course_speed_pid[i].out = -16000;
+				else
+					chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out;		
+			}
+		}
 }
+
+static void Chassis_power(void)
+{
+	Chassis_power_control.chassis_power_data_debug.data1 = Chassis_power_control.Chassis_Power_limit.Chassis_Max_power;			//底盘最大功率限制
+	Chassis_power_control.chassis_power_data_debug.data2 = Chassis_power_control.Chassis_Power_limit.Chassis_judge_power;		//裁判系统读出来的功率
+	Chassis_power_control.chassis_power_data_debug.data3 = Chassis_power_control.Chassis_Power_calc.scaled_total_power;			//缩放后的总功率
+	
+	Chassis_power_control.chassis_power_data_debug.data4 = Chassis_power_control.Chassis_Power_calc.initial_total_power;		//缩放前的总功率
+	Chassis_power_control.chassis_power_data_debug.data5 = 0;
+	Chassis_power_control.chassis_power_data_debug.data6 = 0;
+}
+
+const DebugData * get_chassis_power(void)
+{
+	return &Chassis_power_control.chassis_power_data_debug;
+}
+
+
 
 

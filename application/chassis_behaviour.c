@@ -58,6 +58,11 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
+//		//·ÉÆÂ
+//    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
+//    {
+//        chassis_behaviour_mode = CHASSIS_FLY;
+//    }
 #endif
 		
 		
@@ -67,7 +72,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE  || gimbal_data.Gimbal_init)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_ZERO_FORCE; 
-    }	
+    }
 		//¸úËæµ×ÅÌ
 		else if(chassis_behaviour_mode == CHASSIS_AGV_TOP_FOLLOW_GIMBAL_YAW)
 		{
@@ -80,7 +85,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 
     }
 		//½¨Í¼Ä£Ê½£¬»úÆ÷ÈË×ø±ê
-    else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
+    else if (chassis_behaviour_mode == CHASSIS_BUILD_MAP)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_BUILD_MAP; 
     }	
@@ -88,7 +93,14 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_RADAR; 
-    }		
+    }
+		//¸úËæÀ×´ï
+    else if (chassis_behaviour_mode == CHASSIS_FLY)
+    {
+        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
+    }
+		
+		
 	
 }
 
@@ -113,7 +125,7 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, 
     }
 		
 
-    if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
+    if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW || chassis_behaviour_mode == CHASSIS_FLY )
     {
         chassis_infantry_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
     }
@@ -187,9 +199,9 @@ static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_se
 //    *vx_set = 0;
 //		*vy_set = 0;
 //		*wz_set = 0;
-    *vx_set = (gimbal_data.rc_data.vx_set/20.0f+33)/100.0f;
-		*vy_set = (gimbal_data.rc_data.vy_set/20.0f+33)/100.0f;
-		*wz_set = (gimbal_data.rc_data.wz_set/20.0f+33)/100.0f;
+    *vx_set = gimbal_data.rc_data.vx_set/42.0f-5.0f;
+		*vy_set = gimbal_data.rc_data.vy_set/42.0f-5.0f;
+		*wz_set = 0;
 		
 		
 		

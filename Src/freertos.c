@@ -170,7 +170,7 @@ void MX_FREERTOS_Init(void) {
   DETECT_TASKHandle = osThreadCreate(osThread(DETECT_TASK), NULL);
 
   /* definition and creation of VOFA_TASK */
-  osThreadDef(VOFA_TASK, vofa_task, osPriorityIdle, 0, 128);
+  osThreadDef(VOFA_TASK, vofa_task, osPriorityNormal, 0, 128);
   VOFA_TASKHandle = osThreadCreate(osThread(VOFA_TASK), NULL);
 
   /* definition and creation of COMMUNICATE_TAS */

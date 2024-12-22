@@ -2,8 +2,11 @@
 #define __CHASSIS_POWER_CONTROL_H
 
 #include "main.h"
+#include "vofa_task.h"
 
-#define TOQUE_COEFFICIENT 1.99688994e-6f
+
+#define TOQUE_COEFFICIENT_3508 1.99688994e-6f
+#define TOQUE_COEFFICIENT_6020 0.8130f//1.3568115234375e-4f
 /*
 k1µ÷£¬Ê¹Æä³µ¶Â×ª£¬Ê¹²ÃÅĞÏµÍ³¹¦ÂÊ´ïµ½¹¦ÂÊÉÏÏŞ¸½½ü£¬³¬¹¦ÂÊÊ±¼Ó´ók1.Ã»´ïµ½Ê±Ôò¼õĞ¡
 k2µ÷£¬Ê¹Æä³µĞ¡ÍÓÂİ£¬Ê¹²ÃÅĞÏµÍ³¹¦ÂÊ´ïµ½¹¦ÂÊÉÏÏŞ¸½½ü£¬³¬¹¦ÂÊÊ±¼Ó´ók2.Ã»´ïµ½Ê±Ôò¼õĞ¡
@@ -12,12 +15,19 @@ k2µ÷£¬Ê¹Æä³µĞ¡ÍÓÂİ£¬Ê¹²ÃÅĞÏµÍ³¹¦ÂÊ´ïµ½¹¦ÂÊÉÏÏŞ¸½½ü£¬³¬¹¦ÂÊÊ±¼Ó´ók2.Ã»´ïµ½Ê±Ôò¼õĞ
 ÒòÎª¶Â×ªÊ±ËÙ¶È»ù±¾ºÜĞ¡£¬¹¦ÂÊÖ÷ÒªÎªÁ¦¾Ø¾ö¶¨£¬ËùÒÔk1Ó°Ïì´ó¡£µ÷k1
 Ğ¡ÍÓÂİÊ±ËÙ¶ÈÖ÷µ¼£¬Ôòµ÷k2
 */
-#define POWER_K1 			  2.09999911e-07
-#define POWER_K2			  2.95000007e-07  //1.453e-07f
-#define POWER_CONSTANT  4.081f
+#define POWER_3508_K1 			1.23e-07f//2.50999989e-07 //1.23e-07
+#define POWER_3508_K2			 	1.453e-07f//2.5500006e-07//6.9500004e-07  //1.453e-07f
+
+#define POWER_6020_K1 			6.0021f//
+#define POWER_6020_K2			  -0.0005f//
+
+
+
+#define POWER_CONSTANT  4.0810f
 #define CAP_POWER_OPEN  200
 #define CAP_POWER_CLOSE 5
 
+#define MAX_POWER 100
 
 
 typedef struct
@@ -65,12 +75,15 @@ typedef struct
 	Chassis_Power_calc_t Chassis_Power_calc;
 	Chassis_Power_limit_t Chassis_Power_limit;
 	Chassis_Power_K_t Chassis_Power_K;
+	
+	DebugData chassis_power_data_debug;
+
 }Chassis_power_control_t;
 
 
 
 extern Chassis_power_control_t Chassis_power_control;
-void chassis_power_control(Chassis_power_control_t *power_control);
+void chassis_power_control(void);
 void chassis_power_feedback(Chassis_power_control_t *chassis_power_control);
 void chassis_power_init(Chassis_power_control_t *chassis_power_control);
 

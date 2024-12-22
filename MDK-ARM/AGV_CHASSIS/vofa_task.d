@@ -55,3 +55,16 @@
 .\agv_chassis\vofa_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 .\agv_chassis\vofa_task.o: ../Inc/usart.h
 .\agv_chassis\vofa_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+.\agv_chassis\vofa_task.o: ..\application\chassis_power_control.h
+.\agv_chassis\vofa_task.o: ..\application\chassis_task.h
+.\agv_chassis\vofa_task.o: ../bsp/Can_receive.h
+.\agv_chassis\vofa_task.o: ../Inc/can.h
+.\agv_chassis\vofa_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+.\agv_chassis\vofa_task.o: ..\application\remote_control.h
+.\agv_chassis\vofa_task.o: ../bsp/boards/bsp_rc.h
+.\agv_chassis\vofa_task.o: ..\application\INS_task.h
+.\agv_chassis\vofa_task.o: ../components/devices/BMI088driver.h
+.\agv_chassis\vofa_task.o: ..\application\detect_task.h
+.\agv_chassis\vofa_task.o: ../components/controller/pid.h
+.\agv_chassis\vofa_task.o: ../components/algorithm/user_lib.h
+.\agv_chassis\vofa_task.o: ..\application\communicate_task.h

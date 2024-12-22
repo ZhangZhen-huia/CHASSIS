@@ -17,37 +17,61 @@
 #define YAW_ANGLE_PID_KP                 1.0f
 #define YAW_ANGLE_PID_KI                 0.0f
 #define YAW_ANGLE_PID_KD                 2.0f
-#define YAW_PID_MAX_OUT            2.0f //最大输出值
+#define YAW_PID_MAX_OUT            3.00f //最大输出值
 #define YAW_PID_MAX_IOUT           0.0f //
 
 
 
+
+/* --------------------------------------6020功率-------------------------------------------------*/
+#define GM6020_SPEED_PID_KP		350.0f
+#define GM6020_SPEED_PID_KI		0.0f
+#define GM6020_SPEED_PID_KD		0.0f
+
+#define GM6020_SPEED_PID_MAX_OUT	16384.0f
+#define GM6020_SPEED_PID_MAX_IOUT	0.0f
+
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
 #define DRIVE_MOTOR1_SPEED_PID_KP                 30000.0f
-#define DRIVE_MOTOR1_SPEED_PID_KI                 300.0f
-#define DRIVE_MOTOR1_SPEED_PID_KD                 0.0f
+#define DRIVE_MOTOR1_SPEED_PID_KI                 200.0f
+#define DRIVE_MOTOR1_SPEED_PID_KD                 10.0f
 #define DRIVE_MOTOR1_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
-
-
+#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           2000.0f //最大输出电流
 
 
 //航向电机角度环
-#define COURSE_MOTOR1_ANGLE_PID_KP                 	4.0f//105
-#define COURSE_MOTOR1_ANGLE_PID_KI                	0.10f
+#define COURSE_MOTOR1_ANGLE_PID_KP                 	5.0f//9.0f
+#define COURSE_MOTOR1_ANGLE_PID_KI                	1.0f
 #define COURSE_MOTOR1_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR1_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
-#define COURSE_MOTOR1_ANGLE_PID_MAX_IOUT						10.0f			
+#define COURSE_MOTOR1_ANGLE_PID_MAX_IOUT						2.0f			
 
 
 
 //航向电机速度环
-#define COURSE_MOTOR1_SPEED_PID_KP                 	160.0f
+#define COURSE_MOTOR1_SPEED_PID_KP                 	190.0f
 #define COURSE_MOTOR1_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR1_SPEED_PID_KD                 	0.0f
-#define COURSE_MOTOR1_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+#define COURSE_MOTOR1_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
 #define COURSE_MOTOR1_SPEED_PID_MAX_IOUT						0.0f			
+
+
+////航向电机角度环
+//#define COURSE_MOTOR1_ANGLE_PID_KP                 	4.0f//105
+//#define COURSE_MOTOR1_ANGLE_PID_KI                	0.10f
+//#define COURSE_MOTOR1_ANGLE_PID_KD                 	0.0f
+//#define COURSE_MOTOR1_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
+//#define COURSE_MOTOR1_ANGLE_PID_MAX_IOUT						10.0f			
+
+
+
+////航向电机速度环
+//#define COURSE_MOTOR1_SPEED_PID_KP                 	160.0f
+//#define COURSE_MOTOR1_SPEED_PID_KI                	0.0f
+//#define COURSE_MOTOR1_SPEED_PID_KD                 	0.0f
+//#define COURSE_MOTOR1_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+//#define COURSE_MOTOR1_SPEED_PID_MAX_IOUT						0.0f			
 
 
 
@@ -57,25 +81,41 @@
 #define DRIVE_MOTOR2_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR2_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR2_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
+#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           3000.0f //最大输出电流
 
 
 
-//航向电机角度环
-#define COURSE_MOTOR2_ANGLE_PID_KP                 	3.0f//20
-#define COURSE_MOTOR2_ANGLE_PID_KI                	0.10f
+#define COURSE_MOTOR2_ANGLE_PID_KP                 	5.0f//8.0f//20
+#define COURSE_MOTOR2_ANGLE_PID_KI                	1.0f
 #define COURSE_MOTOR2_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR2_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
-#define COURSE_MOTOR2_ANGLE_PID_MAX_IOUT						10.0f			
+#define COURSE_MOTOR2_ANGLE_PID_MAX_IOUT						2.0f			
 
 
 
 //航向电机速度环
-#define COURSE_MOTOR2_SPEED_PID_KP                 	100.0f
+#define COURSE_MOTOR2_SPEED_PID_KP                 	200.0f
 #define COURSE_MOTOR2_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR2_SPEED_PID_KD                 	0.0f
-#define COURSE_MOTOR2_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
-#define COURSE_MOTOR2_SPEED_PID_MAX_IOUT						0.0f			
+#define COURSE_MOTOR2_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
+#define COURSE_MOTOR2_SPEED_PID_MAX_IOUT						0.0f		
+
+
+//航向电机角度环
+//#define COURSE_MOTOR2_ANGLE_PID_KP                 	9.0f//20
+//#define COURSE_MOTOR2_ANGLE_PID_KI                	0.10f
+//#define COURSE_MOTOR2_ANGLE_PID_KD                 	0.0f
+//#define COURSE_MOTOR2_ANGLE_PID_MAX_OUT							180.0f //最大输出角度
+//#define COURSE_MOTOR2_ANGLE_PID_MAX_IOUT						10.0f			
+
+
+
+////航向电机速度环
+//#define COURSE_MOTOR2_SPEED_PID_KP                 	100.0f
+//#define COURSE_MOTOR2_SPEED_PID_KI                	0.0f
+//#define COURSE_MOTOR2_SPEED_PID_KD                 	0.0f
+//#define COURSE_MOTOR2_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+//#define COURSE_MOTOR2_SPEED_PID_MAX_IOUT						0.0f			
 
 /* --------------------------------------舵轮3-------------------------------------------------*/
 //驱动电机速度环
@@ -83,25 +123,41 @@
 #define DRIVE_MOTOR3_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR3_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR3_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           600.0f //最大输出电流
-
+#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           3000.0f //最大输出电流
 
 
 //航向电机角度环
-#define COURSE_MOTOR3_ANGLE_PID_KP                 	3.0f//35
-#define COURSE_MOTOR3_ANGLE_PID_KI                	0.10f
+#define COURSE_MOTOR3_ANGLE_PID_KP                 	5.0f//6.50f//35
+#define COURSE_MOTOR3_ANGLE_PID_KI                	1.0f
 #define COURSE_MOTOR3_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR3_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
-#define COURSE_MOTOR3_ANGLE_PID_MAX_IOUT						10.0f			
+#define COURSE_MOTOR3_ANGLE_PID_MAX_IOUT						1.0f			
 
 
 
 //航向电机速度环
-#define COURSE_MOTOR3_SPEED_PID_KP                 	250.0f
+#define COURSE_MOTOR3_SPEED_PID_KP                 	180.0f
 #define COURSE_MOTOR3_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR3_SPEED_PID_KD                 	0.0f
-#define COURSE_MOTOR3_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+#define COURSE_MOTOR3_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
 #define COURSE_MOTOR3_SPEED_PID_MAX_IOUT						0.0f			
+
+
+////航向电机角度环
+//#define COURSE_MOTOR3_ANGLE_PID_KP                 	3.0f//35
+//#define COURSE_MOTOR3_ANGLE_PID_KI                	0.10f
+//#define COURSE_MOTOR3_ANGLE_PID_KD                 	0.0f
+//#define COURSE_MOTOR3_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
+//#define COURSE_MOTOR3_ANGLE_PID_MAX_IOUT						10.0f			
+
+
+
+////航向电机速度环
+//#define COURSE_MOTOR3_SPEED_PID_KP                 	250.0f
+//#define COURSE_MOTOR3_SPEED_PID_KI                	0.0f
+//#define COURSE_MOTOR3_SPEED_PID_KD                 	0.0f
+//#define COURSE_MOTOR3_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+//#define COURSE_MOTOR3_SPEED_PID_MAX_IOUT						0.0f			
 
 
 
@@ -114,13 +170,12 @@
 #define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           500.0f //最大输出电流
 
 
-
 //航向电机角度环
-#define COURSE_MOTOR4_ANGLE_PID_KP                 	3.0f//11
-#define COURSE_MOTOR4_ANGLE_PID_KI                	0.10f
+#define COURSE_MOTOR4_ANGLE_PID_KP                 	5.0f//9.0f//11
+#define COURSE_MOTOR4_ANGLE_PID_KI                	1.00f
 #define COURSE_MOTOR4_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR4_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
-#define COURSE_MOTOR4_ANGLE_PID_MAX_IOUT						10.0f			
+#define COURSE_MOTOR4_ANGLE_PID_MAX_IOUT						2.0f			
 
 
 
@@ -128,8 +183,25 @@
 #define COURSE_MOTOR4_SPEED_PID_KP                 	200.0f
 #define COURSE_MOTOR4_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR4_SPEED_PID_KD                 	0.0f
-#define COURSE_MOTOR4_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
-#define COURSE_MOTOR4_SPEED_PID_MAX_IOUT						0.0f			
+#define COURSE_MOTOR4_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
+#define COURSE_MOTOR4_SPEED_PID_MAX_IOUT						0.0f		
+
+
+////航向电机角度环
+//#define COURSE_MOTOR4_ANGLE_PID_KP                 	3.0f//11
+//#define COURSE_MOTOR4_ANGLE_PID_KI                	0.10f
+//#define COURSE_MOTOR4_ANGLE_PID_KD                 	0.0f
+//#define COURSE_MOTOR4_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
+//#define COURSE_MOTOR4_ANGLE_PID_MAX_IOUT						10.0f			
+
+
+
+////航向电机速度环
+//#define COURSE_MOTOR4_SPEED_PID_KP                 	200.0f
+//#define COURSE_MOTOR4_SPEED_PID_KI                	0.0f
+//#define COURSE_MOTOR4_SPEED_PID_KD                 	0.0f
+//#define COURSE_MOTOR4_SPEED_PID_MAX_OUT							30000.0f//最大输出速度   -30000  -   30000
+//#define COURSE_MOTOR4_SPEED_PID_MAX_IOUT						0.0f			
 
 
 
@@ -143,6 +215,7 @@ typedef enum
   CHASSIS_VECTOR_ZERO_FORCE,                 //control-current will be sent to CAN bus derectly.
 	CHASSIS_VECTOR_RADAR,								//自动模式，跟随雷达数据
 	CHASSIS_VECTOR_BUILD_MAP,
+	CHASSIS_VECTOR_FLY,									//飞坡
 	
 } chassis_mode_e;
 
@@ -169,7 +242,7 @@ typedef struct
   pid_type_def chassis_course_angle_pid[4];            //航向电机角度pid
   pid_type_def chassis_course_speed_pid[4];						 //航向电机速度pid	
 	pid_type_def yaw_pid;
-
+	pid_type_def GM6020_pid;
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_wz;  //一阶低通滤波减缓设定值

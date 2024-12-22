@@ -19,11 +19,11 @@ typedef struct
 ///*----发射pid调试使能----*/
 //#define SHOOT_DEBUG
 
-///*----Vofa任务使能----*/
-//#define Vofa_Debug
-
 /*----Vofa任务使能----*/
-#define CHASSIS_DEBUG
+#define Vofa_Debug
+
+///*----Vofa任务使能----*/
+//#define CHASSIS_DEBUG
 
 void Vofa_Send(float data1, float data2, float data3, float data4, float data5, float data6);
 

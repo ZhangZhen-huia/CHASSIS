@@ -154,7 +154,7 @@ void CAN_cmd_course(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 		CAN_TxHeaderTypeDef chassis_tx_message;
 		static uint8_t    chassis_can_send_data[8];
 	
-    chassis_tx_message.StdId = CAN_CHASSIS_COURSE_ALL_ID;
+    chassis_tx_message.StdId = CAN_CHASSIS_COURSE_ALL_ID_U;//CAN_CHASSIS_COURSE_ALL_ID;
     chassis_tx_message.IDE = CAN_ID_STD;
     chassis_tx_message.RTR = CAN_RTR_DATA;
     chassis_tx_message.DLC = 0x08;
