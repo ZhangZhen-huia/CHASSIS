@@ -28,7 +28,7 @@ void communicate_task(void const * argument)
 
 
 
-int speed[3];
+//int speed[3];
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 {
@@ -36,9 +36,9 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 	if(chassis_move.chassis_mode == CHASSIS_VECTOR_RADAR)
 	{
 		#ifdef RADAR
-		speed[0]=buf[0];
-		speed[1]=buf[1];
-		speed[2]=buf[2];
+//		speed[0]=buf[0];
+//		speed[1]=buf[1];
+//		speed[2]=buf[2];
 
 		
 		gimbal_data->rc_data.vx_set 	= buf[0]*0.02-2.0f;//(float)buf[0]/100.0f - 1.0f;

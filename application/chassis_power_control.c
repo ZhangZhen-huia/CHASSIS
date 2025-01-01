@@ -45,7 +45,10 @@ void chassis_power_feedback(Chassis_power_control_t *chassis_power_control)
 	//chassis_power_control->Chassis_Power_calc.send_current_value[3] = chassis_move.GM6020_pid.out;
 	Chassis_power();
 }
-
+fp32 Math_Abs(fp32 x)
+{
+    return ((x > 0) ? x : -x);
+}
 
 #define RPM_TO_RADPS (2.0f * PI / 60.0f)
 void chassis_power_control(void)
@@ -83,8 +86,8 @@ void chassis_power_control(void)
 		}
 		
 		/*--	分配总功率	 --*/
-		course_available_power = sum_available_power * 0.4f;
-		drive_available_power = sum_available_power * 0.6f;
+		course_available_power = sum_available_power * 0.2f;
+		drive_available_power = sum_available_power * 0.8f;
 		
 		
 		/*-- 判断是否超功率 --*/
@@ -126,25 +129,56 @@ void chassis_power_control(void)
 			}
 
 			a = POWER_6020_K1;
-			b	= TOQUE_COEFFICIENT_6020 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS;
+			b	= TOQUE_COEFFICIENT_6020 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS;//>0
 			c = POWER_6020_K2 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS - course_initial_give_power[i] * course_factor+1.3715f;// + POWER_CONSTANT;	//二元一次方程的c
-			
-			if(chassis_move.chassis_course_speed_pid[i].out > 0)
-			{
-					temp=(-b+sqrt(b*b-4*a*c))/(2*a);//二元一次方程的正解
-					if(temp>3)//限制最大解
-						chassis_move.chassis_course_speed_pid[i].out = 16000;
-					else
-						chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out ;
-			}
-			else//向后走取负解
-			{
-				 temp=(-b-sqrt(b*b-4*a*c))/(2*a);//二元一次方程的负解
-				if(temp<-3)//限制最大解
-					chassis_move.chassis_course_speed_pid[i].out = -16000;
-				else
-					chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out;		
-			}
+			float h;
+      arm_sqrt_f32(b * b - 4 * a * c, &h);
+      float result_1, result_2;
+      result_1 = (-b + h) / (2.0f * a);
+      result_2 = (-b - h) / (2.0f * a);
+
+
+         // 两个潜在的可行电流值, 取绝对值最小的那个
+				//若是两个结果是异号的，那么一定是result_1的绝对值小，因为b>0，则-b+一个正数的绝对值一定小于-b减一个正数的绝对值
+         if ((result_1 > 0.0f && result_2 < 0.0f) || (result_1 < 0.0f && result_2 > 0.0f))
+         {
+             if ((chassis_move.chassis_course_speed_pid[i].out > 0.0f && result_1 > 0.0f) || (chassis_move.chassis_course_speed_pid[i].out < 0.0f && result_1 < 0.0f))
+             {
+                 chassis_move.chassis_course_speed_pid[i].out = result_1* Current_To_Out;
+             }
+             else
+             {
+                 chassis_move.chassis_course_speed_pid[i].out = result_2* Current_To_Out;
+             }
+         }
+				 //若是两个解都大于0，那就取小的
+         else
+         {
+             if (Math_Abs(result_1) < Math_Abs(result_2))
+             {
+                 chassis_move.chassis_course_speed_pid[i].out = result_1* Current_To_Out;
+             }
+             else
+             {
+                 chassis_move.chassis_course_speed_pid[i].out = result_2* Current_To_Out;
+             }
+         }
+//			if(chassis_move.chassis_course_speed_pid[i].out > 0)
+//			{
+//					temp=(-b+sqrt(b*b-4*a*c))/(2*a);//二元一次方程的正解
+//					if(temp>3)//限制最大解
+//						chassis_move.chassis_course_speed_pid[i].out = 16000;
+//					else
+//						chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out ;
+//			}
+//			else//向后走取负解
+//			{
+//				 temp=(-b-sqrt(b*b-4*a*c))/(2*a);//二元一次方程的负解
+//				if(temp<-3)//限制最大解
+//					chassis_move.chassis_course_speed_pid[i].out = -16000;
+//				else
+//					chassis_move.chassis_course_speed_pid[i].out = temp * Current_To_Out;		
+//			}
 		}
 }
 
@@ -163,6 +197,8 @@ const DebugData * get_chassis_power(void)
 {
 	return &Chassis_power_control.chassis_power_data_debug;
 }
+
+
 
 
 

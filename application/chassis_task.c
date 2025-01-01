@@ -7,7 +7,6 @@
 
 
 
-void Speed_Toggle(chassis_move_t *chassis_move_control_Speed);
 
 static void Chassis_Debug_get_data(void);
 static uint8_t chassis_motor_detect(void);
@@ -16,7 +15,6 @@ static uint8_t chassis_motor_detect(void);
 static void chassis_init(chassis_move_t *init);
 static void chassis_feedback_update(chassis_move_t *feedback_update);
 static fp32 Find_min_Angle(int16_t angle1,fp32 angle2);
-bool_t judgeWheelPrepared(chassis_move_t *judge);
 
 static void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
 static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed[4],fp32 vx_set,fp32 vy_set,fp32 wz_set);
@@ -99,8 +97,6 @@ static void chassis_init(chassis_move_t *init)
 																			 COURSE_MOTOR3_SPEED_PID_KP,COURSE_MOTOR3_SPEED_PID_KI,COURSE_MOTOR3_SPEED_PID_KD,
 																			 COURSE_MOTOR4_SPEED_PID_KP,COURSE_MOTOR4_SPEED_PID_KI,COURSE_MOTOR4_SPEED_PID_KD};
 	
-	static float GM6020_SPEED_PID[3] = {GM6020_SPEED_PID_KP,GM6020_SPEED_PID_KI,GM6020_SPEED_PID_KD};
-	static float GM6020_PID_MAX_OUT[2] = {GM6020_SPEED_PID_MAX_OUT,GM6020_SPEED_PID_MAX_IOUT};
 	
 	
 	static float YAW_ANGLE_PID[3] = {YAW_ANGLE_PID_KP,YAW_ANGLE_PID_KI,YAW_ANGLE_PID_KD};
@@ -124,7 +120,7 @@ static void chassis_init(chassis_move_t *init)
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
 	PID_init(&init->yaw_pid,PID_POSITION,DATA_NORMAL,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
-	PID_init(&init->GM6020_pid,PID_POSITION,DATA_NORMAL,GM6020_SPEED_PID,GM6020_PID_MAX_OUT[0],GM6020_PID_MAX_OUT[1]);
+	//PID_init(&init->GM6020_pid,PID_POSITION,DATA_NORMAL,GM6020_SPEED_PID,GM6020_PID_MAX_OUT[0],GM6020_PID_MAX_OUT[1]);
 	
 	//初始化驱动速度PID 并获取电机数据
 	for(i=0;i<4;i++)
@@ -226,7 +222,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 }
 
 
-fp32 speed_set;
+
 /**
   * @brief          控制循环，根据控制设定值，计算电机电流值，进行控制
   * @param[out]     chassis_move_control_loop:"chassis_move"变量指针.
@@ -238,14 +234,6 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_vector_to_agv_calculate(chassis_move_control_loop->course_set_angle,chassis_move_control_loop->drive_set_speed,
 																	chassis_move_control_loop->vx_set,chassis_move_control_loop->vy_set,chassis_move_control_loop->wz_set);
 
-//	chassis_move_control_loop->drive_set_speed[0] = sqrt(40.0f)*hhh;
-//	chassis_move_control_loop->drive_set_speed[1] = sqrt(40.0f)*hhh;
-//	chassis_move_control_loop->drive_set_speed[2] = sqrt(40.0f)*hhh;
-//	chassis_move_control_loop->drive_set_speed[3] = sqrt(40.0f)*hhh;
-//	chassis_move_control_loop->course_set_angle[0] = current_set_angle;
-//	chassis_move_control_loop->course_set_angle[1] = current_set_angle;
-//	chassis_move_control_loop->course_set_angle[2] = current_set_angle;
-//	chassis_move_control_loop->course_set_angle[3] = current_set_angle;
 
 	//计算pid
 	for (int i = 0; i < 4; i++)
@@ -264,9 +252,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 					chassis_move_control_loop->motor_chassis[i+4].chassis_motor_measure->rpm,
 					chassis_move_control_loop->chassis_course_angle_pid[i].out);
 		}
-//				PID_calc(&chassis_move_control_loop->GM6020_pid,
-//					chassis_move_control_loop->motor_chassis[7].chassis_motor_measure->rpm,
-//					speed_set);
+
 		//chassis_power_control();
 
 
@@ -431,9 +417,9 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 
 			chassis_move_control->vx_set = vx_set;
 			chassis_move_control->vy_set = vy_set;
-			//chassis_move_control->wz_set = wz_set;
+			chassis_move_control->wz_set = wz_set;
 			
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
+			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -1.50f,1.50f);
 		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -1.50f,1.50f);
 		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -1.50f,1.50f);
 

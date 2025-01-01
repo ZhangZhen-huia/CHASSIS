@@ -54,7 +54,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 			
 			Referee_Data_Process(Referee_System.RS_rx_buf[0]);
-//			DetectHook(REFEREE_TOE);
+			detect_hook(REFEREE_TOE);
 		}
 		else
 		{
@@ -65,7 +65,7 @@ void USART6_IRQHandler(void)
 			__HAL_DMA_ENABLE(huart6.hdmarx);
 		
 		Referee_Data_Process(Referee_System.RS_rx_buf[1]);
-//		DetectHook(REFEREE_TOE);
+		detect_hook(REFEREE_TOE);
 		}
 	}   
 }
@@ -111,7 +111,6 @@ void Referee_Data_Process(uint8_t *data)
 
 void Referee_Data_Receive(uint8_t *data)
 {
-	static uint32_t sentry_info=0;
 	switch(Referee_System.RS_frame_point->cmd_id)
 	{
 		case 0x0001:

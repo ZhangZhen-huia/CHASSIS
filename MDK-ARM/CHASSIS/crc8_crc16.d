@@ -1,0 +1,55 @@
+chassis\crc8_crc16.o: ..\components\support\crc8_crc16.c
+chassis\crc8_crc16.o: ..\components\support\crc8_crc16.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/core_cm4.h
+chassis\crc8_crc16.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdint.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/cmsis_version.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+chassis\crc8_crc16.o: ../Core/Inc/stm32f4xx_hal_conf.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
+chassis\crc8_crc16.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stddef.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
+chassis\crc8_crc16.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+chassis\crc8_crc16.o: ../Core/Inc/main.h
+chassis\crc8_crc16.o: ../Core/Inc/struct_typedef.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+chassis\crc8_crc16.o: ../Core/Inc/FreeRTOSConfig.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
+chassis\crc8_crc16.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+chassis\crc8_crc16.o: ../components/algorithm/Include/arm_math.h
+chassis\crc8_crc16.o: ../Drivers/CMSIS/Include/core_cm4.h
+chassis\crc8_crc16.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
+chassis\crc8_crc16.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h

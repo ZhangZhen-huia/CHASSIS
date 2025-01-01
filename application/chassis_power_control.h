@@ -81,10 +81,16 @@ typedef struct
 }Chassis_power_control_t;
 
 
+#define RPM_TO_RADPS (2.0f * PI / 60.0f)
+
 
 extern Chassis_power_control_t Chassis_power_control;
 void chassis_power_control(void);
 void chassis_power_feedback(Chassis_power_control_t *chassis_power_control);
 void chassis_power_init(Chassis_power_control_t *chassis_power_control);
+
+
+
+
 
 #endif

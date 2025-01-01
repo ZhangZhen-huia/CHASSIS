@@ -201,7 +201,7 @@ static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_se
 //		*wz_set = 0;
     *vx_set = gimbal_data.rc_data.vx_set;
 		*vy_set = gimbal_data.rc_data.vy_set;
-		*wz_set = 0;
+		*wz_set = gimbal_data.rc_data.wz_set;//0;
 		
 		
 		

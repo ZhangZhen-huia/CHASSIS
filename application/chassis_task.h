@@ -23,13 +23,13 @@
 
 
 
-/* --------------------------------------6020功率-------------------------------------------------*/
-#define GM6020_SPEED_PID_KP		350.0f
-#define GM6020_SPEED_PID_KI		0.0f
-#define GM6020_SPEED_PID_KD		0.0f
+///* --------------------------------------6020功率-------------------------------------------------*/
+//#define GM6020_SPEED_PID_KP		350.0f
+//#define GM6020_SPEED_PID_KI		0.0f
+//#define GM6020_SPEED_PID_KD		0.0f
 
-#define GM6020_SPEED_PID_MAX_OUT	16384.0f
-#define GM6020_SPEED_PID_MAX_IOUT	0.0f
+//#define GM6020_SPEED_PID_MAX_OUT	16384.0f
+//#define GM6020_SPEED_PID_MAX_IOUT	0.0f
 
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
