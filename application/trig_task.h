@@ -41,7 +41,7 @@
 #define Serial_ARR 	500
 
 //定义期望基础拨弹盘拨弹速度 弹/s
-#define TRIG_BASE_SPEED 5.0f
+#define TRIG_BASE_SPEED 15.0f
 
 
 //定义默认卡弹转速(rpm)  

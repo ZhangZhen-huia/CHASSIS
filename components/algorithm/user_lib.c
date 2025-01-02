@@ -190,4 +190,8 @@ float Angle_Limit (float angle ,float max)
 		return angle;
 }
 
+fp32 Math_Abs(fp32 x)
+{
+    return ((x > 0) ? x : -x);
+}
 

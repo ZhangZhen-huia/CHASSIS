@@ -45,12 +45,7 @@ void chassis_power_feedback(Chassis_power_control_t *chassis_power_control)
 	//chassis_power_control->Chassis_Power_calc.send_current_value[3] = chassis_move.GM6020_pid.out;
 	Chassis_power();
 }
-fp32 Math_Abs(fp32 x)
-{
-    return ((x > 0) ? x : -x);
-}
 
-#define RPM_TO_RADPS (2.0f * PI / 60.0f)
 void chassis_power_control(void)
 {
 		float Current_To_Out = 16384.0f / 3.0f;
@@ -67,7 +62,7 @@ void chassis_power_control(void)
 			//3508功率计算
 			drive_initial_give_power[i] = TOQUE_COEFFICIENT_3508 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.motor_chassis[i].chassis_motor_measure->rpm	//,力矩和转速（力矩使用电流发送值代替，因为其是线性关系）
 																																	 +POWER_3508_K1 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.chassis_drive_speed_pid[i].out//,力矩平方
-																																	 +POWER_3508_K2 * chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm + POWER_CONSTANT;//,转速平方
+																																	 +POWER_3508_K2 * chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm + 0.5f;//,转速平方
 			//正功计入消耗	，负功计入补偿
 			if(drive_initial_give_power[i] > 0)
 				drive_consume_power +=drive_initial_give_power[i];
@@ -200,6 +195,40 @@ const DebugData * get_chassis_power(void)
 
 
 
+
+
+
+
+
+//			//再次计算舵向电机功率值
+//			for(uint8_t i=0;i<4;i++)
+//				{
+//								
+//					course_initial_give_power[i] = TOQUE_COEFFICIENT_6020 * chassis_move.chassis_course_speed_pid[i].out / Current_To_Out * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS		//,力矩和转速（力矩使用电流发送值代替，因为其是线性关系）
+//																																			 +POWER_6020_K1 * chassis_move.chassis_course_speed_pid[i].out  / Current_To_Out * chassis_move.chassis_course_speed_pid[i].out / Current_To_Out //,力矩平方
+//																																			 +POWER_6020_K2 * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS * chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm * RPM_TO_RADPS+1.3715f;//,转速平方
+//					//正功计入消耗，负功计入补偿
+//					if(course_initial_give_power[i] > 0)
+//						course_consume_power += course_initial_give_power[i];
+//					else
+//						course_available_power -= course_initial_give_power[i];
+
+//				}
+//			
+//			//如果此时功率仍然会超过分配的功率，就进行等比限幅了
+//			if(course_consume_power > course_available_power)
+//			{
+//				course_factor = course_available_power/course_consume_power;
+//			}
+//			else
+//			{
+//				course_factor = 1.0f;
+//			}
+//			
+//			for(uint8_t i=0;i<4;i++)
+//			{
+//				chassis_move.chassis_course_speed_pid[i].out*=course_factor;
+//			}
 
 
 

@@ -368,7 +368,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
   */
 void chassis_task(void const * argument);
 void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
-const DebugData* get_chassis_PID_Debug(void);
+const DebugData* get_chassis_Debug(void);
 
 
 

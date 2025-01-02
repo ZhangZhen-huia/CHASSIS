@@ -5,7 +5,7 @@
 #include "cmsis_os.h"
 #include "chassis_power_control.h"
 #include "chassis_task.h"
-
+#include "referee.h"
 
 
 const DebugData *shoot_debug;
@@ -27,7 +27,13 @@ void vofa_task(void const * argument)
 	
 	while(1)
 	{
+		#ifdef Power_Debug
 		Vofa_Send(chassis_power_debug->data1, chassis_power_debug->data2, chassis_power_debug->data3,chassis_power_debug->data4, chassis_power_debug->data5, chassis_power_debug->data6);
+		#endif
+		
+		#ifdef SHOOT_DEBUG
+		Vofa_Send(Referee_System.ext_shoot_data.initial_speed,22,25,0,0,0);
+		#endif
 		
 		osDelay(10);
 	}
@@ -37,14 +43,14 @@ void vofa_task(void const * argument)
 
 
 
-const DebugData* get_shoot_PID_Debug(void);
-const DebugData* get_chassis_PID_Debug(void);
+
+const DebugData* get_chassis_Debug(void);
 const DebugData* get_chassis_power(void);
 
 void VofaInit(void)
 {
-	//shoot_debug = get_shoot_PID_Debug();
-	//chassis_debug = get_chassis_PID_Debug();
+
+	chassis_debug = get_chassis_Debug();
 	chassis_power_debug = get_chassis_power();
 }
 

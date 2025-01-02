@@ -58,3 +58,4 @@ chassis\referee.o: ..\application\detect_task.h
 chassis\referee.o: ../Core/Inc/usart.h
 chassis\referee.o: ../components/support/crc8_crc16.h
 chassis\referee.o: ../bsp/boards/bsp_usart.h
+chassis\referee.o: ..\application\vofa_task.h

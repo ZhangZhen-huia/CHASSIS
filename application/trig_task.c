@@ -78,10 +78,10 @@ static void trig_init(shoot_control_t *shoot_init)
 //	shoot_init->is_fire = get_autofire_flag_point();
 	shoot_init->shoot_referee = get_referee_data_point();
 	//初始化Trig电机速度pid
-	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_cascade,TRIG_SPEED_PID_MAX_OUT_CASCADE,TRIG_SPEED_PID_MAX_IOUT_CASCADE);
-	PID_init(&shoot_init->shoot_trig_motor.shoot_angle_pid_cascade,PID_POSITION,DATA_NORMAL,Shoot_trig_angle_pid_cascade,TRIG_ANGLE_PID_MAX_OUT_CASCADE,TRIG_ANGLE_PID_MAX_IOUT_CASCADE);
+	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_cascade,DATA_NORMAL,Shoot_trig_speed_pid_cascade,TRIG_SPEED_PID_MAX_OUT_CASCADE,TRIG_SPEED_PID_MAX_IOUT_CASCADE,NONE);
+	PID_init(&shoot_init->shoot_trig_motor.shoot_angle_pid_cascade,DATA_NORMAL,Shoot_trig_angle_pid_cascade,TRIG_ANGLE_PID_MAX_OUT_CASCADE,TRIG_ANGLE_PID_MAX_IOUT_CASCADE,NONE);
 	
-	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_single,PID_POSITION,DATA_NORMAL,Shoot_trig_speed_pid_single,TRIG_SPEED_PID_MAX_OUT_SINGLE,TRIG_SPEED_PID_MAX_OUT_SINGLE);
+	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_single,DATA_NORMAL,Shoot_trig_speed_pid_single,TRIG_SPEED_PID_MAX_OUT_SINGLE,TRIG_SPEED_PID_MAX_OUT_SINGLE,NONE);
 	
 	shoot_init->trig_fire_mode = Cease_fire;
 	
@@ -193,7 +193,7 @@ static fp32 trig_block_detect_single(shoot_control_t * control_loop)
 	//rpm/60/36 为拨弹盘一秒转的圈数
 	//*8等于一秒发弹
 	//开火
-	
+	trig_speed_set = TRIG_BASE_SPEED;
 	if(gimbal_data.FireFlag)
 //	if(control_loop->trig_fire_mode != Cease_fire)
 	{

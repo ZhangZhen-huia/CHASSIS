@@ -4,11 +4,12 @@
 #include "usart.h"
 #include "crc8_crc16.h"
 #include "bsp_usart.h"
-
+#include "vofa_task.h"
 
 static void Referee_Data_Process(uint8_t *data);
 static void Referee_Data_Receive(uint8_t *data);
 static void Referee_0x0301Data_Receive(uint8_t *data);
+
 //static void Referee_Data_sentry_process();
 /*------------------------------------------------------*/	
 /*                       裁判系统结构体变量             */	
@@ -235,6 +236,7 @@ uint8_t get_robot_id(void)
 {
     return Referee_System.ext_game_robot_state.robot_id;
 }
+
 
 
 

@@ -84,6 +84,33 @@ void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 	gimbal_data->Gimbal_init = gimbal_data->gimbal_mode & 0x02;
 }
 
+
+//void Can_CmdTo_Gimbal(void)
+//{
+//	uint32_t send_mail_box;
+//	CAN_TxHeaderTypeDef chassis_tx_message;
+//	static uint8_t    chassis_can_send_data[8];
+//	
+//	chassis_tx_message.StdId = CAN_CHASSIS_DRIVE_ALL_ID;
+//	chassis_tx_message.DLC   = 0x08;
+//	chassis_tx_message.RTR	 = CAN_RTR_DATA;
+//	chassis_tx_message.IDE 	 = CAN_ID_STD;
+//	
+//	chassis_can_send_data[0]=M1>>8;
+//	chassis_can_send_data[1]=M1;
+//	
+//	chassis_can_send_data[2]=M2>>8;
+//	chassis_can_send_data[3]=M2;
+//	
+//	chassis_can_send_data[4]=M3>>8;
+//	chassis_can_send_data[5]=M3;
+//	
+//	chassis_can_send_data[6]=M4>>8;
+//	chassis_can_send_data[7]=M4;
+//	
+//	HAL_CAN_AddTxMessage(&hcan1,&chassis_tx_message,chassis_can_send_data,&send_mail_box);
+//}
+
 bool_t rc_is_error(void)
 {
 		return gimbal_data.rc_err;

@@ -718,7 +718,7 @@ void Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num);	//·¢ËÍÍ¼ĞÎÊı¾İµ½²
 void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer);
 uint8_t get_robot_id(void);
 
-
+extern Referee_System_t Referee_System;
 #endif
 
 

@@ -119,14 +119,14 @@ static void chassis_init(chassis_move_t *init)
 	init->chassis_RC=get_remote_control_point();
 	init->chassis_bmi088_data = get_INS_data_point();
 	init->get_gimbal_data = get_gimbal_data_point();
-	PID_init(&init->yaw_pid,PID_POSITION,DATA_NORMAL,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1]);//初始化底盘PID
+	PID_init(&init->yaw_pid,DATA_NORMAL,YAW_ANGLE_PID,YAW_PID_MAX[0],YAW_PID_MAX[1],NONE);//初始化底盘PID
 	//PID_init(&init->GM6020_pid,PID_POSITION,DATA_NORMAL,GM6020_SPEED_PID,GM6020_PID_MAX_OUT[0],GM6020_PID_MAX_OUT[1]);
 	
 	//初始化驱动速度PID 并获取电机数据
 	for(i=0;i<4;i++)
 	{
 		init->motor_chassis[i].chassis_motor_measure = get_chassis_drive_motor_measure_point(i);//获取底盘3508的数据，接收电机的反馈结构体		
-		PID_init(&init->chassis_drive_speed_pid[i],PID_POSITION,DATA_NORMAL,PID_SPEED_DRIVE[i],SPEED_PID_MAX_OUT_DRIVE[i],SPEED_PID_MAX_IOUT_DRIVE[i]);//初始化底盘PID
+		PID_init(&init->chassis_drive_speed_pid[i],DATA_NORMAL,PID_SPEED_DRIVE[i],SPEED_PID_MAX_OUT_DRIVE[i],SPEED_PID_MAX_IOUT_DRIVE[i],NONE);//初始化底盘PID
 		init->drive_set_speed[i]=0.0f;
 	}
 	
@@ -134,8 +134,8 @@ static void chassis_init(chassis_move_t *init)
 	for(i=0;i<4;i++)
 	{
 		init->motor_chassis[i+4].chassis_motor_measure = get_chassis_course_motor_measure_point(i);//获取航向电机的数据，接收电机的反馈结构体
-		PID_init(&init->chassis_course_speed_pid[i],PID_POSITION,DATA_NORMAL,PID_SPEED_COURSE[i],SPEED_PID_MAX_OUT_COURSE[i],SPEED_PID_MAX_IOUT_COURSE[i]);//初始化速度PID
-		PID_init(&init->chassis_course_angle_pid[i],PID_POSITION,DATA_NORMAL,PID_ANGLE_COURSE[i],ANGLE_PID_MAX_OUT_COURSE[i],ANGLE_PID_MAX_IOUT_COURSE[i]);//初始化角度PID
+		PID_init(&init->chassis_course_speed_pid[i],DATA_NORMAL,PID_SPEED_COURSE[i],SPEED_PID_MAX_OUT_COURSE[i],SPEED_PID_MAX_IOUT_COURSE[i],NONE);//初始化速度PID
+		PID_init(&init->chassis_course_angle_pid[i],DATA_NORMAL,PID_ANGLE_COURSE[i],ANGLE_PID_MAX_OUT_COURSE[i],ANGLE_PID_MAX_IOUT_COURSE[i],NONE);//初始化角度PID
 		init->course_set_angle[i]=0.0f;
 	}
 	//用一阶滤波
@@ -246,7 +246,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 		{
 				//角度环
 				PID_Calc_Ecd(&chassis_move_control_loop->chassis_course_angle_pid[i],
-					chassis_move_control_loop->course_angle[i],chassis_move_control_loop->course_set_angle[i],360.0f);//set[i]);
+					chassis_move_control_loop->course_angle[i],chassis_move_control_loop->course_set_angle[i],360.0f);//这里不用PID_calc是因为里面加了低通滤波，对6020角度环不好
 				//速度环
 				PID_calc(&chassis_move_control_loop->chassis_course_speed_pid[i],
 					chassis_move_control_loop->motor_chassis[i+4].chassis_motor_measure->rpm,
@@ -454,16 +454,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		}
 }
 
-float My_Max(float *data)
-{
-	int i;
-	float result=0;
-	for(i=0;*(data+i) !=NULL;i++)
-		if(data[i]>result)
-			result=data[i];
-	return result;
-		
-}
+
 
 fp32 drct[4] = {1,1,1,1};
 static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed[4],fp32 vx_set,fp32 vy_set,fp32 wz_set)
@@ -652,28 +643,6 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chas
 
 }
 
-/**
-	* @brief 等待6020角度转到位在转3508
-	* @param 底盘结构体
-  * @retval 
-  * @attention	
-  */
-
-bool_t judgeWheelPrepared(chassis_move_t *judge)
-{
-	float maxError;
-	float Error[4];
-	for(uint8_t i=0;i<4;i++)
-	Error[i] = fabs(judge->course_angle[i] - judge->course_set_angle[i]);
-	
-	maxError = My_Max(Error);
-	if(maxError < 10)
-		return 1;
-	else
-		return 0;
-
-}
-
 
 
 
@@ -717,7 +686,7 @@ static void Chassis_Debug_get_data(void)
 	chassis_move.chassis_debug_data.data5 = chassis_move.drive_set_speed[1];
 	chassis_move.chassis_debug_data.data6 = chassis_move.drive_set_speed[2];
 }
-const DebugData* get_chassis_PID_Debug(void)
+const DebugData* get_chassis_Debug(void)
 {
 	return &chassis_move.chassis_debug_data;
 }

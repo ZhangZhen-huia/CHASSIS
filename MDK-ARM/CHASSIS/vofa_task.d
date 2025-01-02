@@ -68,3 +68,4 @@ chassis\vofa_task.o: ..\application\detect_task.h
 chassis\vofa_task.o: ../components/controller/pid.h
 chassis\vofa_task.o: ../components/algorithm/user_lib.h
 chassis\vofa_task.o: ..\application\communicate_task.h
+chassis\vofa_task.o: ..\application\referee.h

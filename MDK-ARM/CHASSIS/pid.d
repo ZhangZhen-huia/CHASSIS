@@ -54,3 +54,4 @@ chassis\pid.o: ../Drivers/CMSIS/Include/core_cm4.h
 chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
 chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
 chassis\pid.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h
+chassis\pid.o: ../components/algorithm/user_lib.h
