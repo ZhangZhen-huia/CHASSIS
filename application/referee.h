@@ -298,9 +298,10 @@ typedef struct //比赛机器人状态：0x0201。发送频率：10Hz，发送范围：单一机器人。
   uint8_t robot_level; 
   uint16_t current_HP;  
   uint16_t maximum_HP; 
-  uint16_t shooter_barrel_cooling_value; 
-  uint16_t shooter_barrel_heat_limit; 
-  uint16_t chassis_power_limit;  
+	
+  uint16_t shooter_cooling_rate; //枪口热量每秒冷却值
+  uint16_t shooter_cooling_limit;  	//枪口热量限制
+  uint16_t chassis_power_limit;  				//底盘功率限制
   uint8_t power_management_gimbal_output : 1; 
   uint8_t power_management_chassis_output : 1;  
   uint8_t power_management_shooter_output : 1; 

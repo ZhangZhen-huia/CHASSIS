@@ -6,7 +6,7 @@
 #include "chassis_power_control.h"
 
 
-
+#define CHASSIS_POWER_CONTROL
 
 static void Chassis_Debug_get_data(void);
 static uint8_t chassis_motor_detect(void);
@@ -52,7 +52,7 @@ void chassis_task(void const * argument)
 			//底盘控制模式选择
 			chassis_set_mode(&chassis_move);
 			//模式更改数据传递
-			chassis_mode_change_control_transit(&chassis_move);
+			//chassis_mode_change_control_transit(&chassis_move);
 			//底盘数据更新
 			chassis_feedback_update(&chassis_move);
       //底盘控制量设置（设置遥控器输入控制量）
@@ -153,7 +153,7 @@ static void chassis_init(chassis_move_t *init)
   init->wz_max_speed = NORMAL_MAX_CHASSIS_SPEED_W;
   init->wz_min_speed = -NORMAL_MAX_CHASSIS_SPEED_W;
 	
-	chassis_power_init(&Chassis_power_control);
+	chassis_power_init(&Power_Control);
 	
 	//更新底盘数据
 	chassis_feedback_update(init);
@@ -201,13 +201,13 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 
 //    //change to follow gimbal angle mode
 //    //切入跟随云台模式
-//    if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
+//    if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW)
 //    {
 //        chassis_move_transit->chassis_relative_angle_set = 0.0f;
 //    }
 //    //change to follow chassis yaw angle
 //    //切入跟随底盘角度模式
-//    else if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW)
+//    else if ((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
 //    {
 //        chassis_move_transit->chassis_yaw_set = chassis_move_transit->chassis_yaw;
 //    }
@@ -253,7 +253,9 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 					chassis_move_control_loop->chassis_course_angle_pid[i].out);
 		}
 
-		//chassis_power_control();
+		#ifdef CHASSIS_POWER_CONTROL
+		chassis_power_control();
+		#endif
 
 
 }
@@ -288,7 +290,7 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 {
 	uint8_t i = 0;
 	
-	//更新驱动电机实际速度-->额定3.54m/s
+	//更新驱动电机实际速度-->额定3.15m/s  (3.54m/s,电机转不到)
 	for (i = 0; i < 4; i++)
 	{
 		feedback_update->motor_chassis[i].speed = feedback_update->motor_chassis[i].chassis_motor_measure->rpm * (CHASSIS_MOTOR_RPM_TO_VECTOR_SEN);
@@ -305,7 +307,7 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	for(i=0;i<4;i++)
 	feedback_update->course_angle[i] = Angle_Limit((feedback_update->motor_chassis[4+i].chassis_motor_measure->ecd - INIT_ECD[i])*360/8192,360);
 	
-	chassis_power_feedback(&Chassis_power_control);
+	chassis_power_feedback(&Power_Control);
 	#ifdef CHASSIS_DEBUG
 	Chassis_Debug_get_data();
 	#endif
@@ -332,7 +334,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
     chassis_behaviour_control_set(&vx_set,&vy_set,&wz_set,chassis_move_control);
     
 		//跟随云台yaw,左上
-		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
+		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW)
     {
 			static fp32 last_angle_diff;
 			fp32 angle_diff;
@@ -361,7 +363,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		}
 		
 		//不跟随云台，左下
-    else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW)
+    else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
 		{
 			 fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
@@ -388,42 +390,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
     }
 		
 		
-		//建图模式
-		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_BUILD_MAP)
-		{
-			chassis_move_control->vx_set = vx_set;
-			chassis_move_control->vy_set = vy_set;
-			chassis_move_control->wz_set = wz_set;
-			
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
-		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 
-		}
-		//雷达模式，左下
-		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_RADAR)
-		{
-			fp32 angle_diff;
-//			
-//	
-			angle_diff=rad_format(yaw_diff* PI / 180.0f);
-//			
-//			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
-//			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-//			
-//			
-			PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
-			chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
-
-			chassis_move_control->vx_set = vx_set;
-			chassis_move_control->vy_set = vy_set;
-			chassis_move_control->wz_set = wz_set;
-			
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, -1.50f,1.50f);
-		  chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, -1.50f,1.50f);
-		  chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, -1.50f,1.50f);
-
-		}
 		//飞坡模式，左中
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_FLY)
 		{
@@ -585,7 +552,10 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector)
 {
 	int16_t vx_channel, vy_channel, wz_channel;
-  fp32 vx_set_channel, vy_set_channel,wz_set_channel;
+  fp32 rc_vx=0, rc_vy=0,rc_wz=0;
+	fp32 key_vx=0,key_vy=0;
+	fp32 final_vx=0,final_vy=0,final_wz=0;
+	
 //  //死区限制，因为遥控器可能存在差异 摇杆在中间，其值不为0
 //  rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_X_CHANNEL], vx_channel, CHASSIS_RC_DEADLINE);
 //  rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
@@ -595,44 +565,52 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chas
   rc_deadband_limit(chassis_move_rc_to_vector->get_gimbal_data->rc_data.vy_set, vy_channel, CHASSIS_RC_DEADLINE);
   rc_deadband_limit(chassis_move_rc_to_vector->get_gimbal_data->rc_data.wz_set, wz_channel, CHASSIS_RC_DEADLINE);
 
-		vx_set_channel = vx_channel * CHASSIS_VX_RC_SEN;
-    vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
-	  wz_set_channel = wz_channel * CHASSIS_WZ_RC_SEN;
-//    //keyboard set speed set-point
-//    //键盘控制
-//    if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
-//    {
-//        vx_set_channel = chassis_move_rc_to_vector->vx_max_speed;
-//    }
-//    else if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_BACK_KEY)
-//    {
-//        vx_set_channel = chassis_move_rc_to_vector->vx_min_speed;
-//    }
+		rc_vx = vx_channel * CHASSIS_VX_RC_SEN;
+    rc_vy = vy_channel * -CHASSIS_VY_RC_SEN;
+	  rc_wz = wz_channel * CHASSIS_WZ_RC_SEN;
 
-//    if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_LEFT_KEY)
-//    {
-//        vy_set_channel = chassis_move_rc_to_vector->vy_max_speed;
-//    }
-//    else if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_RIGHT_KEY)
-//    {
-//        vy_set_channel = chassis_move_rc_to_vector->vy_min_speed;
-//    }
+    //键盘控制
+    if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_D)
+    {
+        key_vx = MAX_SPEED;
+    }
+    else if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_A)
+    {
+        key_vx = -MAX_SPEED;
+    }
 
-	//一阶低通滤波代替斜波作为底盘速度输入
-  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vx, vx_set_channel);
-  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vy, vy_set_channel);
-  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_wz, wz_set_channel);
+    if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_S)
+    {
+        key_vy = MAX_SPEED;
+    }
+    else if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_W)
+    {
+        key_vy =-MAX_SPEED;
+    }
 	
-  if (vx_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN && vx_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN)
+	final_vx = key_vx+rc_vx;
+	final_vy = key_vy+rc_vy;
+	final_wz = rc_wz;		
+		
+	final_wz = fp32_constrain(final_wz, chassis_move_rc_to_vector->wz_min_speed, chassis_move_rc_to_vector->wz_max_speed);
+	final_vx = fp32_constrain(final_vx, chassis_move_rc_to_vector->vx_min_speed, chassis_move_rc_to_vector->vx_max_speed);	
+	final_vy = fp32_constrain(final_vy, chassis_move_rc_to_vector->vy_min_speed, chassis_move_rc_to_vector->vy_max_speed);	
+		
+	//一阶低通滤波代替斜波作为底盘速度输入
+  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vx, final_vx);
+  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vy, final_vy);
+  first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_wz, final_wz);
+	
+  if (final_vx < CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN && final_vx > -CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN)
   {
       chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out = 0.0f;
   }
 
-  if (vy_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN && vy_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN)
+  if (final_vy < CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN && final_vy > -CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN)
   {
       chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out = 0.0f;
   }
-  if (wz_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_WZ_RC_SEN && wz_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_WZ_RC_SEN)
+  if (final_wz < CHASSIS_RC_DEADLINE * CHASSIS_WZ_RC_SEN && final_wz > -CHASSIS_RC_DEADLINE * CHASSIS_WZ_RC_SEN)
   {
       chassis_move_rc_to_vector->chassis_cmd_slow_set_wz.out = 0.0f;
   }    
@@ -680,11 +658,11 @@ static void Chassis_Debug_get_data(void)
 	chassis_move.chassis_debug_data.data2 = chassis_move.motor_chassis[1].speed;
 	chassis_move.chassis_debug_data.data3 = chassis_move.motor_chassis[2].speed;
 	
-	//chassis_debug_data.data4 = chassis_move.motor_chassis[3].speed;
+	chassis_move.chassis_debug_data.data4 = chassis_move.motor_chassis[3].speed;
 	
-	chassis_move.chassis_debug_data.data4 = chassis_move.drive_set_speed[0];
-	chassis_move.chassis_debug_data.data5 = chassis_move.drive_set_speed[1];
-	chassis_move.chassis_debug_data.data6 = chassis_move.drive_set_speed[2];
+//	chassis_move.chassis_debug_data.data4 = chassis_move.drive_set_speed[0];
+//	chassis_move.chassis_debug_data.data5 = chassis_move.drive_set_speed[1];
+//	chassis_move.chassis_debug_data.data6 = chassis_move.drive_set_speed[2];
 }
 const DebugData* get_chassis_Debug(void)
 {

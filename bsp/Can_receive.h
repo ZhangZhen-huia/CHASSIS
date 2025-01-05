@@ -14,6 +14,13 @@ typedef struct
     int16_t last_ecd; //上一次的机械角度
 }motor_measure_t;
 
+//超级电容数据结构体
+typedef struct
+{
+   fp32      voltage;
+	uint8_t   ouput_type;
+
+}SuperPower_data_t;
 
 
 typedef enum
@@ -41,7 +48,7 @@ typedef enum
 	CAN_COURSE_MOTOR3_ID = 0x207,
 	CAN_COURSE_MOTOR4_ID = 0x208,
 	TRIG_MOTOR_ID = 0x201,
-	
+	SUPERPOWER_ID	= 0x211,
 	
 /*----------can1双板通信接收id---------*/
 	GIMBAL_ID = 0x111,
@@ -55,6 +62,7 @@ extern motor_measure_t yaw_motor;
 void canfilter_init_start(void);
 const motor_measure_t *get_gimbal_trigger_motor_measure_point(void);
 void CAN_cmd_trig(int16_t current);
+void CAN_cmd_shootdata(fp32 bullet_speed,uint16_t shoot_heat);
 
 const motor_measure_t *get_chassis_drive_motor_measure_point(uint8_t ID);
 const motor_measure_t *get_chassis_course_motor_measure_point(uint8_t ID);

@@ -52,6 +52,12 @@ float Angle_Limit (float angle ,float max);
 //求绝对值
 fp32 Math_Abs(fp32 x);
 
+
+
+
+// rpm换算到rad/s
+#define RPM_TO_RADPS (2.0f * PI / 60.0f)
+
 //弧度格式化为-PI~PI
 #define rad_format(Ang) loop_fp32_constrain((Ang), -PI, PI)
 

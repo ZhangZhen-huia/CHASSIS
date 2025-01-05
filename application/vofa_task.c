@@ -32,9 +32,12 @@ void vofa_task(void const * argument)
 		#endif
 		
 		#ifdef SHOOT_DEBUG
-		Vofa_Send(Referee_System.ext_shoot_data.initial_speed,22,25,0,0,0);
+		Vofa_Send(Referee_System.ext_shoot_data.initial_speed,23,25,0,0,0);
 		#endif
 		
+		#ifdef CHASSIS_DEBUG
+		Vofa_Send(chassis_debug->data1,chassis_debug->data2,chassis_debug->data3,chassis_debug->data4,chassis_debug->data5,chassis_debug->data6);
+		#endif
 		osDelay(10);
 	}
 	

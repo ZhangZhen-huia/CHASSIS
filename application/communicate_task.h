@@ -15,7 +15,8 @@ typedef struct
 	fp32 wz_set;
 	uint8_t rc_sl;
 	uint8_t rc_sr;
-	
+	uint16_t rc_key_v;
+	uint16_t rc_key_v_last;
 }rc_data_t;
 
 
@@ -27,11 +28,14 @@ typedef struct
 	rc_data_t rc_data;
 	uint8_t rc_err;
 	uint8_t FireFlag;
-//	uint8_t Radar_mode;
-//	uint8_t Build_map_mode;
+
 	uint8_t Gimbal_init;
 }gimbal_data_t;
 
+typedef struct
+{
+	uint16_t bullet_speed;
+}chassis_data_t;
 
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf);

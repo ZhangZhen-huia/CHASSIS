@@ -125,7 +125,7 @@ void MX_FREERTOS_Init(void) {
 	{
 		return;
 	}
-	#endif
+	
 	HAL_TIM_Base_Start_IT(&htim5);
 	
   /* USER CODE END Init */
@@ -140,9 +140,10 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the timer(s) */
   /* definition and creation of ShootTimer */
+	
   osTimerDef(ShootTimer, ShootTimer_Callback);
   ShootTimerHandle = osTimerCreate(osTimer(ShootTimer), osTimerPeriodic, NULL);
-
+	#endif
   /* USER CODE BEGIN RTOS_TIMERS */
 	
   /* start timers, add new ones, ... */
@@ -170,7 +171,7 @@ void MX_FREERTOS_Init(void) {
   DETECT_TASKHandle = osThreadCreate(osThread(DETECT_TASK), NULL);
 
   /* definition and creation of VOFA_TASK */
-  osThreadDef(VOFA_TASK, vofa_task, osPriorityIdle, 0, 128);
+  osThreadDef(VOFA_TASK, vofa_task, osPriorityBelowNormal, 0, 128);
   VOFA_TASKHandle = osThreadCreate(osThread(VOFA_TASK), NULL);
 
   /* definition and creation of COMMUNICATE_TAS */
@@ -318,11 +319,11 @@ void ShootTimer_Callback(void const * argument)
 {
   /* USER CODE BEGIN ShootTimer_Callback */
 	#ifndef CASCADE
-	if(switch_is_up(trig_control.rc_data->rc_sl))
-	{
-		//xEventGroupSetBits(my_shootEventGroupHandle,ShootEvent_1);
-		trig_control.trig_fire_mode = Serial_fire;
-	}
+//	if(switch_is_up(trig_control.rc_data->rc_sl))
+//	{
+//		//xEventGroupSetBits(my_shootEventGroupHandle,ShootEvent_1);
+//		trig_control.trig_fire_mode = Serial_fire;
+//	}
 	#endif
   /* USER CODE END ShootTimer_Callback */
 }

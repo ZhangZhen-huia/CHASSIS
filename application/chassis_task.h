@@ -12,6 +12,10 @@
 #include "user_lib.h"
 #include "vofa_task.h"
 #include "communicate_task.h"
+
+#define HALF_MAX_SPEED  1.80f
+#define MAX_SPEED				3.50f
+
 /* --------------------------------------yaw轴-------------------------------------------------*/
 
 #define YAW_ANGLE_PID_KP                 1.20f
@@ -127,7 +131,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR3_ANGLE_PID_KP                 	5.0f//6.50f//35
+#define COURSE_MOTOR3_ANGLE_PID_KP                 	4.0f//6.50f//35
 #define COURSE_MOTOR3_ANGLE_PID_KI                	1.0f
 #define COURSE_MOTOR3_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR3_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -136,7 +140,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR3_SPEED_PID_KP                 	180.0f
+#define COURSE_MOTOR3_SPEED_PID_KP                 	160.0f
 #define COURSE_MOTOR3_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR3_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR3_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
@@ -209,8 +213,8 @@
 
 typedef enum
 {
-  CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
-  CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW,  //chassis will have yaw angle(chassis_yaw) close-looped control.底盘有底盘角度控制闭环
+  CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW,   //chassis will follow yaw gimbal motor relative angle.底盘会跟随云台相对角度
+  CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW,  //chassis will have yaw angle(chassis_yaw) close-looped control.底盘有底盘角度控制闭环
   CHASSIS_VECTOR_NO_FOLLOW_YAW,       //chassis will have rotation speed control. 底盘有旋转速度控制
   CHASSIS_VECTOR_ZERO_FORCE,                 //control-current will be sent to CAN bus derectly.
 	CHASSIS_VECTOR_RADAR,								//自动模式，跟随雷达数据
@@ -242,7 +246,7 @@ typedef struct
   pid_type_def chassis_course_angle_pid[4];            //航向电机角度pid
   pid_type_def chassis_course_speed_pid[4];						 //航向电机速度pid	
 	pid_type_def yaw_pid;
-	pid_type_def GM6020_pid;
+//	pid_type_def GM6020_pid;
 	
   first_order_filter_type_t chassis_cmd_slow_set_vx;  //一阶低通滤波减缓设定值
   first_order_filter_type_t chassis_cmd_slow_set_vy;  //一阶低通滤波减缓设定值
@@ -282,13 +286,13 @@ typedef struct
 extern chassis_move_t chassis_move;//底盘运动数据
 
 /*******************************一节低通滤波参数************************/
-#define CHASSIS_CONTROL_TIME 1.0f   //x和y本次信任参数
-#define CHASSIS_CONTROL_TIME_W 0.5f  //z本次信任参数
+#define CHASSIS_CONTROL_TIME 0.002f   
+#define CHASSIS_CONTROL_TIME_W 0.002f  
 
-//信任上一次参数占比
-#define CHASSIS_ACCEL_X_NUM 0.0f
-#define CHASSIS_ACCEL_Y_NUM 0.0f
-#define CHASSIS_ACCEL_W_NUM 0.5f
+
+#define CHASSIS_ACCEL_X_NUM 0.1666666667f
+#define CHASSIS_ACCEL_Y_NUM 0.1666666667f
+#define CHASSIS_ACCEL_W_NUM 0.1666666667f
 
 /*******************************轮组数据*******************************/
 #define R       MOTOR_DISTANCE_TO_CENTER
@@ -322,9 +326,9 @@ extern chassis_move_t chassis_move;//底盘运动数据
 
 //前进最大速度  3.597498/s   --8911
 //									0						0
-#define NORMAL_MAX_CHASSIS_SPEED_X 3.597498f
-#define NORMAL_MAX_CHASSIS_SPEED_Y 3.597498f
-#define NORMAL_MAX_CHASSIS_SPEED_W 3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_X 3.14f//3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_Y 3.14f//3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_W 3.14f//3.597498f
 
 //减速比14，rpm: 圈/min
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例	

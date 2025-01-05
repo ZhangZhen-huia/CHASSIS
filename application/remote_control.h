@@ -76,6 +76,7 @@
 #define KEY_PRESSED_OFFSET_V            ((uint16_t)1 << 14)
 #define KEY_PRESSED_OFFSET_B            ((uint16_t)1 << 15)
 
+#define KEY_PRESSED_SHIFT_Q							(KEY_PRESSED_OFFSET_Q | KEY_PRESSED_OFFSET_SHIFT)
 /*¿ì½Ý±àÐ´°´¼üºê*/
 #define ISKEYDOWN_W(RC_Data_Point)      ((RC_Data_Point->key.v & KEY_PRESSED_OFFSET_W)		== KEY_PRESSED_OFFSET_W ? 1 : 0)
 #define ISKEYDOWN_S(RC_Data_Point)      ((RC_Data_Point->key.v & KEY_PRESSED_OFFSET_S)		== KEY_PRESSED_OFFSET_S ? 1 : 0)

@@ -3,14 +3,12 @@
 #include "chassis_task.h"
 #include "communicate_task.h"
 #include "time.h"
-static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
+static void chassis_agv_direction_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_agv_top_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
-static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
-static void chassis_build_map_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 
 
 
-chassis_behaviour_e chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
+chassis_behaviour_e chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 
 
 
@@ -26,79 +24,68 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
         return;
     }
 
-		
 
-		//跟随云台
-    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
-    {
-        chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
-    }
-		
-#ifdef RADAR
-		
-		//建图模式，为机器人坐标系,左中
-		else if(chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
-		{
-        chassis_behaviour_mode = CHASSIS_BUILD_MAP;
-		}
-		//雷达模式，左下
-    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
-    {
-        chassis_behaviour_mode = CHASSIS_FOLLOW_RADAR;
-    }
-		
-#else
-		//底盘小陀螺，不跟云台
-		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
-    {
-        chassis_behaviour_mode = CHASSIS_AGV_TOP_FOLLOW_GIMBAL_YAW;
-    }
+//		//跟随云台
+//    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
+//    {
+//        chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+//    }
+//		
 		//底盘无力
-    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
+    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
+		//底盘小陀螺，不跟云台
+		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
+    {
+        chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+    }
+
 //		//飞坡
 //    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
 //    {
 //        chassis_behaviour_mode = CHASSIS_FLY;
 //    }
-#endif
+
 		
 		
-		
+		//键鼠操作
+    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
+    {
+
+				chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+
+				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
+					 chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
+				else if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_CTRL)
+						chassis_move_mode->chassis_mode = CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW;
+				else
+					chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
+			
+    }
+
 		
 		//底盘无力
     if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE  || gimbal_data.Gimbal_init)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_ZERO_FORCE; 
     }
-		//跟随底盘
-		else if(chassis_behaviour_mode == CHASSIS_AGV_TOP_FOLLOW_GIMBAL_YAW)
+		//小陀螺不跟随云台
+		else if(chassis_behaviour_mode == CHASSIS_TOP_FOLLOW_GIMBAL_YAW)
 		{
-			  chassis_move_mode->chassis_mode = CHASSIS_VECTOR_AGV_FOLLOW_GIMBAL_YAW;
+
+			  chassis_move_mode->chassis_mode = CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW;
 
 		}
-		//跟随云台
-    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
-    {
-        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 
-    }
-		//建图模式，机器人坐标
-    else if (chassis_behaviour_mode == CHASSIS_BUILD_MAP)
-    {
-        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_BUILD_MAP; 
-    }	
-		//跟随雷达
-    else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
-    {
-        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_RADAR; 
-    }
-		//跟随雷达
-    else if (chassis_behaviour_mode == CHASSIS_FLY)
-    {
-        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
-    }
+
+
+
+//		//飞坡
+//    else if (chassis_behaviour_mode == CHASSIS_FLY)
+//    {
+//        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
+//    }
 		
 		
 	
@@ -124,24 +111,19 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, 
         return;
     }
 		
-
-    if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW || chassis_behaviour_mode == CHASSIS_FLY )
+		
+		//飞坡或者跟随云台模式
+    if (chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW || chassis_behaviour_mode == CHASSIS_FLY )
     {
-        chassis_infantry_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
+        chassis_agv_direction_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
     }
-    else if (chassis_behaviour_mode == CHASSIS_AGV_TOP_FOLLOW_GIMBAL_YAW)
+		//底盘小陀螺模式
+    else if (chassis_behaviour_mode == CHASSIS_TOP_FOLLOW_GIMBAL_YAW)
     {
         chassis_agv_top_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
     }
 
-		else if (chassis_behaviour_mode == CHASSIS_BUILD_MAP)
-		{
-			chassis_build_map_control(vx_set, vy_set, angle_set,chassis_move_rc_to_vector);
-		}
-	  else if (chassis_behaviour_mode == CHASSIS_FOLLOW_RADAR)
-    {
-        chassis_follow_radar_control(vx_set, vy_set, angle_set);
-    }
+
 
 }
 
@@ -150,7 +132,7 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, 
 
 
 //底盘跟随云台
-static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector)
+static void chassis_agv_direction_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector)
 {
     if (vx_set == NULL || vy_set == NULL || wz_set == NULL || chassis_move_rc_to_vector == NULL)
     {
@@ -173,36 +155,10 @@ static void chassis_agv_top_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set
     }
 
     chassis_rc_to_control_vector(vx_set,vy_set,wz_set,chassis_move_rc_to_vector);
-
+		*wz_set = 0;
 }
 
 
-//建图模式
-static void chassis_build_map_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector)
-{
-    if (vx_set == NULL || vy_set == NULL || wz_set == NULL || chassis_move_rc_to_vector == NULL)
-    {
-        return;
-    }
-
-			chassis_rc_to_control_vector(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
-}
 
 
-//雷达模式
-static void chassis_follow_radar_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set)
-{
-    if (vx_set == NULL || vy_set == NULL || wz_set == NULL )
-    {
-        return;
-    }
-//    *vx_set = 0;
-//		*vy_set = 0;
-//		*wz_set = 0;
-    *vx_set = gimbal_data.rc_data.vx_set;
-		*vy_set = gimbal_data.rc_data.vy_set;
-		*wz_set = gimbal_data.rc_data.wz_set;//0;
-		
-		
-		
-}
+

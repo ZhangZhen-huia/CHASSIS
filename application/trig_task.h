@@ -15,18 +15,18 @@
 #define TRIG_TASK_CONTROL_TIME 500
 
 
-//串级
-#define TRIG_SPEED_PID_KP_CASCADE           15.0f
-#define TRIG_SPEED_PID_KI_CASCADE           0.0f
-#define TRIG_SPEED_PID_KD_CASCADE           0.0f
-#define TRIG_SPEED_PID_MAX_OUT_CASCADE     10000.0f
-#define TRIG_SPEED_PID_MAX_IOUT_CASCADE    0.0f
+////串级
+//#define TRIG_SPEED_PID_KP_CASCADE           15.0f
+//#define TRIG_SPEED_PID_KI_CASCADE           0.0f
+//#define TRIG_SPEED_PID_KD_CASCADE           0.0f
+//#define TRIG_SPEED_PID_MAX_OUT_CASCADE     10000.0f
+//#define TRIG_SPEED_PID_MAX_IOUT_CASCADE    0.0f
 
-#define TRIG_ANGLE_PID_KP_CASCADE           0.30f
-#define TRIG_ANGLE_PID_KI_CASCADE           0.0f
-#define TRIG_ANGLE_PID_KD_CASCADE           0.0f
-#define TRIG_ANGLE_PID_MAX_OUT_CASCADE     10000.0f   //输出10000rpm有点大了
-#define TRIG_ANGLE_PID_MAX_IOUT_CASCADE    0.0f
+//#define TRIG_ANGLE_PID_KP_CASCADE           0.30f
+//#define TRIG_ANGLE_PID_KI_CASCADE           0.0f
+//#define TRIG_ANGLE_PID_KD_CASCADE           0.0f
+//#define TRIG_ANGLE_PID_MAX_OUT_CASCADE     10000.0f   //输出10000rpm有点大了
+//#define TRIG_ANGLE_PID_MAX_IOUT_CASCADE    0.0f
 
 
 //单环
@@ -37,13 +37,16 @@
 #define TRIG_SPEED_PID_MAX_IOUT_SINGLE    1000.0f
 
 
-#define Single_ARR  2500
-#define Serial_ARR 	500
+//#define Single_ARR  2500
+//#define Serial_ARR 	500
 
 //定义期望基础拨弹盘拨弹速度 弹/s
 #define TRIG_BASE_SPEED 15.0f
 
+//最终爆发模式,拼命打弹，能打出来多是是多少
+#define TRIG_EXPLOSION_SPEED 					30.0f
 
+#define TRIG_BACK_SPEED		20.0f
 //定义默认卡弹转速(rpm)  
 #define  STANDARD_NOMOVE_RPM          15
 //定义默认卡弹时间 
@@ -74,8 +77,8 @@ typedef struct
 	fp32 motor_speed;
   fp32 motor_speed_set;
   int16_t current_set;
-	pid_type_def shoot_speed_pid_cascade;
-	pid_type_def shoot_angle_pid_cascade;
+//	pid_type_def shoot_speed_pid_cascade;
+//	pid_type_def shoot_angle_pid_cascade;
 	pid_type_def shoot_speed_pid_single;
 } shoot_motor_t;
 
@@ -83,9 +86,12 @@ typedef struct
 
 typedef enum
 {
-	Single_fire=0,
-	Serial_fire,
+//	Single_fire=0,
+//	Serial_fire,
+	Start_fire,
 	Cease_fire,
+//	Warning,
+//	danger_state,
 
 }trig_fire_mode_e;
 
@@ -96,10 +102,9 @@ typedef struct
 {
     const rc_data_t *rc_data;																		//获取遥控器指针
 		shoot_motor_t shoot_trig_motor;		
-		const uint8_t * is_fire;
 		trig_fire_mode_e trig_fire_mode;
 		trig_fire_mode_e last_trig_fire_mode;
-		Referee_System_t     *shoot_referee;   //发射机构裁判系统数据
+		Referee_System_t     *trig_referee;   //发射机构裁判系统数据
 }shoot_control_t;
 
 
