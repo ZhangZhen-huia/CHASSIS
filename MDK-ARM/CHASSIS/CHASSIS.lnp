@@ -51,6 +51,7 @@
 "chassis\trig_task.o"
 "chassis\vofa_task.o"
 "chassis\remote_control.o"
+"chassis\key_task.o"
 "chassis\pid.o"
 "chassis\can_receive.o"
 "chassis\bsp_buzzer.o"
