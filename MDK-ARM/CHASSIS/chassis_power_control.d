@@ -68,3 +68,4 @@ chassis\chassis_power_control.o: ..\application\INS_task.h
 chassis\chassis_power_control.o: ../components/devices/BMI088driver.h
 chassis\chassis_power_control.o: ../components/controller/pid.h
 chassis\chassis_power_control.o: ..\application\communicate_task.h
+chassis\chassis_power_control.o: ..\application\key_task.h

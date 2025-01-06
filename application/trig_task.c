@@ -3,6 +3,7 @@
 #include "communicate_task.h"
 #include "detect_task.h"
 
+/*-- 刚开始写的双环拨弹盘，但是对于步兵来说用处不大(也许打符能用上) --*/
 #ifdef CASCADE
 static int64_t  trig_ecd_sum=0;
 #endif
@@ -26,7 +27,7 @@ void trig_task(void const * argument)
     trig_init(&trig_control);
 
 		
-		//判断拨弹盘2006电机是否在线
+		/*-- 判断拨弹盘2006电机是否在线 --*/
 		while(trig_detect())
 		{
 			vTaskDelay(TRIG_TASK_CONTROL_TIME);
@@ -104,9 +105,10 @@ static void trig_feedback_update(shoot_control_t *feedback_update)
 static void trig_motor_control(shoot_control_t * control_loop)
 {
 
+	/*-- 堵转检测赋值 --*/
 	control_loop->shoot_trig_motor.motor_speed_set = trig_block_detect(control_loop);
 	
-	
+	/*-- PID计算 --*/
 	control_loop->shoot_trig_motor.current_set = PID_calc(&control_loop->shoot_trig_motor.shoot_speed_pid_single,control_loop->shoot_trig_motor.motor_speed,control_loop->shoot_trig_motor.motor_speed_set);
 }
 
@@ -132,16 +134,25 @@ static fp32 trig_block_detect(shoot_control_t * control_loop)
 	}
 	else if(control_loop->trig_fire_mode == Cease_fire)
 	{
-		if(control_loop->rc_data->rc_key_v & KEY_PRESSED_SHIFT_Q)
+		
+		/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
+		if((control_loop->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
 		{
 			Fire = 1;
 			ultimate_explosion = 1;
+		}
+		
+		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
+		else if(control_loop->rc_data->vx_set>300)
+		{
+			Fire = 1;
 		}
 		else
 		{
 			Fire = 0;
 			ultimate_explosion = 0;
 		}
+
 	}
 //	else if(control_loop->trig_fire_mode == Warning)
 //	{
@@ -165,57 +176,66 @@ static fp32 trig_block_detect(shoot_control_t * control_loop)
 //			Fire = 0;
 //		}
 //	}
-		//遥控器掉线
+		
+	/*-- 遥控器掉线 --*/
 	if(rc_is_error())
 		trig_speed_set = 0;
 	
+	
+	/*-- 收到允许开火标志位 --*/
 	if(Fire)
 	{
+		/*-- 爆发阶段 --*/
 		if(ultimate_explosion)
-			trig_speed_set = TRIG_EXPLOSION_SPEED;
+			trig_speed_set = TRIG_EXPLOSION_SPEED;/*-- 30发每秒 --*/
 		else 
-			trig_speed_set = TRIG_BASE_SPEED;
+			trig_speed_set = TRIG_BASE_SPEED;			/*-- 15发每秒 --*/
 		
 		temp_speed = trig_speed_set;
 		
-			if(gimbal_data.FireFlag)
+		/*-- 收到开火标志位 --*/
+		if(gimbal_data.FireFlag)
+		{
+			/*-- 正常转动 --*/
+			if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm >STANDARD_NOMOVE_RPM && NoMove_flag ==0)
 			{
-				if(control_loop->shoot_trig_motor.shoot_motor_measure->rpm >STANDARD_NOMOVE_RPM && NoMove_flag ==0)
-				{
-					trig_speed_set = temp_speed;
-					NoMove_counter =0;
-				}
-				//卡弹转动
-				else if( control_loop->shoot_trig_motor.shoot_motor_measure->rpm <= STANDARD_NOMOVE_RPM && NoMove_flag ==0 )
-				{
-					trig_speed_set = temp_speed;						
-					NoMove_counter ++;
-					if( NoMove_counter >= STANDARD_NOMOVE_TIME ) 
-					{
-						NoMove_flag = 1;
-						NoMove_counter = STANDARD_REMOVE_TIME;
-					}	
-				}
-				//反向转动
-				else if( NoMove_flag != 0)
-				{
-					trig_speed_set =-TRIG_BACK_SPEED;
-					
-					NoMove_counter--;
-					
-					if(NoMove_counter <= 0)
-					{
-					NoMove_flag = 0;
-					NoMove_counter = 0;
-					}
-				}
-	
+				trig_speed_set = temp_speed;
+				NoMove_counter =0;
 			}
-			else 
+			
+			/*-- 卡弹转动 --*/
+			else if( control_loop->shoot_trig_motor.shoot_motor_measure->rpm <= STANDARD_NOMOVE_RPM && NoMove_flag ==0 )
 			{
-					trig_speed_set = 0;
+				trig_speed_set = temp_speed;						
+				NoMove_counter ++;
+				if( NoMove_counter >= STANDARD_NOMOVE_TIME ) 
+				{
+					NoMove_flag = 1;
+					NoMove_counter = STANDARD_REMOVE_TIME;
+				}	
 			}
+			/*-- 反向转动 --*/
+			else if( NoMove_flag != 0)
+			{
+				trig_speed_set =-TRIG_BACK_SPEED;
+				
+				NoMove_counter--;
+				
+				if(NoMove_counter <= 0)
+				{
+				NoMove_flag = 0;
+				NoMove_counter = 0;
+				}
+			}
+		}
+		
+		/*-- 没有收到开火标志位 --*/
+		else 
+		{
+				trig_speed_set = 0;
+		}
 	}
+	/*-- 不允许开火 --*/
 	else 
 	{
 		trig_speed_set = 0;
@@ -229,9 +249,12 @@ static fp32 trig_block_detect(shoot_control_t * control_loop)
 
 void trig_motor_mode_set(shoot_control_t *trig_mode)
 {
-	uint16_t shoot_cooling_limit = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_limit;	//热量限制
-	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; //当前枪口热量
+	/*-- 获取裁判系统热量限制 --*/
+	uint16_t shoot_cooling_limit = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_limit;	
+	/*-- 获取裁判系统当前枪口热量 --*/
+	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; 
 	
+	/*-- 新赛季只要超热量就会锁定发射机构 --*/
 	if(shoot_cooling_heat<(shoot_cooling_limit-20))//正常状态
 	{
 		trig_mode->trig_fire_mode = Start_fire;

@@ -3,6 +3,7 @@
 #include "chassis_task.h"
 #include "communicate_task.h"
 #include "time.h"
+#include "key_task.h"
 static void chassis_agv_direction_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_agv_top_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 
@@ -19,11 +20,12 @@ chassis_behaviour_e chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW
   */
 void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 {
+	static uint8_t flag=0;
     if (chassis_move_mode == NULL)
     {
         return;
     }
-
+		
 
 //		//¸úËæÔÆÌ¨
 //    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
@@ -31,17 +33,48 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 //        chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 //    }
 //		
+		//¼üÊó²Ù×÷
+    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
+    {
+				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
+					 chassis_behaviour_mode = CHASSIS_FLY; 
+				else
+				{
+					if(flag == 1)
+						chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+					else if(flag == 0)
+						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+					
+					if(Key_ScanValue.Key_Value.CTRL && !Key_ScanValue.Key_Value_Last.CTRL)
+					{
+						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
+						{
+							chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+							flag = 1;
+						}
+						else if(chassis_behaviour_mode == CHASSIS_TOP_FOLLOW_GIMBAL_YAW)
+						{
+							chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+							flag = 0;
+						}
+					}
+				}
+			}
 		//µ×ÅÌÎÞÁ¦
-    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
+    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
+//		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
+//		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
+//    {
+//        chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+//    }
 		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
 		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
     {
-        chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+        chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
     }
-
 //		//·ÉÆÂ
 //    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
 //    {
@@ -50,20 +83,13 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 
 		
 		
-		//¼üÊó²Ù×÷
-    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
-    {
-
-				chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
-
-				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
-					 chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
-				else if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_CTRL)
-						chassis_move_mode->chassis_mode = CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW;
-				else
-					chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
+		
+////				else if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_CTRL)
+////						chassis_move_mode->chassis_mode = CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW;
+//				else
+//					chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
 			
-    }
+    
 
 		
 		//µ×ÅÌÎÞÁ¦
@@ -78,15 +104,16 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 			  chassis_move_mode->chassis_mode = CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW;
 
 		}
-
-
-
-//		//·ÉÆÂ
-//    else if (chassis_behaviour_mode == CHASSIS_FLY)
-//    {
-//        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
-//    }
-		
+	//·ÉÆÂ
+    else if (chassis_behaviour_mode == CHASSIS_FLY)
+    {
+        chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FLY; 
+    }
+		//¸úËæÔÆÌ¨
+		else if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
+		{
+			chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
+		}
 		
 	
 }

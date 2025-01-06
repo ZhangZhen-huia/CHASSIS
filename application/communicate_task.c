@@ -24,7 +24,7 @@ void communicate_task(void const * argument)
 	{
 		dispose_gimbal_mode(&gimbal_data);
 //		Can_CmdTo_Gimbal();
-		CAN_cmd_shootdata(Referee_System.ext_shoot_data.initial_speed,Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat);
+//		CAN_cmd_shootdata(Referee_System.ext_shoot_data.initial_speed,Referee_System.ext_power_heat_data.shooter_id1_17mm_cooling_heat);
 		osDelay(10);
 	}
 }

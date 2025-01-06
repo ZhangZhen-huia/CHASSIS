@@ -21,7 +21,7 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 
 
 static void chassis_set_mode(chassis_move_t *chassis_move_mode);
-static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
+//static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
 static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 
 chassis_move_t chassis_move;
@@ -41,11 +41,11 @@ void chassis_task(void const * argument)
     //底盘初始化
     chassis_init(&chassis_move);
 
-//    //判断底盘电机是否都在线
-//    while (chassis_motor_detect())
-//    {
-//        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
-//    }
+    //判断底盘电机是否都在线
+    while (chassis_motor_detect())
+    {
+        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
+    }
 		
     while (1)
 		{
@@ -182,22 +182,22 @@ static void chassis_set_mode(chassis_move_t *chassis_move_mode)
 }
 
 
-/**
-  * @brief          底盘模式改变，有些参数需要改变，例如底盘控制yaw角度设定值应该变成当前底盘yaw角度
-  * @param[out]     chassis_move_transit:"chassis_move"变量指针.
-  * @retval         none
-  */
-static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit)
-{
-    if (chassis_move_transit == NULL)
-    {
-        return;
-    }
+///**
+//  * @brief          底盘模式改变，有些参数需要改变，例如底盘控制yaw角度设定值应该变成当前底盘yaw角度
+//  * @param[out]     chassis_move_transit:"chassis_move"变量指针.
+//  * @retval         none
+//  */
+//static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit)
+//{
+//    if (chassis_move_transit == NULL)
+//    {
+//        return;
+//    }
 
-    if (chassis_move_transit->last_chassis_mode == chassis_move_transit->chassis_mode)
-    {
-        return;
-    }
+//    if (chassis_move_transit->last_chassis_mode == chassis_move_transit->chassis_mode)
+//    {
+//        return;
+//    }
 
 //    //change to follow gimbal angle mode
 //    //切入跟随云台模式
@@ -219,7 +219,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 //    }
 
 //    chassis_move_transit->last_chassis_mode = chassis_move_transit->chassis_mode;
-}
+//}
 
 
 

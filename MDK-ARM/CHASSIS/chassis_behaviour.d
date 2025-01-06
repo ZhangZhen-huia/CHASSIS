@@ -69,3 +69,4 @@ chassis\chassis_behaviour.o: ..\application\vofa_task.h
 chassis\chassis_behaviour.o: ../Core/Inc/usart.h
 chassis\chassis_behaviour.o: ..\application\communicate_task.h
 chassis\chassis_behaviour.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\time.h
+chassis\chassis_behaviour.o: ..\application\key_task.h

@@ -3,7 +3,7 @@
 #include "arm_math.h"
 #include "detect_task.h"
 #include "chassis_task.h"
-
+#include "key_task.h"
 
 
 Chassis_power_control_t Power_Control;
@@ -47,7 +47,7 @@ void chassis_power_feedback(Chassis_power_control_t *power_control)
 	Chassis_power();
 }
 
-fp32 power[4];
+//fp32 power[4];
 #define RPM_TO_RADPS (2.0f * PI / 60.0f)
 void chassis_power_control(void)
 {
@@ -57,8 +57,19 @@ void chassis_power_control(void)
 		fp32 course_initial_give_power[4],drive_initial_give_power[4];
 		fp32 sum_available_power,course_available_power,drive_available_power;
 		fp32 drive_factor,course_factor;
-		sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power;//获取可用功率
+		
 
+		/*-- 开启超电，大幅度超功率 --*/
+		if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)
+		{
+			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power + 200;//获取可用功率
+		}
+		/*-- 不开启超电 --*/
+		else
+		{
+			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power;
+		}
+		
 		/*--	计算预测的功率		--*/
 		for(uint8_t i=0;i<4;i++)
 		{
@@ -68,7 +79,7 @@ void chassis_power_control(void)
 																																	 +POWER_3508_K1 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.chassis_drive_speed_pid[i].out//,力矩平方
 																																	 +POWER_3508_K2 * chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm + POWER_CONSTANT;//,转速平方
 
-			power[i] = drive_initial_give_power[i];
+//			power[i] = drive_initial_give_power[i];
 				//正功计入消耗	，负功计入补偿
 			if(drive_initial_give_power[i] > 0)
 				drive_consume_power +=drive_initial_give_power[i];
@@ -107,11 +118,12 @@ void chassis_power_control(void)
 			/*--	功率分配 	--*/
 			for(uint8_t i=0;i<4;i++)
 			{
+				/*-- 3508超出可用的功率才进行功率重新分配 --*/
 				if(drive_factor != 1)
 				{
 					a = POWER_3508_K1;
 					b	= TOQUE_COEFFICIENT_3508*chassis_move.motor_chassis[i].chassis_motor_measure->rpm;
-					c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_available_power/4.0f/*drive_initial_give_power[i] * drive_factor*/ + POWER_CONSTANT;	//二元一次方程的c
+					c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_initial_give_power[i] * drive_factor + POWER_CONSTANT;	//二元一次方程的c
 					
 					if(chassis_move.chassis_drive_speed_pid[i].out > 0)
 					{
@@ -131,7 +143,7 @@ void chassis_power_control(void)
 					}
 				}
 		
-		
+			/*-- 6020超出可用的功率才进行功率重新分配 --*/
 			if(course_factor != 1)
 				{
 						a = POWER_6020_K1;
@@ -172,6 +184,9 @@ void chassis_power_control(void)
 				 }
 		}
 }
+
+
+
 
 static void Chassis_power(void)
 {

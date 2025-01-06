@@ -14,9 +14,9 @@ void key_task(void const * argument)
 	
 	while(1)
 	{
-		/*-- 10ms扫描一次按键 --*/
+		/*-- 5ms扫描一次按键(因为Can传输有延迟，这里就增加频率,然后使用Key_Down) --*/
 		Key_Scan();
-		osDelay(10);
+		osDelay(5);
     
 	}
 }
@@ -40,90 +40,90 @@ void Key_Scan(void)
 	static uint16_t Key_Last;
 	
 	Key_Temp = gimbal_data.rc_data.rc_key_v;
-	//Key_Down = Key_Temp & (Key_Last ^ Key_Temp);//异或运算，相同为0，不同为1     
+	Key_Down = Key_Temp & (Key_Last ^ Key_Temp);//异或运算，相同为0，不同为1     
 	Key_Up 	= ~Key_Temp & (Key_Last ^ Key_Temp);//异或运算，相同为0，不同为1 
 	Key_Last = Key_Temp;
 	
 	Key_ScanValue.Key_Value_Last = Key_ScanValue.Key_Value;
 	
-	if(Key_Up == KEY_PRESSED_OFFSET_Q)
+	if(Key_Down == KEY_PRESSED_OFFSET_Q)
 	{
 		Key_ScanValue.Key_Value.Q = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.Q = 0;
 
-		if(Key_Up == KEY_PRESSED_OFFSET_E)
+		if(Key_Down == KEY_PRESSED_OFFSET_E)
 	{
 		Key_ScanValue.Key_Value.E = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.E = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_R)
+		if(Key_Down == KEY_PRESSED_OFFSET_R)
 	{
 		Key_ScanValue.Key_Value.r = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.r = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_F)
+		if(Key_Down == KEY_PRESSED_OFFSET_F)
 	{
 		Key_ScanValue.Key_Value.F = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.F = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_G)
+		if(Key_Down == KEY_PRESSED_OFFSET_G)
 	{
 		Key_ScanValue.Key_Value.G = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.G = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_Z)
+		if(Key_Down == KEY_PRESSED_OFFSET_Z)
 	{
 		Key_ScanValue.Key_Value.Z = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.Z = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_X)
+		if(Key_Down == KEY_PRESSED_OFFSET_X)
 	{
 		Key_ScanValue.Key_Value.X = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.X = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_C)
+		if(Key_Down == KEY_PRESSED_OFFSET_C)
 	{
 		Key_ScanValue.Key_Value.C = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.C = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_V)
+		if(Key_Down == KEY_PRESSED_OFFSET_V)
 	{
 		Key_ScanValue.Key_Value.V = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.V = 0;
 	
-		if(Key_Up == KEY_PRESSED_OFFSET_B)
+		if(Key_Down == KEY_PRESSED_OFFSET_B)
 	{
 		Key_ScanValue.Key_Value.B = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.B = 0;
 	
-	if(Key_Up == KEY_PRESSED_OFFSET_SHIFT)
+	if(Key_Down == KEY_PRESSED_OFFSET_SHIFT)
 	{
 		Key_ScanValue.Key_Value.SHIFT = 1;
 	}
 	else
 		Key_ScanValue.Key_Value.SHIFT = 0;
 	
-	if(Key_Up == KEY_PRESSED_OFFSET_CTRL)
+	if(Key_Down == KEY_PRESSED_OFFSET_CTRL)
 	{
 		Key_ScanValue.Key_Value.CTRL = 1;
 	}

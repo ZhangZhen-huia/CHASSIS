@@ -27,9 +27,12 @@ void imu_offset_remove(fp32 gyro[3],fp32 cali_offset[3]);
 void imu_turn(void);
 
 
+/*-- 底盘并不需要陀螺仪，所以注释掉或者把自己删除 --*/
 void INS_task(void const * argument)
 {
-
+	/*-- 删除自己,使用该函数要注意把 INCLUDE_vTaskDelete 置1 --*/
+	vTaskDelete(NULL);
+	
 	//bmi088初始化
 	while(BMI088_init())
 	{

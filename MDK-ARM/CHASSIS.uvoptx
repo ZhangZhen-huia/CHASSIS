@@ -178,7 +178,7 @@
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gimbal_data</ItemText>
+          <ItemText>gimbal_data,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
@@ -269,6 +269,11 @@
           <count>23</count>
           <WinNumber>1</WinNumber>
           <ItemText>aaa,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>flag,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

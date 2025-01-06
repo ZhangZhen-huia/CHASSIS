@@ -58,3 +58,4 @@ chassis\test_task.o: ..\application\INS_task.h
 chassis\test_task.o: ../components/devices/BMI088driver.h
 chassis\test_task.o: ../Core/Inc/tim.h
 chassis\test_task.o: ../bsp/boards/bsp_buzzer.h
+chassis\test_task.o: ..\application\detect_task.h

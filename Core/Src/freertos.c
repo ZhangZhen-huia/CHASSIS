@@ -61,6 +61,7 @@ osThreadId DETECT_TASKHandle;
 osThreadId VOFA_TASKHandle;
 osThreadId COMMUNICATE_TASHandle;
 osThreadId TRIG_TASKHandle;
+osThreadId KEY_TASKHandle;
 osTimerId ShootTimerHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,6 +76,7 @@ void detect_task(void const * argument);
 void vofa_task(void const * argument);
 void communicate_task(void const * argument);
 void trig_task(void const * argument);
+void key_task(void const * argument);
 void ShootTimer_Callback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -140,12 +142,11 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the timer(s) */
   /* definition and creation of ShootTimer */
-	
   osTimerDef(ShootTimer, ShootTimer_Callback);
   ShootTimerHandle = osTimerCreate(osTimer(ShootTimer), osTimerPeriodic, NULL);
-	#endif
+
   /* USER CODE BEGIN RTOS_TIMERS */
-	
+	#endif
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
@@ -181,6 +182,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of TRIG_TASK */
   osThreadDef(TRIG_TASK, trig_task, osPriorityNormal, 0, 128);
   TRIG_TASKHandle = osThreadCreate(osThread(TRIG_TASK), NULL);
+
+  /* definition and creation of KEY_TASK */
+  osThreadDef(KEY_TASK, key_task, osPriorityLow, 0, 128);
+  KEY_TASKHandle = osThreadCreate(osThread(KEY_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -312,6 +317,24 @@ __weak void trig_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END trig_task */
+}
+
+/* USER CODE BEGIN Header_key_task */
+/**
+* @brief Function implementing the KEY_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_key_task */
+__weak void key_task(void const * argument)
+{
+  /* USER CODE BEGIN key_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END key_task */
 }
 
 /* ShootTimer_Callback function */
