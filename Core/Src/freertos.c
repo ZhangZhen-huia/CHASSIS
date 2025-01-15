@@ -62,6 +62,7 @@ osThreadId VOFA_TASKHandle;
 osThreadId COMMUNICATE_TASHandle;
 osThreadId TRIG_TASKHandle;
 osThreadId KEY_TASKHandle;
+osThreadId UI_TASKHandle;
 osTimerId ShootTimerHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,6 +78,7 @@ void vofa_task(void const * argument);
 void communicate_task(void const * argument);
 void trig_task(void const * argument);
 void key_task(void const * argument);
+void ui_task(void const * argument);
 void ShootTimer_Callback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -186,6 +188,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of KEY_TASK */
   osThreadDef(KEY_TASK, key_task, osPriorityLow, 0, 128);
   KEY_TASKHandle = osThreadCreate(osThread(KEY_TASK), NULL);
+
+  /* definition and creation of UI_TASK */
+  osThreadDef(UI_TASK, ui_task, osPriorityLow, 0, 128);
+  UI_TASKHandle = osThreadCreate(osThread(UI_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -335,6 +341,24 @@ __weak void key_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END key_task */
+}
+
+/* USER CODE BEGIN Header_ui_task */
+/**
+* @brief Function implementing the UI_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ui_task */
+__weak void ui_task(void const * argument)
+{
+  /* USER CODE BEGIN ui_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ui_task */
 }
 
 /* ShootTimer_Callback function */

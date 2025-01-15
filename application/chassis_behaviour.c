@@ -34,7 +34,33 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 //    }
 //		
 		//¼üÊó²Ù×÷
-    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
+		if(TOE_IS_ERR_RC && !TOE_IS_ERR_IMAGETRANSFER)
+		{
+				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
+					 chassis_behaviour_mode = CHASSIS_FLY; 
+				else
+				{
+					if(flag == 1)
+						chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+					else if(flag == 0)
+						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+					
+					if(Key_ScanValue.Key_Value.CTRL && !Key_ScanValue.Key_Value_Last.CTRL)
+					{
+						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
+						{
+							chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
+							flag = 1;
+						}
+						else if(chassis_behaviour_mode == CHASSIS_TOP_FOLLOW_GIMBAL_YAW)
+						{
+							chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+							flag = 0;
+						}
+					}
+				}
+		}
+    else if ( !TOE_IS_ERR_RC && chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
     {
 				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
 					 chassis_behaviour_mode = CHASSIS_FLY; 
@@ -65,16 +91,16 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
-//		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
-//		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
-//    {
-//        chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
-//    }
 		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
 		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
     {
-        chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
+        chassis_behaviour_mode = CHASSIS_TOP_FOLLOW_GIMBAL_YAW;
     }
+//		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
+//		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
+//    {
+//        chassis_behaviour_mode = CHASSIS_FLY;
+//    }
 //		//·ÉÆÂ
 //    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
 //    {
@@ -93,7 +119,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 
 		
 		//µ×ÅÌÎÞÁ¦
-    if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE  || gimbal_data.Gimbal_init)
+    if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE)
     {
         chassis_move_mode->chassis_mode = CHASSIS_VECTOR_ZERO_FORCE; 
     }
@@ -115,7 +141,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 			chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
 		}
 		
-	
+	chassis_move_mode->last_chassis_mode = chassis_move_mode->chassis_mode;
 }
 
 

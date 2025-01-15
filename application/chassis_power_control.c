@@ -10,7 +10,7 @@ Chassis_power_control_t Power_Control;
 static void Chassis_power(void);
 
 
-
+SuperPowerData_t SuperPowerData;
 
 void chassis_power_control(void);
 
@@ -63,11 +63,13 @@ void chassis_power_control(void)
 		if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)
 		{
 			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power + 200;//获取可用功率
+			SuperPowerData.Cap_State = OPEN;
 		}
 		/*-- 不开启超电 --*/
 		else
 		{
 			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power;
+			SuperPowerData.Cap_State = CLOSE;
 		}
 		
 		/*--	计算预测的功率		--*/
@@ -98,8 +100,16 @@ void chassis_power_control(void)
 		}
 		
 		/*--	分配总功率	 --*/
-		course_available_power = sum_available_power * 0.2f;
-		drive_available_power = sum_available_power * 0.8f;
+		if(course_consume_power < sum_available_power*0.1f)
+		{
+				course_available_power = sum_available_power * 0.1f;
+				drive_available_power = sum_available_power * 0.9f;
+		}
+		else
+		{
+				course_available_power = sum_available_power * 0.2f;
+				drive_available_power = sum_available_power * 0.8f;
+ 		}
 		
 		
 		/*-- 判断是否超功率 --*/
@@ -123,7 +133,7 @@ void chassis_power_control(void)
 				{
 					a = POWER_3508_K1;
 					b	= TOQUE_COEFFICIENT_3508*chassis_move.motor_chassis[i].chassis_motor_measure->rpm;
-					c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_initial_give_power[i] * drive_factor + POWER_CONSTANT;	//二元一次方程的c
+					c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_available_power/4.0f/*drive_initial_give_power[i] * drive_factor*/ + POWER_CONSTANT;	//二元一次方程的c
 					
 					if(chassis_move.chassis_drive_speed_pid[i].out > 0)
 					{

@@ -18,6 +18,8 @@ typedef __packed struct
     fp32 num[1];       //滤波参数
     fp32 frame_period; //滤波的时间间隔 单位 s
 } first_order_filter_type_t;
+
+
 //快速开方
 extern fp32 invSqrt(fp32 num);
 

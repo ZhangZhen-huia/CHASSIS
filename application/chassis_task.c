@@ -4,7 +4,7 @@
 #include "arm_math.h"
 #include "communicate_task.h"
 #include "chassis_power_control.h"
-
+#include "key_task.h"
 
 #define CHASSIS_POWER_CONTROL
 
@@ -27,7 +27,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 chassis_move_t chassis_move;
 
 
-static fp32 INIT_ECD[5] = {4362.0f,3693.0f,3132.0f,5025.0f,565.0f};
+static fp32 INIT_ECD[5] = {1021.0f,5859.0f,6332.0f,2965.0f,4570.0f};
 
 
 fp32 yaw_diff=0;
@@ -41,11 +41,11 @@ void chassis_task(void const * argument)
     //底盘初始化
     chassis_init(&chassis_move);
 
-    //判断底盘电机是否都在线
-    while (chassis_motor_detect())
-    {
-        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
-    }
+//    //判断底盘电机是否都在线
+//    while (chassis_motor_detect())
+//    {
+//        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
+//    }
 		
     while (1)
 		{
@@ -61,7 +61,7 @@ void chassis_task(void const * argument)
 			chassis_control_loop(&chassis_move);			
 
 			
-			if(rc_is_error())
+			if(POWER_OFF)
 			{
 				
 				CAN_cmd_course(0,0,0,0);
@@ -70,8 +70,9 @@ void chassis_task(void const * argument)
 			}
 			else
 			{
-					CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
-					CAN_cmd_drive(chassis_move.chassis_drive_speed_pid[0].out,chassis_move.chassis_drive_speed_pid[1].out,chassis_move.chassis_drive_speed_pid[2].out,chassis_move.chassis_drive_speed_pid[3].out);
+					
+				CAN_cmd_course(chassis_move.chassis_course_speed_pid[0].out,chassis_move.chassis_course_speed_pid[1].out,chassis_move.chassis_course_speed_pid[2].out,chassis_move.chassis_course_speed_pid[3].out);
+				CAN_cmd_drive(chassis_move.chassis_drive_speed_pid[0].out,chassis_move.chassis_drive_speed_pid[1].out,chassis_move.chassis_drive_speed_pid[2].out,chassis_move.chassis_drive_speed_pid[3].out);
 			}
 			osDelay(1);//控制频率为1khz，与can接收中断频率一致
 		}
@@ -345,7 +346,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
 			
-			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 5)
+			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 8)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
@@ -432,7 +433,7 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	if(chassis_move.chassis_mode != CHASSIS_VECTOR_FLY)
 	{
 		//0
-		wheel_angle[0]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
+		wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//315(-45)  (0 -- 360)
 		
 		//寻找最小转角然后驱动3508正反转，然后再由pid的过零处理算出来正确的err
 		//比如：ref:30   set:130  
@@ -443,17 +444,17 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		{
 				wheel_angle[0] += 180;		
 				wheel_angle[0]=Angle_Limit(wheel_angle[0],360);
-				drct[0] = -1;
+				drct[0] = 1;
 		}
 		else
-				drct[0]=1;
-		wheel_speed[0] = drct[0]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+				drct[0]=-1;
+		wheel_speed[3] = drct[0]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 		
 		
 		
 		
 		//1
-		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
+		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
 		if(fabs(Find_min_Angle(chassis_move.course_angle[1],wheel_angle[1]))>90)
 		{
 				wheel_angle[1] += 180;		
@@ -462,13 +463,13 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		}
 		else
 				drct[1]=1;
-		wheel_speed[1] = drct[1]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+		wheel_speed[1] = drct[1]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 		
 		
 		
 		//2
-		wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
+		wheel_angle[2]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
 		if(fabs(Find_min_Angle(chassis_move.course_angle[2],wheel_angle[2]))>90)
 		{
 				wheel_angle[2] += 180;		
@@ -477,40 +478,40 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		}
 		else
 				drct[2]=1;
-		wheel_speed[2] = drct[2]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+		wheel_speed[2] = drct[2]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 
 
 		//3
-		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); // -45(0 -- 360)
+		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //225(-135)(0 -- 360)
 		
 		if(fabs(Find_min_Angle(chassis_move.course_angle[3],wheel_angle[3]))>90)
 		{
 				wheel_angle[3] += 180;		
 				wheel_angle[3]=Angle_Limit(wheel_angle[3],360);
-				drct[3] = 1;
+				drct[3] = -1;
 		}
 		else
-				drct[3]=-1;
-		wheel_speed[3] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+				drct[3]=1;
+		wheel_speed[0] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 	}
 	else
 	{
 		//0
-		wheel_angle[0]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
-		wheel_speed[0] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+		wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
+		wheel_speed[3] = -1.0f*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 		//1
-		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
-		wheel_speed[1] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
+		wheel_speed[1] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 	
 		//2
-		wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
-		wheel_speed[2] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+		wheel_angle[2]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //-135 (0 -- 360)
+		wheel_speed[2] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 
 		//3
-		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0+180.0f,360.0f); // -45(0 -- 360)
-		wheel_speed[3] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0f,360.0f); // -45(0 -- 360)
+		wheel_speed[0] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 	}
 
 		
@@ -565,27 +566,27 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chas
   rc_deadband_limit(chassis_move_rc_to_vector->get_gimbal_data->rc_data.vy_set, vy_channel, CHASSIS_RC_DEADLINE);
   rc_deadband_limit(chassis_move_rc_to_vector->get_gimbal_data->rc_data.wz_set, wz_channel, CHASSIS_RC_DEADLINE);
 
-		rc_vx = vx_channel * CHASSIS_VX_RC_SEN;
-    rc_vy = vy_channel * -CHASSIS_VY_RC_SEN;
+		rc_vx = -vx_channel * CHASSIS_VX_RC_SEN;
+    rc_vy = -vy_channel * -CHASSIS_VY_RC_SEN;
 	  rc_wz = wz_channel * CHASSIS_WZ_RC_SEN;
 
     //键盘控制
     if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_D)
     {
-        key_vx = MAX_SPEED;
+        key_vx = -MAX_SPEED;
     }
     else if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_A)
     {
-        key_vx = -MAX_SPEED;
+        key_vx = MAX_SPEED;
     }
 
     if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_S)
     {
-        key_vy = MAX_SPEED;
+        key_vy = -MAX_SPEED;
     }
     else if (chassis_move_rc_to_vector->get_gimbal_data->rc_data.rc_key_v  & KEY_PRESSED_OFFSET_W)
     {
-        key_vy =-MAX_SPEED;
+        key_vy =MAX_SPEED;
     }
 	
 	final_vx = key_vx+rc_vx;

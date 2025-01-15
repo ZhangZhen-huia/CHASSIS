@@ -9,7 +9,7 @@
 #define RS_RX_BUF_NUM  512u
 #define RS_TX_BUF_NUM  128u
 
-#define Sentry_Decide_Order   0x0120
+
 #define HERO
 
 
@@ -441,39 +441,6 @@ typedef struct  //飞镖机器人客户端指令数据：0x020A。发送频率：10Hz，发送范围：单
 
 
 
-/*-----------------哨兵允许发弹量--------------------------*/
-// 定义掩码
-#define GUN_COUNT_MASK      0x7FF  // 0b1111111111，用于提取位 0-10
-#define GUN_EXCHANGE_MASK   0x7800 // 0b11110000000000，用于提取位 11-14
-#define HP_EXCHANGE_MASK    0x78000 // 0b1111000000000000，用于提取位 15-18
-
-
-typedef __packed struct 
-{
-	//bit 0-10：除远程兑换外，哨兵成功兑换的发弹量，开局为 0，在哨兵成功兑换一定发弹量后，该值将变为哨兵成功兑换的发弹量值。
-	//bit 11-14：哨兵成功远程兑换发弹量的次数，开局为 0，在哨兵成功远程兑换发弹量后，该值将变为哨兵成功远程兑换发弹量的次数。
-	//bit 15-18：哨兵成功远程兑换血量的次数，开局为 0，在哨兵成功远程兑换血量后，该值将变为哨兵成功远程兑换血量的次数。
-	//bit 19-31：保留
-	uint32_t sentry_info;
-
-}sentry_info_t;
-/*----------------哨兵发送数据-------------------*/
-typedef __packed struct
-{
-	uint32_t sentry_cmd; 
-} sentry_cmd_t;
-
-// 定义哨兵状态的数据结构
-typedef struct {
-    unsigned int confirm_resurrection : 1;
-    unsigned int confirm_immediate_resurrection : 1;
-    unsigned int exchange_ammo_value : 11;
-    unsigned int remote_ammo_exchange_request_count : 4;
-    unsigned int remote_health_exchange_request_count : 4;
-    unsigned int reserved : 11;
-} SentryStatus;
-
-
 typedef struct 
 { 
  uint16_t data_cmd_id; 
@@ -661,27 +628,7 @@ typedef struct
 /*-----------------裁判系统结构体声明-----------------*/
 
 
-//test livox发过来的数据 twist类型
-typedef struct
-{
-	fp32 x;
-	fp32 y;
-	fp32 z;
-}vector3;
 
-typedef struct
-{
-	vector3 linear;
-	vector3 angular;
-	
-}livox_twist;
-
-union HF
-{
-	uint8_t data[4];
-	fp32 value;
-	uint32_t hex;
-};
 
 typedef struct 
 {
@@ -705,7 +652,7 @@ typedef struct
 	ext_shoot_data_t	             ext_shoot_data;  		//射速数据
 	ext_robot_radar_command_t		 ext_robot_radar_command;//雷达小地图数据
 	ext_bullet_remaining_t           ext_bullet_remaining;//剩余子弹数量
-	sentry_cmd_t   					 sentry_cmd; //哨兵发送数据	
+//	sentry_cmd_t   					 sentry_cmd; //哨兵发送数据	
 
 }Referee_System_t;
 

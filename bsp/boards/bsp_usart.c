@@ -58,19 +58,23 @@ void referee_init(uint8_t *rx1_buf, uint8_t *rx2_buf, uint16_t dma_buf_num, uint
 
 }
 //DMA发送一次数据
-void Referee_DMA_TX(uint16_t tx_buf_num)
+void Referee_DMA_TX( uint8_t * data,uint16_t tx_buf_num)
 {
-	if(__HAL_DMA_GET_FLAG(&hdma_usart6_tx , DMA_FLAG_TCIF3_7))
-	{
-		__HAL_DMA_CLEAR_FLAG(&hdma_usart6_tx , DMA_FLAG_TCIF3_7);
-	}
-	
+
 	__HAL_DMA_DISABLE(&hdma_usart6_tx);
 	
-	while( hdma_usart6_tx.Instance->CR & DMA_SxCR_EN);
+	while( hdma_usart6_tx.Instance->CR & DMA_SxCR_EN)
+	{
+		__HAL_DMA_DISABLE(&hdma_usart6_tx);
+	}
 	
+	__HAL_DMA_CLEAR_FLAG(&hdma_usart6_tx, DMA_HISR_TCIF6);
+	
+	
+	hdma_usart6_tx.Instance->M0AR = (uint32_t)(data);
 	__HAL_DMA_SET_COUNTER(&hdma_usart6_tx, tx_buf_num);
 		
 	__HAL_DMA_ENABLE(&hdma_usart6_tx);
 }
+
 

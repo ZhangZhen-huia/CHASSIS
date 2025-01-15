@@ -22,6 +22,7 @@
 #include "tim.h"
 #include "bsp_buzzer.h"
 #include "detect_task.h"
+#include "ui.h"
 //uint8_t Bee_flag=1;
 uint16_t psc = 1;
 uint16_t pwm = 5000;
@@ -33,18 +34,14 @@ uint16_t pwm = 5000;
 /*-- 检测底盘C板是否正常工作 --*/
 void test_task(void const * argument)
 {
-
+		buzzer_on(psc, pwm);
+		osDelay(500);
+		buzzer_off();
+//		ui_init_default_Static();
     while(1)
     {
-			//Motor_test();
-//			if(Bee_flag==1)
-//			{	
-//					Bee_flag=0;
-					buzzer_on(psc, pwm);
-					osDelay(500);
-					buzzer_off();
-				
-					vTaskDelete(NULL);
+			osDelay(200);
+					//vTaskDelete(NULL);
 		
     }
 }

@@ -59,3 +59,11 @@ chassis\test_task.o: ../components/devices/BMI088driver.h
 chassis\test_task.o: ../Core/Inc/tim.h
 chassis\test_task.o: ../bsp/boards/bsp_buzzer.h
 chassis\test_task.o: ..\application\detect_task.h
+chassis\test_task.o: ../application/UI/ui.h
+chassis\test_task.o: ../application/UI/ui_interface.h
+chassis\test_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h
+chassis\test_task.o: ../application/UI/ui_types.h
+chassis\test_task.o: ../bsp/boards/bsp_usart.h
+chassis\test_task.o: ../application/UI/ui_default_Mode_0.h
+chassis\test_task.o: ../application/UI/ui_default_Mode_1.h
+chassis\test_task.o: ../application/UI/ui_default_Mode_2.h

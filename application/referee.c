@@ -166,60 +166,16 @@ void Referee_0x0301Data_Receive(uint8_t *data)
 	//数据段帧头指向数据段第一个字节
    	Referee_System.Data_frame_point = (Data_frame_point_t*)data;
 	
-	//判断接收者ID是否自己
-	if( (Referee_System.Data_frame_point->receiver_ID == Hero_R) || (Referee_System.Data_frame_point->receiver_ID == Hero_B))
-	{   
-	    switch(Referee_System.Data_frame_point->data_cmd_id)
-		{
-			
-			default: break;
-		}
-	}
+//	//判断接收者ID是否自己
+//	if( (Referee_System.Data_frame_point->receiver_ID == Hero_R) || (Referee_System.Data_frame_point->receiver_ID == Hero_B))
+//	{   
+//	    switch(Referee_System.Data_frame_point->data_cmd_id)
+//		{
+//			
+//			default: break;
+//		}
+//	}
 }
-
-/*------------------------------------------------------*/	
-/*            裁判系统数据规整和发送                    */	
-/*------------------------------------------------------*/
-void   Referee_TX_send(uint32_t cmd,uint8_t *data, uint8_t num)
-{
-		//帧头
-		Referee_System.RS_tx_buf[0] = 0xA5;
-
-		//数据长度
-		*(uint16_t*)(&Referee_System.RS_tx_buf[1]) = num + 6;
-
-		//包序号
-		static uint8_t seq = 0;
-		seq++;
-		Referee_System.RS_tx_buf[3] = seq;
-
-		//CRC8校验
-		Append_CRC8_Check_Sum(Referee_System.RS_tx_buf,5);
-
-		//cmd-id
-		*(uint16_t*)(&Referee_System.RS_tx_buf[5]) = 0x0301;//cmd id:0x0301//命令码
-
-		//数据内容ID
-		*(uint16_t*)(&Referee_System.RS_tx_buf[7]) = cmd;//子内容
-
-		//发送者ID
-		*(uint16_t*)(&Referee_System.RS_tx_buf[9]) = (uint16_t)(Referee_System.ext_game_robot_state.robot_id);
-
-		//接收者ID
-		
-		*(uint16_t*)(&Referee_System.RS_tx_buf[11]) = (uint16_t)0x8080;
-		
-	
-
-		//图形数据
-		memcpy(&Referee_System.RS_tx_buf[13],data,num);
-
-		//CRC16校验
-		Append_CRC16_Check_Sum(Referee_System.RS_tx_buf,15+num);
-
-		Referee_DMA_TX(15+num);
-}
-
 
 
 //获取底盘功率和缓冲功率

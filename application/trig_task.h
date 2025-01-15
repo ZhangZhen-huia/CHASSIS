@@ -86,14 +86,14 @@ typedef struct
 
 typedef enum
 {
-//	Single_fire=0,
-//	Serial_fire,
+	Single_fire=0,
+	Serial_fire,
 	Start_fire,
 	Cease_fire,
 //	Warning,
 //	danger_state,
 
-}trig_fire_mode_e;
+}trig_mode_e;
 
 
 
@@ -102,8 +102,8 @@ typedef struct
 {
     const rc_data_t *rc_data;																		//获取遥控器指针
 		shoot_motor_t shoot_trig_motor;		
-		trig_fire_mode_e trig_fire_mode;
-		trig_fire_mode_e last_trig_fire_mode;
+		trig_mode_e trig_fire_mode;
+		trig_mode_e last_trig_fire_mode;
 		Referee_System_t     *trig_referee;   //发射机构裁判系统数据
 }shoot_control_t;
 

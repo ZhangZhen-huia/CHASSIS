@@ -15,7 +15,7 @@ typedef struct
     ErrorType_e ERRORType;
 } PID_ErrorHandler_t;
 
-typedef enum pid_Improvement_e
+typedef enum pid_Function_e
 {
     NONE = 0X00,                        //0000 0000
     Integral_Limit = 0x01,              //0000 0001
@@ -26,7 +26,7 @@ typedef enum pid_Improvement_e
     ChangingIntegralRate = 0x20,        //0010 0000
     DerivativeFilter = 0x40,            //0100 0000
     ErrorHandle = 0x80,                 //1000 0000
-} PID_Improvement_e;
+} PID_Function_e;
 
 
 

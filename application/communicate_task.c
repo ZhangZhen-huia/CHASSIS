@@ -55,8 +55,24 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 {
 	gimbal_data->FireFlag = gimbal_data->gimbal_mode & 0x01;
-
-	gimbal_data->Gimbal_init = gimbal_data->gimbal_mode & 0x02;
+	gimbal_data->AimBot = gimbal_data->gimbal_mode & 0x02;
+	gimbal_data->FricState = gimbal_data->gimbal_mode & 0x04;
+	
+	if(gimbal_data->rc_err & 0x01)
+		gimbal_data->ControlMode = Rc;
+	else if(gimbal_data->rc_err & 0x02)
+		gimbal_data->ControlMode = ImageTransfer;
+	
+	if(gimbal_data->rc_err & 0x04)
+		gimbal_data->Toe_is_errRc = 1;
+	else 
+		gimbal_data->Toe_is_errRc = 0;		
+	
+	if(gimbal_data->rc_err & 0x08)
+		gimbal_data->Toe_is_errImageTransfer = 1;
+	else 
+		gimbal_data->Toe_is_errImageTransfer = 0;		
+	
 }
 
 void SuperPower_Control(SuperPower_data_t *control)
@@ -90,10 +106,7 @@ void Can_CmdTo_Gimbal(void)
 	HAL_CAN_AddTxMessage(&hcan1,&chassis_tx_message,chassis_can_send_data,&send_mail_box);
 }
 
-bool_t rc_is_error(void)
-{
-		return gimbal_data.rc_err;
-}
+
 
 const gimbal_data_t * get_gimbal_data_point(void)
 {

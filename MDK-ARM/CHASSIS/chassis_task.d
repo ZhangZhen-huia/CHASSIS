@@ -69,3 +69,4 @@ chassis\chassis_task.o: ..\application\communicate_task.h
 chassis\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 chassis\chassis_task.o: ..\application\chassis_behaviour.h
 chassis\chassis_task.o: ..\application\chassis_power_control.h
+chassis\chassis_task.o: ..\application\key_task.h

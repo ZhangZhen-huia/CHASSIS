@@ -21,15 +21,23 @@ typedef struct
 
 
 
+typedef enum
+{
+	Rc,
+	ImageTransfer
+}ControlMode_e;
+
 typedef struct
 {
-	fp32 gimbal_yaw;
 	int16_t gimbal_mode;
 	rc_data_t rc_data;
 	uint8_t rc_err;
 	uint8_t FireFlag;
-
-	uint8_t Gimbal_init;
+	uint8_t FricState;
+	uint8_t AimBot;
+	ControlMode_e ControlMode;
+	uint8_t Toe_is_errRc;
+	uint8_t Toe_is_errImageTransfer;
 }gimbal_data_t;
 
 typedef struct
@@ -40,8 +48,9 @@ typedef struct
 
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf);
 
-bool_t rc_is_error(void);
-
+#define TOE_IS_ERR_IMAGETRANSFER		gimbal_data.Toe_is_errImageTransfer
+#define TOE_IS_ERR_RC				gimbal_data.Toe_is_errRc
+#define POWER_OFF		(gimbal_data.ControlMode == Rc && TOE_IS_ERR_RC) || (gimbal_data.ControlMode == ImageTransfer && TOE_IS_ERR_IMAGETRANSFER)
 
 
 

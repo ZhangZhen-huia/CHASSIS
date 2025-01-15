@@ -15,7 +15,7 @@ k2µ÷£¬Ê¹Æä³µĞ¡ÍÓÂİ£¬Ê¹²ÃÅĞÏµÍ³¹¦ÂÊ´ïµ½¹¦ÂÊÉÏÏŞ¸½½ü£¬³¬¹¦ÂÊÊ±¼Ó´ók2.Ã»´ïµ½Ê±Ôò¼õĞ
 ÒòÎª¶Â×ªÊ±ËÙ¶È»ù±¾ºÜĞ¡£¬¹¦ÂÊÖ÷ÒªÎªÁ¦¾Ø¾ö¶¨£¬ËùÒÔk1Ó°Ïì´ó¡£µ÷k1
 Ğ¡ÍÓÂİÊ±ËÙ¶ÈÖ÷µ¼£¬Ôòµ÷k2
 */
-#define POWER_3508_K1 			1.23e-07f//6.00e-07f//2.50999989e-07 //1.23e-07
+#define POWER_3508_K1 			2.23e-07f//6.00e-07f//2.50999989e-07 //1.23e-07
 #define POWER_3508_K2			 	1.453e-07f//2.5500006e-07//6.9500004e-07  //1.453e-07f
 
 #define POWER_6020_K1 			6.0021f//
@@ -43,6 +43,21 @@ typedef struct
 	
 }Chassis_Power_K_t;
 
+
+
+typedef enum
+{
+	OPEN,
+	CLOSE
+}SuperPowerState_e;
+
+typedef struct
+{
+	SuperPowerState_e Cap_State;
+}SuperPowerData_t;
+
+
+extern SuperPowerData_t SuperPowerData;
 
 typedef struct
 {

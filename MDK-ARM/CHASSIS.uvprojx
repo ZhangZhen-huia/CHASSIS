@@ -337,10 +337,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=1295,1,14</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,USE_HAL_DRIVER,STM32F407xx,ARM_MATH_CM4,__FPU_USED=1U,__FPU_PRESENT=1U,__CC_ARM,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../application;../components/algorithm;../components/algorithm/Include;../bsp;../bsp/boards;../components/controller;../components/devices;../components/support</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../application;../components/algorithm;../components/algorithm/Include;../bsp;../bsp/boards;../components/controller;../components/devices;../components/support;../application/UI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -839,14 +839,14 @@
               <FilePath>..\application\communicate_task.c</FilePath>
             </File>
             <File>
-              <FileName>detect_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\detect_task.c</FilePath>
-            </File>
-            <File>
               <FileName>INS_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\INS_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>detect_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\detect_task.c</FilePath>
             </File>
             <File>
               <FileName>referee.c</FileName>
@@ -864,19 +864,24 @@
               <FilePath>..\application\trig_task.c</FilePath>
             </File>
             <File>
-              <FileName>vofa_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\vofa_task.c</FilePath>
-            </File>
-            <File>
               <FileName>remote_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\remote_control.c</FilePath>
             </File>
             <File>
+              <FileName>vofa_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\vofa_task.c</FilePath>
+            </File>
+            <File>
               <FileName>key_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\key_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\ui_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -893,6 +898,11 @@
         <Group>
           <GroupName>BSP</GroupName>
           <Files>
+            <File>
+              <FileName>bsp_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\bsp\boards\bsp_spi.c</FilePath>
+            </File>
             <File>
               <FileName>Can_receive.c</FileName>
               <FileType>1</FileType>
@@ -912,11 +922,6 @@
               <FileName>bsp_rc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\boards\bsp_rc.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\bsp\boards\bsp_spi.c</FilePath>
             </File>
             <File>
               <FileName>bsp_usart.c</FileName>
@@ -944,14 +949,14 @@
           <GroupName>Support</GroupName>
           <Files>
             <File>
-              <FileName>crc8_crc16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\components\support\crc8_crc16.c</FilePath>
-            </File>
-            <File>
               <FileName>fifo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\components\support\fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>crc8_crc16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\support\crc8_crc16.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -986,6 +991,36 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>UI</GroupName>
+          <Files>
+            <File>
+              <FileName>ui.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\application\UI\ui.h</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_Mode_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Mode_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_Mode_1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Mode_1.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_Mode_2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Mode_2.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1004,5 +1039,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>CHASSIS</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

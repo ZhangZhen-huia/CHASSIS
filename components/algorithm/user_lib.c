@@ -40,6 +40,13 @@ void ramp_calc(ramp_function_source_t *ramp_source_type, fp32 input)
         ramp_source_type->out = ramp_source_type->min_value;
     }
 }
+/*
+	斜波，类似于即一次函数
+	把输入乘一个系数（控制周期）进行累加作为输出
+	直到到达最大（最小）值
+*/
+
+
 /**
   * @brief          一阶低通滤波初始化
   * @author         RM
@@ -70,6 +77,20 @@ void first_order_filter_cali(first_order_filter_type_t *first_order_filter_type,
     first_order_filter_type->num[0] / (first_order_filter_type->num[0] + first_order_filter_type->frame_period) * \
 			first_order_filter_type->out + first_order_filter_type->frame_period / (first_order_filter_type->num[0] + first_order_filter_type->frame_period) * first_order_filter_type->input;
 }
+//out = 上一次的out * （加速时间/（加速时间+控制时间）） + 本次的input*（控制时间/（加速时间+控制时间））
+/* 
+一阶低通滤波器是一种简单的滤波器，用于衰减高频信号成分，同时保留低频成分。其数学模型可以用以下差分方程表示：
+	y[n]=α*y[n-1]+(1-α)*x[n]
+	y[n] 是当前时刻的输出值
+	y[n-1] 是上一个时刻的输出值	
+	x[n] 是当前时刻的输入值
+	α 是滤波系数，决定了滤波器的平滑程度，α 的值在 0 到 1 之间，越接近 1，滤波器的响应速度越慢，滤波效果越强
+	α = num[0]/(num[0]+frame_period)
+	1-α = frame_period/(num[0]+frame_period)
+	num[0]：通常表示滤波器的时间常数，与滤波器的截止频率相关。较大的num[0]值会导致滤波器对输入信号的变化反应更慢，滤波效果更强。
+	frame_period：采样周期，表示两次采样之间的时间间隔。它与采样频率有关
+*/
+
 
 //绝对限制
 void abs_limit(fp32 *num, fp32 Limit)
