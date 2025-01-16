@@ -1018,6 +1018,11 @@
               <FileType>1</FileType>
               <FilePath>..\application\UI\ui_default_Mode_2.c</FilePath>
             </File>
+            <File>
+              <FileName>ui_default_Shoot_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Shoot_0.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

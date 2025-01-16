@@ -67,3 +67,4 @@ chassis\test_task.o: ../bsp/boards/bsp_usart.h
 chassis\test_task.o: ../application/UI/ui_default_Mode_0.h
 chassis\test_task.o: ../application/UI/ui_default_Mode_1.h
 chassis\test_task.o: ../application/UI/ui_default_Mode_2.h
+chassis\test_task.o: ../application/UI/ui_default_Shoot_0.h

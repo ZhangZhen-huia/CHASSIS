@@ -132,28 +132,28 @@ static fp32 trig_block_detect(shoot_control_t * control_loop)
 	{
 		Fire = 1;
 	}
-//	else if(control_loop->trig_fire_mode == Cease_fire)
-//	{
-//		
-//		/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
-//		if((control_loop->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
-//		{
-//			Fire = 1;
-//			ultimate_explosion = 1;
-//		}
-//		
-//		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
-//		else if(control_loop->rc_data->vx_set>300)
-//		{
-//			Fire = 1;
-//		}
-//		else
-//		{
-//			Fire = 0;
-//			ultimate_explosion = 0;
-//		}
+	else if(control_loop->trig_fire_mode == Cease_fire)
+	{
+		
+		/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
+		if((control_loop->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
+		{
+			Fire = 1;
+			ultimate_explosion = 1;
+		}
+		
+		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
+		else if(control_loop->rc_data->vx_set>300)
+		{
+			Fire = 1;
+		}
+		else
+		{
+			Fire = 0;
+			ultimate_explosion = 0;
+		}
 
-//	}
+	}
 //	else if(control_loop->trig_fire_mode == Warning)
 //	{
 //		if(control_loop->rc_data->rc_key_v & KEY_PRESSED_OFFSET_Q)

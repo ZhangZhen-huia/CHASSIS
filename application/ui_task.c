@@ -12,18 +12,21 @@
 void ChassisMode_Update(void);
 void FricMode_Update(void);
 void SuperPowerState_Update(void);
+void ui_init(void);
 
 void ui_task(void const * argument)
 {
-
-	ui_self_id = 104;
-	ui_init_default_Mode();
+	osDelay(1000);
+	ui_init();
 
 	while(1)
 	{		
 		ChassisMode_Update();
 		FricMode_Update();
 		SuperPowerState_Update();
+		
+		if(gimbal_data.rc_data.rc_key_v & KEY_PRESSED_OFFSET_B)
+			ui_init();
 		osDelay(100);
 	}
 	
@@ -92,4 +95,11 @@ void SuperPowerState_Update(void)
 	if(state != last_state)
 		_ui_update_default_Mode_2();
 		
+}
+
+void ui_init(void)
+{
+	ui_self_id = Referee_System.ext_game_robot_state.robot_id;
+	ui_init_default_Mode();
+
 }

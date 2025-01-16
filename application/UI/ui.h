@@ -13,11 +13,13 @@ extern "C" {
 #include "ui_default_Mode_0.h"
 #include "ui_default_Mode_1.h"
 #include "ui_default_Mode_2.h"
-	
+#include "ui_default_Shoot_0.h"
+
 #define ui_init_default_Mode() \
 _ui_init_default_Mode_0(); \
 _ui_init_default_Mode_1(); \
-_ui_init_default_Mode_2()
+_ui_init_default_Mode_2(); \
+_ui_init_default_Shoot_0()
 
 #define ui_update_default_Mode() \
 _ui_update_default_Mode_0(); \
