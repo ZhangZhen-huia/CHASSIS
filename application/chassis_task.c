@@ -41,11 +41,11 @@ void chassis_task(void const * argument)
     //底盘初始化
     chassis_init(&chassis_move);
 
-//    //判断底盘电机是否都在线
-//    while (chassis_motor_detect())
-//    {
-//        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
-//    }
+    //判断底盘电机是否都在线
+    while (chassis_motor_detect())
+    {
+        vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
+    }
 		
     while (1)
 		{
