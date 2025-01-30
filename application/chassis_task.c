@@ -29,7 +29,17 @@ chassis_move_t chassis_move;
 
 static fp32 INIT_ECD[5] = {1021.0f,5859.0f,6332.0f,2965.0f,4570.0f};
 
-
+typedef struct
+{
+	int a;
+	int b;
+	
+	void set_value(int j,int l)
+	{
+		a=j;
+		b=l;
+	}
+}ss;
 fp32 yaw_diff=0;
 
 //µ×ÅÌ×ÜÈÎÎñ
