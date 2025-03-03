@@ -58,25 +58,26 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 		HAL_CAN_GetRxMessage(&hcan1,CAN_RX_FIFO0,&rx_header1,rx_data1);
 		switch(rx_header1.StdId)
 		{
-			case CAN_DRIVE_MOTOR1_ID:
-				get_motor_measure(&drive_motor[0],rx_data1);
-				detect_hook(DRIVE_MOTOR1_TOE);
+				case CAN_COURSE_MOTOR1_ID:
+				get_motor_measure(&course_motor[0],rx_data1);
+				detect_hook(COURSE_MOTOR1_TOE);
 				break;
 			
-			case CAN_DRIVE_MOTOR2_ID:
-				get_motor_measure(&drive_motor[1],rx_data1);
-				detect_hook(DRIVE_MOTOR2_TOE);
+			case CAN_COURSE_MOTOR2_ID:
+				get_motor_measure(&course_motor[1],rx_data1);
+				detect_hook(COURSE_MOTOR2_TOE);
 				break;
 			
-			case CAN_DRIVE_MOTOR3_ID:
-				get_motor_measure(&drive_motor[2],rx_data1);
-				detect_hook(DRIVE_MOTOR3_TOE);
+			case CAN_COURSE_MOTOR3_ID:
+				get_motor_measure(&course_motor[2],rx_data1);
+				detect_hook(COURSE_MOTOR3_TOE);			
 				break;
-					
-			case CAN_DRIVE_MOTOR4_ID:
-				get_motor_measure(&drive_motor[3],rx_data1);
-				detect_hook(DRIVE_MOTOR4_TOE);
-				break;				
+			
+			case CAN_COURSE_MOTOR4_ID:
+				get_motor_measure(&course_motor[3],rx_data1);
+				detect_hook(COURSE_MOTOR4_TOE);
+				break;
+
 			case GIMBAL_ID:
 				get_gimbal_data(&gimbal_data,rx_data1);
 				break;
@@ -91,25 +92,26 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 		HAL_CAN_GetRxMessage(&hcan2,CAN_RX_FIFO0,&rx_header2,rx_data2);
 		switch(rx_header2.StdId)
 		{
-			case CAN_COURSE_MOTOR1_ID:
-				get_motor_measure(&course_motor[0],rx_data2);
-				detect_hook(COURSE_MOTOR1_TOE);
+			
+			case CAN_DRIVE_MOTOR1_ID:
+				get_motor_measure(&drive_motor[0],rx_data2);
+				detect_hook(DRIVE_MOTOR1_TOE);
 				break;
 			
-			case CAN_COURSE_MOTOR2_ID:
-				get_motor_measure(&course_motor[1],rx_data2);
-				detect_hook(COURSE_MOTOR2_TOE);
+			case CAN_DRIVE_MOTOR2_ID:
+				get_motor_measure(&drive_motor[1],rx_data2);
+				detect_hook(DRIVE_MOTOR2_TOE);
 				break;
 			
-			case CAN_COURSE_MOTOR3_ID:
-				get_motor_measure(&course_motor[2],rx_data2);
-				detect_hook(COURSE_MOTOR3_TOE);			
+			case CAN_DRIVE_MOTOR3_ID:
+				get_motor_measure(&drive_motor[2],rx_data2);
+				detect_hook(DRIVE_MOTOR3_TOE);
 				break;
-			
-			case CAN_COURSE_MOTOR4_ID:
-				get_motor_measure(&course_motor[3],rx_data2);
-				detect_hook(COURSE_MOTOR4_TOE);
-				break;
+					
+			case CAN_DRIVE_MOTOR4_ID:
+				get_motor_measure(&drive_motor[3],rx_data2);
+				detect_hook(DRIVE_MOTOR4_TOE);
+				break;				
 			case TRIG_MOTOR_ID:
 				get_motor_measure(&trigger_motor,rx_data2);
 				detect_hook(TRIGGER_MOTOR_TOE);
@@ -147,7 +149,7 @@ void CAN_cmd_drive(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 	chassis_can_send_data[6]=M4>>8;
 	chassis_can_send_data[7]=M4;
 	
-	HAL_CAN_AddTxMessage(&hcan1,&chassis_tx_message,chassis_can_send_data,&send_mail_box);
+	HAL_CAN_AddTxMessage(&hcan2,&chassis_tx_message,chassis_can_send_data,&send_mail_box);
 }
 
 
@@ -157,7 +159,7 @@ void CAN_cmd_course(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 		CAN_TxHeaderTypeDef chassis_tx_message;
 		static uint8_t    chassis_can_send_data[8];
 	
-    chassis_tx_message.StdId = CAN_CHASSIS_COURSE_ALL_ID_U;//CAN_CHASSIS_COURSE_ALL_ID;
+    chassis_tx_message.StdId = CAN_CHASSIS_COURSE_ALL_ID_I;//CAN_CHASSIS_COURSE_ALL_ID;
     chassis_tx_message.IDE = CAN_ID_STD;
     chassis_tx_message.RTR = CAN_RTR_DATA;
     chassis_tx_message.DLC = 0x08;
@@ -172,7 +174,7 @@ void CAN_cmd_course(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 	
     chassis_can_send_data[6] = (M4 >> 8);
     chassis_can_send_data[7] = M4;
-    HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+    HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
 

@@ -6,7 +6,7 @@
 #include "key_task.h"
 
 
-Chassis_power_control_t Power_Control;
+Chassis_Power_limit_t PowerLimit;
 static void Chassis_power(void);
 
 
@@ -14,40 +14,15 @@ SuperPowerData_t SuperPowerData;
 
 void chassis_power_control(void);
 
-void chassis_power_init(Chassis_power_control_t *power_control)
+
+void chassis_power_feedback(Chassis_Power_limit_t *power_control)
 {
-//	chassis_power_control->Chassis_Power_K.K1 = POWER_K1;
-//	chassis_power_control->Chassis_Power_K.K2 = POWER_K2;
-//	
-
-//	
-//	chassis_power_control->Chassis_Power_K.constant = POWER_CONSTANT;
-//	chassis_power_control->SuperPower_state = 0;
-//	chassis_power_control->Buffer_set = 60;
-//	chassis_power_control->Chassis_Power_K.Cap_power_open=CAP_POWER_OPEN;
-//	chassis_power_control->Chassis_Power_K.Cap_power_close=CAP_POWER_CLOSE;
-	
-		power_control->Chassis_Power_limit.Chassis_Max_power = Referee_System.ext_game_robot_state.chassis_power_limit;
-
-}
-
-
-void chassis_power_feedback(Chassis_power_control_t *power_control)
-{
-	get_chassis_power_and_buffer(&power_control->Chassis_Power_limit.Chassis_judge_power,&power_control->Chassis_Power_limit.power_buffer_out);
-//	chassis_power_control->Chassis_Power_limit.Chassis_Max_power = MAX_POWER;//Referee_System.ext_game_robot_state.max_chassis_power;
-	
-//	for(uint8_t i=0;i<4;i++)
-//	{
-//		chassis_power_control->Chassis_Power_calc.chassis_speed_rpm[i] = chassis_move.motor_chassis[i+4].chassis_motor_measure->rpm;
-//		chassis_power_control->Chassis_Power_calc.send_current_value[i] = chassis_move.chassis_course_speed_pid[i].out;
-//	}
-	//chassis_power_control->Chassis_Power_calc.send_current_value[3] = chassis_move.GM6020_pid.out;
-	power_control->Chassis_Power_limit.Chassis_Max_power = Referee_System.ext_game_robot_state.chassis_power_limit;
+	get_chassis_power_and_buffer(&power_control->Chassis_judge_power,&power_control->power_buffer_out);
+	power_control->Chassis_Max_power = Referee_System.ext_game_robot_state.chassis_power_limit;
 	Chassis_power();
 }
 
-//fp32 power[4];
+
 #define RPM_TO_RADPS (2.0f * PI / 60.0f)
 void chassis_power_control(void)
 {
@@ -62,13 +37,13 @@ void chassis_power_control(void)
 		/*-- 开启超电，大幅度超功率 --*/
 		if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)
 		{
-			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power + 200;//获取可用功率
+			sum_available_power = PowerLimit.Chassis_Max_power + 300;//获取可用功率
 			SuperPowerData.Cap_State = OPEN;
 		}
 		/*-- 不开启超电 --*/
 		else
 		{
-			sum_available_power = Power_Control.Chassis_Power_limit.Chassis_Max_power;
+			sum_available_power = PowerLimit.Chassis_Max_power;
 			SuperPowerData.Cap_State = CLOSE;
 		}
 		
@@ -200,18 +175,18 @@ void chassis_power_control(void)
 
 static void Chassis_power(void)
 {
-	Power_Control.chassis_power_data_debug.data1 = chassis_move.motor_chassis[0].chassis_motor_measure->rpm;	
-	Power_Control.chassis_power_data_debug.data2 = chassis_move.motor_chassis[1].chassis_motor_measure->rpm;	
-	Power_Control.chassis_power_data_debug.data3 = chassis_move.motor_chassis[2].chassis_motor_measure->rpm;	
+	PowerLimit.chassis_power_data_debug.data1 = chassis_move.motor_chassis[0].chassis_motor_measure->rpm;	
+	PowerLimit.chassis_power_data_debug.data2 = chassis_move.motor_chassis[1].chassis_motor_measure->rpm;	
+	PowerLimit.chassis_power_data_debug.data3 = chassis_move.motor_chassis[2].chassis_motor_measure->rpm;	
 	
-	Power_Control.chassis_power_data_debug.data4 = chassis_move.motor_chassis[3].chassis_motor_measure->rpm;	
-	Power_Control.chassis_power_data_debug.data5 = Power_Control.Chassis_Power_limit.Chassis_judge_power;
-	Power_Control.chassis_power_data_debug.data6 = Power_Control.Chassis_Power_limit.Chassis_Max_power;
+	PowerLimit.chassis_power_data_debug.data4 = chassis_move.motor_chassis[3].chassis_motor_measure->rpm;	
+	PowerLimit.chassis_power_data_debug.data5 = PowerLimit.Chassis_judge_power;
+	PowerLimit.chassis_power_data_debug.data6 = PowerLimit.Chassis_Max_power;
 }
 
 const DebugData * get_chassis_power(void)
 {
-	return &Power_Control.chassis_power_data_debug;
+	return &PowerLimit.chassis_power_data_debug;
 }
 
 

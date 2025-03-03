@@ -73,8 +73,7 @@ void Error_Handler(void);
 #define Event_2 (1<<2)
 
 
-//#define RADAR
-//#define CASCADE
+
 #define POWER 
 /* USER CODE END Private defines */
 

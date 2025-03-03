@@ -625,6 +625,11 @@ typedef struct
 } Data_frame_point_t;
 
 
+////0x0309,自定义控制器
+//typedef _packed struct 
+//{ 
+//uint8_t data[x]; 
+//}robot_custom_data_t; 
 /*-----------------裁判系统结构体声明-----------------*/
 
 
@@ -652,8 +657,7 @@ typedef struct
 	ext_shoot_data_t	             ext_shoot_data;  		//射速数据
 	ext_robot_radar_command_t		 ext_robot_radar_command;//雷达小地图数据
 	ext_bullet_remaining_t           ext_bullet_remaining;//剩余子弹数量
-//	sentry_cmd_t   					 sentry_cmd; //哨兵发送数据	
-
+	//robot_custom_data_t				robot_custom_data;
 }Referee_System_t;
 
 

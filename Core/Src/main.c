@@ -19,6 +19,10 @@
 #include "bsp_buzzer.h"
 #include "event_groups.h"
 #include "referee.h"
+#include "tim.h"
+#include "bsp_buzzer.h"
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,8 +57,8 @@ void MX_FREERTOS_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
-
+uint16_t psc = 1;
+uint16_t pwm = 5000;
 
 /* USER CODE END 0 */
 
@@ -98,13 +102,16 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
+
 	
 	remote_control_init();
 	Buzzer_Init();
 	canfilter_init_start();
 	Referee_Sys_Init();//裁判系统收发初始化
   /* USER CODE END 2 */
-
+	buzzer_on(psc, pwm);
+	osDelay(500);
+	buzzer_off();
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 

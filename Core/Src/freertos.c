@@ -54,7 +54,7 @@
 EventGroupHandle_t my_shootEventGroupHandle;
 
 /* USER CODE END Variables */
-osThreadId TEST_TASKHandle;
+osThreadId UI_TASKHandle;
 osThreadId CHASSIS_TASKHandle;
 osThreadId INS_TASKHandle;
 osThreadId DETECT_TASKHandle;
@@ -62,7 +62,6 @@ osThreadId VOFA_TASKHandle;
 osThreadId COMMUNICATE_TASHandle;
 osThreadId TRIG_TASKHandle;
 osThreadId KEY_TASKHandle;
-osThreadId UI_TASKHandle;
 osTimerId ShootTimerHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,7 +69,7 @@ osTimerId ShootTimerHandle;
 
 /* USER CODE END FunctionPrototypes */
 
-void test_task(void const * argument);
+void ui_task(void const * argument);
 void chassis_task(void const * argument);
 void INS_task(void const * argument);
 void detect_task(void const * argument);
@@ -78,7 +77,6 @@ void vofa_task(void const * argument);
 void communicate_task(void const * argument);
 void trig_task(void const * argument);
 void key_task(void const * argument);
-void ui_task(void const * argument);
 void ShootTimer_Callback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -157,9 +155,9 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of TEST_TASK */
-  osThreadDef(TEST_TASK, test_task, osPriorityLow, 0, 128);
-  TEST_TASKHandle = osThreadCreate(osThread(TEST_TASK), NULL);
+  /* definition and creation of UI_TASK */
+  osThreadDef(UI_TASK, ui_task, osPriorityLow, 0, 128);
+  UI_TASKHandle = osThreadCreate(osThread(UI_TASK), NULL);
 
   /* definition and creation of CHASSIS_TASK */
   osThreadDef(CHASSIS_TASK, chassis_task, osPriorityNormal, 0, 256);
@@ -189,32 +187,28 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(KEY_TASK, key_task, osPriorityLow, 0, 128);
   KEY_TASKHandle = osThreadCreate(osThread(KEY_TASK), NULL);
 
-  /* definition and creation of UI_TASK */
-  osThreadDef(UI_TASK, ui_task, osPriorityLow, 0, 128);
-  UI_TASKHandle = osThreadCreate(osThread(UI_TASK), NULL);
-
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
 }
 
-/* USER CODE BEGIN Header_test_task */
+/* USER CODE BEGIN Header_ui_task */
 /**
-  * @brief  Function implementing the TEST_TASK thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_test_task */
-__weak void test_task(void const * argument)
+* @brief Function implementing the UI_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ui_task */
+__weak void ui_task(void const * argument)
 {
-  /* USER CODE BEGIN test_task */
+  /* USER CODE BEGIN ui_task */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END test_task */
+  /* USER CODE END ui_task */
 }
 
 /* USER CODE BEGIN Header_chassis_task */
@@ -341,24 +335,6 @@ __weak void key_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END key_task */
-}
-
-/* USER CODE BEGIN Header_ui_task */
-/**
-* @brief Function implementing the UI_TASK thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_ui_task */
-__weak void ui_task(void const * argument)
-{
-  /* USER CODE BEGIN ui_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END ui_task */
 }
 
 /* ShootTimer_Callback function */

@@ -31,24 +31,26 @@ typedef enum
 	CAN_CHASSIS_DRIVE_ALL_ID = 0x200,
 	
 	/*---6020---*/
-	CAN_CHASSIS_COURSE_ALL_ID_I = 0x1FF,
-	CAN_CHASSIS_COURSE_ALL_ID_U = 0x1FE,
+	CAN_CHASSIS_COURSE_ALL_ID_I = 0x1FE,
+	CAN_CHASSIS_COURSE_ALL_ID_U = 0x1FF,
 	
-	CAN_TRIG_CMD_ID = 0x200,
+	CAN_TRIG_CMD_ID = 0x1FF	,
 	
-/*----------can1接收id----------*/
+/*----------can2接收id----------*/
 	CAN_DRIVE_MOTOR1_ID = 0x201,
 	CAN_DRIVE_MOTOR2_ID = 0x202,
 	CAN_DRIVE_MOTOR3_ID = 0x203,
 	CAN_DRIVE_MOTOR4_ID = 0x204,
-	CAN_YAW_MOTOR_ID = 0x209,
-/*----------can2接收id----------*/
+	TRIG_MOTOR_ID = 0x205,
+	SUPERPOWER_ID	= 0x211,
+	
+/*----------can1接收id----------*/
 	CAN_COURSE_MOTOR1_ID = 0x205,
 	CAN_COURSE_MOTOR2_ID = 0x206,
 	CAN_COURSE_MOTOR3_ID = 0x207,
 	CAN_COURSE_MOTOR4_ID = 0x208,
-	TRIG_MOTOR_ID = 0x201,
-	SUPERPOWER_ID	= 0x211,
+	CAN_YAW_MOTOR_ID = 0x209,
+
 	
 /*----------can1双板通信接收id---------*/
 	GIMBAL_ID = 0x111,

@@ -139,18 +139,6 @@ void Key_Scan(void)
 
 }
 
-//	Key_ScanValue.Key_Value.Q = Key_Function(KEY_PRESSED_OFFSET_Q);
-//	Key_ScanValue.Key_Value.E = Key_Function(KEY_PRESSED_OFFSET_E);
-//	Key_ScanValue.Key_Value.r = Key_Function(KEY_PRESSED_OFFSET_R);
-//	Key_ScanValue.Key_Value.F = Key_Function(KEY_PRESSED_OFFSET_F);
-//	Key_ScanValue.Key_Value.G = Key_Function(KEY_PRESSED_OFFSET_G);
-//	Key_ScanValue.Key_Value.Z = Key_Function(KEY_PRESSED_OFFSET_Z);
-//	Key_ScanValue.Key_Value.X = Key_Function(KEY_PRESSED_OFFSET_X);
-//	Key_ScanValue.Key_Value.C = Key_Function(KEY_PRESSED_OFFSET_C);
-//	Key_ScanValue.Key_Value.V = Key_Function(KEY_PRESSED_OFFSET_V);	
-//	Key_ScanValue.Key_Value.B = Key_Function(KEY_PRESSED_OFFSET_B);
-//	Key_ScanValue.Key_Value.SHIFT = Key_Function(KEY_PRESSED_OFFSET_SHIFT);
-//	Key_ScanValue.Key_Value.CTRL = Key_Function(KEY_PRESSED_OFFSET_CTRL);
 
 
 

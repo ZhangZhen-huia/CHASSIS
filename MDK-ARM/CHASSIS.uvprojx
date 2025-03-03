@@ -824,6 +824,11 @@
               <FilePath>..\application\chassis_behaviour.c</FilePath>
             </File>
             <File>
+              <FileName>communicate_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\communicate_task.c</FilePath>
+            </File>
+            <File>
               <FileName>chassis_power_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\chassis_power_control.c</FilePath>
@@ -832,11 +837,6 @@
               <FileName>chassis_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\chassis_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>communicate_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\communicate_task.c</FilePath>
             </File>
             <File>
               <FileName>INS_task.c</FileName>
@@ -852,11 +852,6 @@
               <FileName>referee.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\referee.c</FilePath>
-            </File>
-            <File>
-              <FileName>test_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\test_task.c</FilePath>
             </File>
             <File>
               <FileName>trig_task.c</FileName>

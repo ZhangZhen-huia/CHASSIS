@@ -122,9 +122,6 @@ void Referee_Data_Receive(uint8_t *data)
 		  memmove(&Referee_System.ext_game_robot_HP, data, 32);	
 		  break;
 
-		case 0x0102:
-		  memmove(&Referee_System.ext_supply_projectile_action ,data,4);
-		  break;
 
 		case 0x0201:
 		  memmove(&Referee_System.ext_game_robot_state ,data,13);
@@ -152,6 +149,9 @@ void Referee_Data_Receive(uint8_t *data)
 		  Referee_0x0301Data_Receive(data);
 		  break;
 		
+//		case 0x0309:
+//					  memmove(&Referee_System.robot_custom_data ,data,4);
+
 		default: break;
 		  
 	} 

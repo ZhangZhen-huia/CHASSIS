@@ -68,41 +68,18 @@ typedef struct
 	 fp32 Max_input_power;//最大功率限制
 	 fp32 Chassis_Max_power;//底盘最大功率
 	 fp32 Chassis_judge_power;
+	 DebugData chassis_power_data_debug;
 }Chassis_Power_limit_t;
 
-
-
-typedef struct
-{
-	fp32 chassis_speed_rpm[4];//四个轮子速度反馈
-	fp32 initial_total_power;//计算得到的总功率
-	fp32 initial_give_power[4];//四个轮子计算后的功率
-	fp32 scaled_give_power[4];//四个轮子缩放后的功率
-	fp32 scaled_total_power;//缩放后的总功率
-	fp32 send_current_value[4];//pid计算计算得到的发送电流值
-}Chassis_Power_calc_t;
-
-
-typedef struct
-{
-	uint8_t SuperPower_state;
-	fp32 Buffer_set;
-	Chassis_Power_calc_t Chassis_Power_calc;
-	Chassis_Power_limit_t Chassis_Power_limit;
-	Chassis_Power_K_t Chassis_Power_K;
-	
-	DebugData chassis_power_data_debug;
-
-}Chassis_power_control_t;
 
 
 #define RPM_TO_RADPS (2.0f * PI / 60.0f)
 
 
-extern Chassis_power_control_t Power_Control;
+extern Chassis_Power_limit_t PowerLimit;
 void chassis_power_control(void);
-void chassis_power_feedback(Chassis_power_control_t *power_control);
-void chassis_power_init(Chassis_power_control_t *power_control);
+void chassis_power_feedback(Chassis_Power_limit_t *power_control);
+
 
 
 
