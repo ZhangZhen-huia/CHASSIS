@@ -73,6 +73,7 @@
 "chassis\ui_default_mode_1.o"
 "chassis\ui_default_mode_2.o"
 "chassis\ui_default_shoot_0.o"
+"chassis\ui_default_body_0.o"
 --strict --scatter "CHASSIS\CHASSIS.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

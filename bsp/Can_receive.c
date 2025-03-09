@@ -116,10 +116,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖĞ¶
 				get_motor_measure(&trigger_motor,rx_data2);
 				detect_hook(TRIGGER_MOTOR_TOE);
 			break;
-//			case SUPERPOWER_ID:
-//				 memcpy(&SuperPower_data.voltage,&rx_data2[0],4);
-//				 memcpy(&SuperPower_data.ouput_type, &rx_data2[4],1);
-//				detect_hook(SUPERPOWER_TOE);
+			case SUPERPOWER_RX_ID:
+				 memcpy(&SuperPower_data.voltage,&rx_data2[0],4);
+				 memcpy(&SuperPower_data.ouput_type, &rx_data2[4],1);
+				detect_hook(SUPERPOWER_TOE);
 		}
 	}
 }
@@ -197,6 +197,35 @@ void CAN_cmd_trig(int16_t current)
 	
 }
 
+
+void CAN_cmd_SuperPower(uint8_t max_chassis_power, uint16_t power_buffer ,uint8_t mode, uint16_t voletage, uint16_t current )
+{
+	CAN_TxHeaderTypeDef Cap_tx_message;
+	uint8_t Capdata_send_data[8];	
+	uint32_t send_mail_box;
+	
+	Cap_tx_message.StdId = SUPERPOWER_TX_ID;
+	Cap_tx_message.IDE = CAN_ID_STD;
+	Cap_tx_message.RTR = CAN_RTR_DATA;
+	Cap_tx_message.DLC =	0x08;
+	
+	
+	Capdata_send_data[0] = max_chassis_power;//µ±Ç°µÈ¼¶µØÅÌÏŞÖÆ×î´ó¹¦ÂÊ
+	
+	Capdata_send_data[1] = power_buffer>>8;//µ×ÅÌ»º³å¹¦ÂÊ
+	Capdata_send_data[2] = power_buffer;
+	
+	Capdata_send_data[3] = mode;//Ä£Ê½
+	
+	Capdata_send_data[4] = voletage>>8;//²ÃÅĞÏµÍ³·´À¡µÄÊä³öµçÑ¹´óĞ¡
+	Capdata_send_data[5] = voletage;	
+	
+	Capdata_send_data[6] = current>>8;//²ÃÅĞÏµÍ³·´À¡µÄÊä³öµçÁ÷´óĞ¡
+	Capdata_send_data[7] = current;		
+	
+	HAL_CAN_AddTxMessage(&hcan2,&Cap_tx_message,Capdata_send_data,&send_mail_box);
+	
+}
 
 void CAN_cmd_shootdata(fp32 bullet_speed,uint16_t shoot_heat)
 {

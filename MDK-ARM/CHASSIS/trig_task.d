@@ -63,3 +63,4 @@ chassis\trig_task.o: ..\application\referee.h
 chassis\trig_task.o: ../components/algorithm/user_lib.h
 chassis\trig_task.o: ../Core/Inc/tim.h
 chassis\trig_task.o: ..\application\detect_task.h
+chassis\trig_task.o: ..\application\key_task.h

@@ -27,19 +27,19 @@ void _ui_init_default_Shoot_0() {
 
     ui_default_Shoot_Sight1->figure_tpye = 0;
     ui_default_Shoot_Sight1->layer = 0;
-    ui_default_Shoot_Sight1->start_x = 930;
-    ui_default_Shoot_Sight1->start_y = 495;
-    ui_default_Shoot_Sight1->end_x = 964;
-    ui_default_Shoot_Sight1->end_y = 495;
+    ui_default_Shoot_Sight1->start_x = 947;
+    ui_default_Shoot_Sight1->start_y = 494;
+    ui_default_Shoot_Sight1->end_x = 977;
+    ui_default_Shoot_Sight1->end_y = 494;
     ui_default_Shoot_Sight1->color = 6;
     ui_default_Shoot_Sight1->width = 1;
 
     ui_default_Shoot_Sight2->figure_tpye = 0;
     ui_default_Shoot_Sight2->layer = 0;
-    ui_default_Shoot_Sight2->start_x = 947;
-    ui_default_Shoot_Sight2->start_y = 480;
-    ui_default_Shoot_Sight2->end_x = 947;
-    ui_default_Shoot_Sight2->end_y = 510;
+    ui_default_Shoot_Sight2->start_x = 958;
+    ui_default_Shoot_Sight2->start_y = 478;
+    ui_default_Shoot_Sight2->end_x = 958;
+    ui_default_Shoot_Sight2->end_y = 508;
     ui_default_Shoot_Sight2->color = 6;
     ui_default_Shoot_Sight2->width = 1;
 

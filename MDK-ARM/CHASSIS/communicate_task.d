@@ -72,3 +72,4 @@ chassis\communicate_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h
 chassis\communicate_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdlib.h
 chassis\communicate_task.o: ..\application\referee.h
 chassis\communicate_task.o: ../bsp/boards/bsp_usart.h
+chassis\communicate_task.o: ..\application\key_task.h

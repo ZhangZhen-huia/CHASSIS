@@ -6,7 +6,7 @@
 #include "chassis_power_control.h"
 #include "key_task.h"
 
-//#define CHASSIS_POWER_CONTROL
+#define CHASSIS_POWER_CONTROL
 
 static void Chassis_Debug_get_data(void);
 static uint8_t chassis_motor_detect(void);
@@ -295,16 +295,13 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//¸úËæÔÆÌ¨yaw,×óÉÏ
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW)
     {
-			static fp32 last_angle_diff;
 			fp32 angle_diff;
-			
-			last_angle_diff = angle_diff;
 			angle_diff=rad_format(yaw_diff* PI / 180.0f);
 			
 			chassis_move_control->vx_set = vy_set * cos(angle_diff) - vx_set * sin(angle_diff);
 			chassis_move_control->vy_set = vy_set * sin(angle_diff) + vx_set * cos(angle_diff);
 			
-			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 8)
+			if(fabs(angle_diff)*57.2957f > 8)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;

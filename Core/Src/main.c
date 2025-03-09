@@ -76,6 +76,7 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+	
 
   /* USER CODE BEGIN Init */
 
@@ -193,15 +194,8 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-	#ifdef CASCADE
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
-	#endif 
 	if(htim->Instance == TIM5)
 	{
-		#ifdef CASCADE
-		xEventGroupSetBitsFromISR(my_shootEventGroupHandle,ShootEvent_1,&xHigherPriorityTaskWoken);
-		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-		#endif 
 		
 	}
   /* USER CODE END Callback 0 */

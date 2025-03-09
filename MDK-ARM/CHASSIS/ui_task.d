@@ -62,6 +62,7 @@ chassis\ui_task.o: ../application/UI/ui_default_Mode_0.h
 chassis\ui_task.o: ../application/UI/ui_default_Mode_1.h
 chassis\ui_task.o: ../application/UI/ui_default_Mode_2.h
 chassis\ui_task.o: ../application/UI/ui_default_Shoot_0.h
+chassis\ui_task.o: ../application/UI/ui_default_Body_0.h
 chassis\ui_task.o: ..\application\chassis_task.h
 chassis\ui_task.o: ../bsp/Can_receive.h
 chassis\ui_task.o: ../Core/Inc/can.h
