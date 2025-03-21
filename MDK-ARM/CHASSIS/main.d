@@ -66,3 +66,5 @@ chassis\main.o: ../bsp/boards/bsp_rc.h
 chassis\main.o: ../bsp/boards/bsp_buzzer.h
 chassis\main.o: ../application/referee.h
 chassis\main.o: ../components/algorithm/user_lib.h
+chassis\main.o: ../application/trig_task.h
+chassis\main.o: ../application/communicate_task.h

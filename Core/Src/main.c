@@ -21,7 +21,7 @@
 #include "referee.h"
 #include "tim.h"
 #include "bsp_buzzer.h"
-
+#include "trig_task.h"
 
 /* USER CODE END Includes */
 
@@ -76,7 +76,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-	
 
   /* USER CODE BEGIN Init */
 
@@ -103,6 +102,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
+	HAL_TIM_Base_Start_IT(&htim5);
 
 	
 	remote_control_init();
@@ -177,7 +177,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-//extern uint8_t trig_flag;
+extern uint16_t shoot_time;//多少毫秒打一次，毫秒为单位
 /* USER CODE END 4 */
 
 /**
@@ -190,10 +190,29 @@ void SystemClock_Config(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+	static uint16_t cnt;
   /* USER CODE BEGIN Callback 0 */
 	if(htim->Instance == TIM5)
 	{
-		
+//			/*-- 获取裁判系统热量限制 --*/
+//	uint16_t shoot_cooling_limit = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_limit;	
+//	/*-- 获取裁判系统当前枪口热量 --*/
+//	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; 
+//	
+//	uint16_t shoot_cooling_rate = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_rate;
+//	
+		shoot_time = (trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat-40)/(10.f/1000.f * TRIG_BASE_SPEED - trig_control.trig_referee->ext_game_robot_state.shooter_cooling_rate/10.f/1000.f);
+		if((cnt++) > shoot_time)
+		{
+			trig_control.Fire = 0;
+			cnt = 0;
+		}
+		else
+		{
+			trig_control.Fire = 1;
+		}
+		if(trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat <= 30)
+			trig_control.Fire = 0;
 	}
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM6) {

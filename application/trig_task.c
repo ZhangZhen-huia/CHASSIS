@@ -85,7 +85,7 @@ static void trig_init(shoot_control_t *shoot_init)
 	
 	PID_init(&shoot_init->shoot_trig_motor.shoot_speed_pid_single,DATA_NORMAL,Shoot_trig_speed_pid_single,TRIG_SPEED_PID_MAX_OUT_SINGLE,TRIG_SPEED_PID_MAX_OUT_SINGLE,NONE);
 	
-	shoot_init->trig_fire_mode = Single_fire;
+	shoot_init->trig_fire_mode = Serial_fire;//Single_fire;
 	
 	trig_feedback_update(shoot_init);
 }
@@ -260,12 +260,13 @@ static fp32 trig_block_detect_Serial(shoot_control_t * control_loop)
 	return trig_speed_set;
 }
 
-uint16_t shoot_time;//多少毫秒打一次，毫秒为单位
+uint16_t shoot_time;//打多少毫秒
 //当前最大热量限制
 //射击热量每100ms冷却一次，每一次冷却热量	冷却值/10
-//打一发弹丸	+10
-//当前热量 = (shoot_time/1000.0f*30) 	= （最大热量限制 + 每秒冷却值/10）/10
-// shoot_time = （最大热量限制 + 每秒冷却值/10）/10/30*1000
+//打一发弹丸	+10 
+//当前热量 + (shoot_time/1000.0f*波胆频率)*10 -  每秒冷却值/10*	shoot_time/1000.0f = 最大热量限制 
+//shoot_time(10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f) = 最大热量限制 - 当前热量
+//shoot_time =最大热量限制 / (10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f)
 static void trig_heat_limit(shoot_control_t *trig_mode)
 {
 	/*-- 获取裁判系统热量限制 --*/
@@ -275,34 +276,35 @@ static void trig_heat_limit(shoot_control_t *trig_mode)
 	
 	uint16_t shoot_cooling_rate = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_rate;
 	
-	//打到热量限制需要shoot_time毫秒
-	shoot_time = (shoot_cooling_limit-30 + shoot_cooling_rate/10)/300*1000;//多少毫秒打一次
-	
-	/*-- 新赛季只要超热量就会锁定发射机构 --*/
-	if(shoot_cooling_heat<(shoot_cooling_limit-30))//正常状态
-	{
-		trig_mode->Fire = 1;
-	}
-	else
-	{
-				/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
-		if((trig_mode->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
-		{
-			trig_mode->Fire = 1;
-			trig_mode->ultimate_explosion = 1;
-		}
-		
-		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
-		else if(trig_mode->rc_data->vx_set>300)
-		{
-			trig_mode->Fire = 1;
-		}
-		else
-		{
-			trig_mode->Fire = 0;
-			trig_mode->ultimate_explosion = 0;
-		}
-	}
+//	//打到热量限制需要shoot_time毫秒
+//	shoot_time = (shoot_cooling_limit - shoot_cooling_heat-40)/(10.f/1000.f * TRIG_BASE_SPEED - shoot_cooling_rate/10.f/1000.f);
+//	
+//	
+//	/*-- 新赛季只要超热量就会锁定发射机构 --*/
+//	if(shoot_cooling_heat<(shoot_cooling_limit-30))//正常状态
+//	{
+//		trig_mode->Fire = 1;
+//	}
+//	else
+//	{
+//				/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
+//		if((trig_mode->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
+//		{
+//			trig_mode->Fire = 1;
+//			trig_mode->ultimate_explosion = 1;
+//		}
+//		
+//		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
+//		else if(trig_mode->rc_data->vx_set>300)
+//		{
+//			trig_mode->Fire = 1;
+//		}
+//		else
+//		{
+//			trig_mode->Fire = 0;
+//			trig_mode->ultimate_explosion = 0;
+//		}
+//	}
 		
 
 }
