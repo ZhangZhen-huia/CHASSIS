@@ -45,7 +45,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 					else if(flag == 0)
 						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 					
-					if(Key_ScanValue.Key_Value.CTRL && !Key_ScanValue.Key_Value_Last.CTRL)
+					if(Key_ScanValue.Key_Value.E && !Key_ScanValue.Key_Value_Last.E)
 					{
 						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
 						{
@@ -71,7 +71,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 					else if(flag == 0)
 						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 					
-					if(Key_ScanValue.Key_Value.CTRL && !Key_ScanValue.Key_Value_Last.CTRL)
+					if(Key_ScanValue.Key_Value.E && !Key_ScanValue.Key_Value_Last.E)
 					{
 						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
 						{

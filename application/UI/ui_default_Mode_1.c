@@ -24,9 +24,9 @@ void _ui_init_default_Mode_1() {
     ui_default_Mode_1.option.start_x = 25;
     ui_default_Mode_1.option.start_y = 790;
     ui_default_Mode_1.option.color = 8;
-    ui_default_Mode_1.option.str_length = 8;
+    ui_default_Mode_1.option.str_length = 6;
     ui_default_Mode_1.option.width = 2;
-    strcpy(ui_default_Mode_FricMode->string, "Firc:OFF");
+    strcpy(ui_default_Mode_FricMode->string, "Fric:0");
 
     ui_proc_string_frame(&ui_default_Mode_1);
     SEND_MESSAGE((uint8_t *) &ui_default_Mode_1, sizeof(ui_default_Mode_1));

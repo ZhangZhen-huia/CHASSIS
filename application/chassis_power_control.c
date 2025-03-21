@@ -10,9 +10,10 @@ Chassis_Power_limit_t PowerLimit;
 static void Chassis_power(void);
 
 
-SuperPowerData_t SuperPowerData;
+SuperPowerState_e SuperPowerState;
 
 void chassis_power_control(void);
+static uint16_t SuperPower_Strategy(void);
 
 
 void chassis_power_feedback(Chassis_Power_limit_t *power_control)
@@ -26,6 +27,7 @@ void chassis_power_feedback(Chassis_Power_limit_t *power_control)
 #define RPM_TO_RADPS (2.0f * PI / 60.0f)
 void chassis_power_control(void)
 {
+
 		float Current_To_Out = 16384.0f / 3.0f;
 		fp32 a,b,c,temp;
 		fp32 course_consume_power = 0,drive_consume_power = 0;
@@ -33,18 +35,26 @@ void chassis_power_control(void)
 		fp32 sum_available_power,course_available_power,drive_available_power;
 		fp32 drive_factor,course_factor;
 		
+	
+		
 
+			if(SuperPower_data.voltage >= 5)
+				SuperPowerState = OPEN;
+			else
+				SuperPowerState = CLOSE;
+		
+		
 		/*-- 开启超电，大幅度超功率 --*/
-		if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)
+		if((chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)&& (SuperPowerState == OPEN))
 		{
-			sum_available_power = PowerLimit.Chassis_Max_power + 300;//获取可用功率
-			SuperPowerData.Cap_State = OPEN;
+			sum_available_power = PowerLimit.Chassis_Max_power + SuperPower_Strategy();//获取可用功率
+			
 		}
 		/*-- 不开启超电 --*/
 		else
 		{
+			SuperPowerState = CLOSE;
 			sum_available_power = PowerLimit.Chassis_Max_power;
-			SuperPowerData.Cap_State = CLOSE;
 		}
 		
 		/*--	计算预测的功率		--*/
@@ -56,7 +66,7 @@ void chassis_power_control(void)
 																																	 +POWER_3508_K1 * chassis_move.chassis_drive_speed_pid[i].out * chassis_move.chassis_drive_speed_pid[i].out//,力矩平方
 																																	 +POWER_3508_K2 * chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm + POWER_CONSTANT;//,转速平方
 
-//			power[i] = drive_initial_give_power[i];
+
 				//正功计入消耗	，负功计入补偿
 			if(drive_initial_give_power[i] > 0)
 				drive_consume_power +=drive_initial_give_power[i];
@@ -75,16 +85,10 @@ void chassis_power_control(void)
 		}
 		
 		/*--	分配总功率	 --*/
-		if(course_consume_power < sum_available_power*0.1f)
-		{
-				course_available_power = sum_available_power * 0.1f;
-				drive_available_power = sum_available_power * 0.9f;
-		}
-		else
-		{
-				course_available_power = sum_available_power * 0.2f;
-				drive_available_power = sum_available_power * 0.8f;
- 		}
+				course_available_power = sum_available_power  * 0.2f; 
+				drive_available_power = sum_available_power *  0.8f;
+		
+	
 		
 		
 		/*-- 判断是否超功率 --*/
@@ -172,6 +176,36 @@ void chassis_power_control(void)
 
 
 
+
+static uint16_t SuperPower_Strategy(void)
+{
+	if(chassis_move.chassis_mode == CHASSIS_VECTOR_FLY)
+	{
+		if(Referee_System.ext_power_heat_data.chassis_power_buffer >= 5)
+		{
+			SuperPowerState = OPEN;
+			return 1000;
+		}
+		else
+		{
+			SuperPowerState = CLOSE;
+			return 0;
+		}
+	}
+	else
+	{
+		if(Referee_System.ext_power_heat_data.chassis_power_buffer >= 25)
+		{
+				SuperPowerState = OPEN;
+				return (Referee_System.ext_game_robot_state.robot_level+2)*30;
+		}
+		else
+		{
+				SuperPowerState = CLOSE;
+				return 0;
+		}
+	}
+}
 
 static void Chassis_power(void)
 {

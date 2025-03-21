@@ -106,13 +106,10 @@ int main(void)
 
 	
 	remote_control_init();
-	Buzzer_Init();
 	canfilter_init_start();
 	Referee_Sys_Init();//裁判系统收发初始化
   /* USER CODE END 2 */
-	buzzer_on(psc, pwm);
-	osDelay(500);
-	buzzer_off();
+
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 

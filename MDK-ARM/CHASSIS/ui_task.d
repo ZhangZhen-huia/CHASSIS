@@ -63,6 +63,11 @@ chassis\ui_task.o: ../application/UI/ui_default_Mode_1.h
 chassis\ui_task.o: ../application/UI/ui_default_Mode_2.h
 chassis\ui_task.o: ../application/UI/ui_default_Shoot_0.h
 chassis\ui_task.o: ../application/UI/ui_default_Body_0.h
+chassis\ui_task.o: ../application/UI/ui_default_AIMBOT_0.h
+chassis\ui_task.o: ../application/UI/ui_default_SuperPower_0.h
+chassis\ui_task.o: ../application/UI/ui_default_SuperPower_1.h
+chassis\ui_task.o: ../application/UI/ui_default_Armour_0.h
+chassis\ui_task.o: ../application/UI/ui_default_ShootMode_0.h
 chassis\ui_task.o: ..\application\chassis_task.h
 chassis\ui_task.o: ../bsp/Can_receive.h
 chassis\ui_task.o: ../Core/Inc/can.h

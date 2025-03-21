@@ -340,7 +340,7 @@
               <MiscControls>--diag_suppress=1295,1,14</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,USE_HAL_DRIVER,STM32F407xx,ARM_MATH_CM4,__FPU_USED=1U,__FPU_PRESENT=1U,__CC_ARM,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../application;../components/algorithm;../components/algorithm/Include;../bsp;../bsp/boards;../components/controller;../components/devices;../components/support;../application/UI</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../application;../components/algorithm;../components/algorithm/Include;../bsp;../bsp/boards;../components/controller;../components/devices;../components/support;../application/UI;..\application\UI\Armour</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1022,6 +1022,31 @@
               <FileName>ui_default_Body_0.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\UI\ui_default_Body_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_AIMBOT_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_AIMBOT_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_SuperPower_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_SuperPower_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_SuperPower_1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_SuperPower_1.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_Armour_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Armour_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_ShootMode_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_ShootMode_0.c</FilePath>
             </File>
           </Files>
         </Group>

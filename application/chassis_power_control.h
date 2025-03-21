@@ -51,24 +51,23 @@ typedef enum
 	CLOSE
 }SuperPowerState_e;
 
-typedef struct
-{
-	SuperPowerState_e Cap_State;
-}SuperPowerData_t;
 
 
-extern SuperPowerData_t SuperPowerData;
+
+extern SuperPowerState_e SuperPowerState;
 
 typedef struct
 {
-	 fp32 power_buffer_set;//缓冲能量pid目标值
-	 fp32 power_buffer_out;//缓冲能量pid输出限制
-		
-	 uint16_t grade_power_limit;//此时等级的功率限制
-	 fp32 Max_input_power;//最大功率限制
-	 fp32 Chassis_Max_power;//底盘最大功率
-	 fp32 Chassis_judge_power;
-	 DebugData chassis_power_data_debug;
+	fp32 power_buffer_set;//缓冲能量pid目标值
+	fp32 power_buffer_out;//缓冲能量pid输出限制
+
+	uint16_t grade_power_limit;//此时等级的功率限制
+	fp32 Max_input_power;//最大功率限制
+	fp32 Chassis_Max_power;//底盘最大功率
+	fp32 Chassis_judge_power;
+	DebugData chassis_power_data_debug;
+	fp32	factor_Course;
+	fp32	factor_Drive;
 }Chassis_Power_limit_t;
 
 

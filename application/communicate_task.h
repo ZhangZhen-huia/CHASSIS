@@ -27,6 +27,13 @@ typedef enum
 	ImageTransfer
 }ControlMode_e;
 
+
+typedef enum
+{
+	BLUE = 0,
+	RED	 = 1
+}EnemyColor_e;
+
 typedef struct
 {
 	int16_t gimbal_mode;
@@ -34,11 +41,14 @@ typedef struct
 	uint8_t rc_err;
 	uint8_t FireFlag;
 	uint8_t FricState;
-	uint8_t AimBot;
+	uint8_t GimbalInit;
 	ControlMode_e ControlMode;
 	uint8_t Toe_is_errRc;
 	uint8_t Toe_is_errImageTransfer;
+	EnemyColor_e EnemyColor;
 }gimbal_data_t;
+
+
 
 typedef struct
 {

@@ -260,8 +260,12 @@ static fp32 trig_block_detect_Serial(shoot_control_t * control_loop)
 	return trig_speed_set;
 }
 
-
-
+uint16_t shoot_time;//多少毫秒打一次，毫秒为单位
+//当前最大热量限制
+//射击热量每100ms冷却一次，每一次冷却热量	冷却值/10
+//打一发弹丸	+10
+//当前热量 = (shoot_time/1000.0f*30) 	= （最大热量限制 + 每秒冷却值/10）/10
+// shoot_time = （最大热量限制 + 每秒冷却值/10）/10/30*1000
 static void trig_heat_limit(shoot_control_t *trig_mode)
 {
 	/*-- 获取裁判系统热量限制 --*/
@@ -269,8 +273,13 @@ static void trig_heat_limit(shoot_control_t *trig_mode)
 	/*-- 获取裁判系统当前枪口热量 --*/
 	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; 
 	
+	uint16_t shoot_cooling_rate = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_rate;
+	
+	//打到热量限制需要shoot_time毫秒
+	shoot_time = (shoot_cooling_limit-30 + shoot_cooling_rate/10)/300*1000;//多少毫秒打一次
+	
 	/*-- 新赛季只要超热量就会锁定发射机构 --*/
-	if(shoot_cooling_heat<(shoot_cooling_limit-65))//正常状态
+	if(shoot_cooling_heat<(shoot_cooling_limit-30))//正常状态
 	{
 		trig_mode->Fire = 1;
 	}

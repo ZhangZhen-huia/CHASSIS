@@ -26,7 +26,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 chassis_move_t chassis_move;
 
 
-static fp32 INIT_ECD[5] = {5786.0f,7136.0f,7777.0f,805.0f,7295.0f};
+static fp32 INIT_ECD[5] = {395.0f,1814.0f,5026.0f,3597.0f,7743.0f};
 
 fp32 yaw_diff=0;
 
@@ -301,7 +301,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			chassis_move_control->vx_set = vy_set * cos(angle_diff) - vx_set * sin(angle_diff);
 			chassis_move_control->vy_set = vy_set * sin(angle_diff) + vx_set * cos(angle_diff);
 			
-			if(fabs(angle_diff)*57.2957f > 8)
+			if(fabs(angle_diff)*57.2957f > 5)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
@@ -318,14 +318,25 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
 		}
 		
-		//不跟随云台，左下
+		//小陀螺模式，左下
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
 		{
-			 fp32 angle_diff=yaw_diff* PI / 180.0f;
+			
+			fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			 chassis_move_control->wz_set = 1.5f;
+			
+				
+				if(chassis_move_control->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT  )
+				{
+					if(Key_ScanValue.Key_Value.W || Key_ScanValue.Key_Value.A || Key_ScanValue.Key_Value.S || Key_ScanValue.Key_Value.D)
+						chassis_move_control->wz_set = 1.0f;	
+					else
+						chassis_move_control->wz_set = 2.5f;	
+				}
+				else
+					chassis_move_control->wz_set = 2.0f;
 		
 				
 				
@@ -350,16 +361,14 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//飞坡模式，左中
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_FLY)
 		{
-			static fp32 last_angle_diff;
 			fp32 angle_diff;
-			
-			last_angle_diff = angle_diff;
+
 			angle_diff=rad_format(yaw_diff* PI / 180.0f);
 			
-			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
-			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+			chassis_move_control->vx_set = vy_set * cos(angle_diff) - vx_set * sin(angle_diff);
+			chassis_move_control->vy_set = vy_set * sin(angle_diff) + vx_set * cos(angle_diff);
 			
-			if(fabs((last_angle_diff- angle_diff)*57.2957f) > 10)
+			if(fabs(angle_diff)*57.2957f > 5)
 			{
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
@@ -372,7 +381,7 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
 			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
 			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+			chassis_move_control->vy_set = -fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 			
 		}
 }
@@ -394,7 +403,6 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 	if(chassis_move.chassis_mode != CHASSIS_VECTOR_FLY)
 	{
 		//0
-		//wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//315(-45)  (0 -- 360)
 		wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //225(-135)(0 -- 360)
 
 		//寻找最小转角然后驱动3508正反转，然后再由pid的过零处理算出来正确的err
@@ -410,7 +418,6 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		}
 		else
 				drct[0]=-1;
-		//wheel_speed[3] = drct[0]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 		wheel_speed[1] = drct[0]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 		
 		
@@ -431,7 +438,6 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		
 		
 		//2
-		//wheel_angle[2]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
 				wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//315(-45)  (0 -- 360)
 
 		if(fabs(Find_min_Angle(chassis_move.course_angle[2],wheel_angle[2]))>90)
@@ -443,11 +449,9 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		else
 				drct[2]= 1;
 		wheel_speed[2] = drct[2]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
-//		wheel_speed[2] = drct[2]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 
 
 		//3
-		//wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //225(-135)(0 -- 360)
 		wheel_angle[3]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
 		if(fabs(Find_min_Angle(chassis_move.course_angle[3],wheel_angle[3]))>90)
 		{
@@ -458,26 +462,28 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 		else
 				drct[3]=1;
 		wheel_speed[3] = drct[3]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
-//		wheel_speed[0] = drct[3]*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+
+		PowerLimit.factor_Course = pow((sin(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))),2);
+		PowerLimit.factor_Drive = pow((cos(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))),2);
 	}
 	else
 	{
 		//0
-		wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//45  (0 -- 360)
-		wheel_speed[3] = -1.0f*sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+		wheel_angle[0]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //225(-135)(0 -- 360)
+		wheel_speed[1] = -sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 
 		//1
-		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
-		wheel_speed[1] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
+		wheel_angle[1]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f); //45 (0 -- 360)
+		wheel_speed[0] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 	
 		//2
-		wheel_angle[2]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //-135 (0 -- 360)
-		wheel_speed[2] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+				wheel_angle[2]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set + wz_set*0.707f)/PI*180.0,360.0f);//315(-45)  (0 -- 360)
+		wheel_speed[2] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set + wz_set*0.707f,2));
 
 		//3
-		wheel_angle[3]=Angle_Limit(atan2(vy_set - wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0f,360.0f); // -45(0 -- 360)
-		wheel_speed[0] = sqrt(pow((vy_set - wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
+		wheel_angle[3]=Angle_Limit(atan2(vy_set + wz_set*0.707f,vx_set - wz_set*0.707f)/PI*180.0,360.0f); //135 (0 -- 360)
+		wheel_speed[3] = sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 	}
 
 		
@@ -500,6 +506,7 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 				wheel_angle[i]=last_wheel_angle[i];
 			}
 		}	
+
 	for(uint8_t i=0;i<4;i++)	
 	wheel_speed[i] = fp32_constrain(wheel_speed[i], chassis_move.vy_min_speed, chassis_move.vy_max_speed);
 

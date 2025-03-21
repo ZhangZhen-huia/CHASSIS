@@ -50,8 +50,13 @@ void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 static void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 {
 	gimbal_data->FireFlag = gimbal_data->gimbal_mode & 0x01;
-	gimbal_data->AimBot = gimbal_data->gimbal_mode & 0x02;
+	gimbal_data->GimbalInit = gimbal_data->gimbal_mode & 0x02;
 	gimbal_data->FricState = gimbal_data->gimbal_mode & 0x04;
+	
+	if(gimbal_data->gimbal_mode & 0x08)
+		gimbal_data->EnemyColor = RED;
+	else if(gimbal_data->gimbal_mode & 0x10)
+		gimbal_data->EnemyColor = BLUE;
 	
 	if(gimbal_data->rc_err & 0x01)
 		gimbal_data->ControlMode = Rc;
@@ -72,23 +77,8 @@ static void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 
 static void SuperPower_Control(void)
 {
-	uint8_t PowerMode;
-	
-	if(gimbal_data.rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)
-	{
-		PowerMode = 2;
-	}
-	
-		/*0：未开始比赛；
-	  1：准备阶段；
-	  2：自检阶段；
-	  3：5s倒计时；
-	  4：对战中；
-	  5：比赛结算中；*/
-	if(Referee_System.ext_game_status.game_progress == 1)
-	{
-		PowerMode = 2;
-	}
+	uint8_t PowerMode = 2;
+
 	
 	CAN_cmd_SuperPower(	Referee_System.ext_game_robot_state.chassis_power_limit,
 											Referee_System.ext_power_heat_data.chassis_power_buffer,

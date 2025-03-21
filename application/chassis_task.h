@@ -131,7 +131,7 @@
 
 
 //航向电机角度环
-#define COURSE_MOTOR3_ANGLE_PID_KP                 	8.0f//6.50f//35
+#define COURSE_MOTOR3_ANGLE_PID_KP                 	6.50f//6.50f//35
 #define COURSE_MOTOR3_ANGLE_PID_KI                	1.0f
 #define COURSE_MOTOR3_ANGLE_PID_KD                 	0.0f
 #define COURSE_MOTOR3_ANGLE_PID_MAX_OUT							360.0f //最大输出角度
@@ -140,7 +140,7 @@
 
 
 //航向电机速度环
-#define COURSE_MOTOR3_SPEED_PID_KP                 	180.0f
+#define COURSE_MOTOR3_SPEED_PID_KP                 	165.0f
 #define COURSE_MOTOR3_SPEED_PID_KI                	0.0f
 #define COURSE_MOTOR3_SPEED_PID_KD                 	0.0f
 #define COURSE_MOTOR3_SPEED_PID_MAX_OUT							16384.0f//最大输出速度   -30000  -   30000
@@ -327,9 +327,9 @@ extern chassis_move_t chassis_move;//底盘运动数据
 
 //前进最大速度  3.597498/s   --8911
 //									0						0
-#define NORMAL_MAX_CHASSIS_SPEED_X 3.14f//3.597498f
-#define NORMAL_MAX_CHASSIS_SPEED_Y 3.14f//3.597498f
-#define NORMAL_MAX_CHASSIS_SPEED_W 3.14f//3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_X 3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_Y 3.597498f
+#define NORMAL_MAX_CHASSIS_SPEED_W 3.597498f
 
 //减速比14，rpm: 圈/min
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例	
