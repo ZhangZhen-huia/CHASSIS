@@ -13,7 +13,6 @@ static void trig_init(shoot_control_t *shoot_init);
 
 static void trig_feedback_update(shoot_control_t *feedback_update);
 static void trig_motor_speed_set(shoot_control_t * control_loop);
-static void trig_heat_limit(shoot_control_t *trig_mode);
 static void trig_motor_pid_cal(shoot_control_t * control_loop);
 static fp32 trig_block_detect_Serial(shoot_control_t * control_loop);//连发
 static void trig_block_detect_single(shoot_control_t * control_loop,fp32 *angle_set);//单发
@@ -37,7 +36,7 @@ void trig_task(void const * argument)
 		while(1)
 		{
 			trig_feedback_update(&trig_control);			//发射电机数据更新
-			trig_heat_limit(&trig_control);				//拨弹盘模式设置
+			//trig_heat_limit(&trig_control);				//热量限制，在定时器里面进行
 			trig_motor_speed_set(&trig_control);				//堵转检测+pid输出
 			trig_motor_pid_cal(&trig_control);
 			
@@ -258,55 +257,6 @@ static fp32 trig_block_detect_Serial(shoot_control_t * control_loop)
 	else
 		trig_speed_set = 0;
 	return trig_speed_set;
-}
-
-uint16_t shoot_time;//打多少毫秒
-//当前最大热量限制
-//射击热量每100ms冷却一次，每一次冷却热量	冷却值/10
-//打一发弹丸	+10 
-//当前热量 + (shoot_time/1000.0f*波胆频率)*10 -  每秒冷却值/10*	shoot_time/1000.0f = 最大热量限制 
-//shoot_time(10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f) = 最大热量限制 - 当前热量
-//shoot_time =最大热量限制 / (10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f)
-static void trig_heat_limit(shoot_control_t *trig_mode)
-{
-	/*-- 获取裁判系统热量限制 --*/
-	uint16_t shoot_cooling_limit = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_limit;	
-	/*-- 获取裁判系统当前枪口热量 --*/
-	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; 
-	
-	uint16_t shoot_cooling_rate = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_rate;
-	
-//	//打到热量限制需要shoot_time毫秒
-//	shoot_time = (shoot_cooling_limit - shoot_cooling_heat-40)/(10.f/1000.f * TRIG_BASE_SPEED - shoot_cooling_rate/10.f/1000.f);
-//	
-//	
-//	/*-- 新赛季只要超热量就会锁定发射机构 --*/
-//	if(shoot_cooling_heat<(shoot_cooling_limit-30))//正常状态
-//	{
-//		trig_mode->Fire = 1;
-//	}
-//	else
-//	{
-//				/*-- 即将超热量，此时按下SHIFT+X会最后爆发几颗弹丸，比赛最终几秒再开启 --*/
-//		if((trig_mode->rc_data->rc_key_v & KEY_PRESSED_SHIFT_X))
-//		{
-//			trig_mode->Fire = 1;
-//			trig_mode->ultimate_explosion = 1;
-//		}
-//		
-//		/*-- 写一个遥控器强制发弹检录的时候退弹用 --*/		
-//		else if(trig_mode->rc_data->vx_set>300)
-//		{
-//			trig_mode->Fire = 1;
-//		}
-//		else
-//		{
-//			trig_mode->Fire = 0;
-//			trig_mode->ultimate_explosion = 0;
-//		}
-//	}
-		
-
 }
 
 

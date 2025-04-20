@@ -20,13 +20,20 @@ chassis_behaviour_e chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW
   */
 void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 {
+	static uint8_t halt = 0;
 	static uint8_t flag=0;
     if (chassis_move_mode == NULL)
     {
         return;
     }
-		
+			chassis_move_mode->last_chassis_mode = chassis_move_mode->chassis_mode;
 
+		if(Key_ScanValue.Key_Value.PAUSE)
+		{
+
+				halt++;
+				halt%=2;
+		}
 //		//¸úËæÔÆÌ¨
 //    if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
 //    {
@@ -36,6 +43,11 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 		//¼üÊó²Ù×÷
 		if(TOE_IS_ERR_RC && !TOE_IS_ERR_IMAGETRANSFER)
 		{
+
+			if(halt)
+				chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
+			else
+			{
 				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
 					 chassis_behaviour_mode = CHASSIS_FLY; 
 				else
@@ -45,7 +57,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 					else if(flag == 0)
 						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 					
-					if(Key_ScanValue.Key_Value.E && !Key_ScanValue.Key_Value_Last.E)
+					if(Key_ScanValue.Key_Value.E || Key_ScanValue.Key_Value.FN_1)//&& !Key_ScanValue.Key_Value_Last.E)
 					{
 						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
 						{
@@ -59,6 +71,8 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 						}
 					}
 				}
+			}
+
 		}
     else if ( !TOE_IS_ERR_RC && chassis_move_mode->get_gimbal_data->rc_data.rc_sl==1)
     {
@@ -71,7 +85,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 					else if(flag == 0)
 						chassis_behaviour_mode = CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW;
 					
-					if(Key_ScanValue.Key_Value.E && !Key_ScanValue.Key_Value_Last.E)
+					if(Key_ScanValue.Key_Value.E )//&& !Key_ScanValue.Key_Value_Last.E)
 					{
 						if(chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW)
 						{
@@ -87,9 +101,9 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 				}
 			}
 		//µ×ÅÌÎÞÁ¦
-    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3)
+    else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==3 )
     {
-        chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
+					chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
 		//µ×ÅÌÐ¡ÍÓÂÝ£¬²»¸úÔÆÌ¨
 		else if (chassis_move_mode->get_gimbal_data->rc_data.rc_sl==2)
@@ -141,7 +155,6 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 			chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
 		}
 		
-	chassis_move_mode->last_chassis_mode = chassis_move_mode->chassis_mode;
 }
 
 

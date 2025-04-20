@@ -9,14 +9,21 @@
 #include "Can_receive.h"
 
 
-void ChassisMode_Update(void);
 void FricMode_Update(void);
-void SuperPowerState_Update(void);
 static void EnemyColor_Update(void);
 static void CapBuffer_Update(void);
 static void TrigMode_Update(void);
-static void Rotate_Update(uint8_t i);
+static void ChassisStatus_Update(void);
+static void ControlMode_Update(void);
+
 void ui_init(void);
+
+
+void zero_to_one_loop(int16_t *angle)
+{
+  *angle =(*angle > 360) ? *angle - 360 : *angle;
+	*angle =(*angle < 0) ? *angle + 360 : *angle ;
+}
 
 uint8_t i=0;
 void ui_task(void const * argument)
@@ -27,104 +34,48 @@ void ui_task(void const * argument)
 	while(1)
 	{		
 
-		ChassisMode_Update();
 		FricMode_Update();
-		SuperPowerState_Update();
 		EnemyColor_Update();
 		CapBuffer_Update();
+		ChassisStatus_Update();
 		TrigMode_Update();
-		if(chassis_move.chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
-		{
-			Rotate_Update(i);
-			i++;
-			i%=8;
-		}
+		ControlMode_Update();
+
 		if(gimbal_data.rc_data.rc_key_v & KEY_PRESSED_OFFSET_B)
 			ui_init();
-		osDelay(100);
+		osDelay(30);
 	}
 	
 }
 
-void ChassisMode_Update(void)
-{
-	static uint8_t mode,last_mode;
-	last_mode = mode;
-	if(chassis_move.chassis_mode == CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW)
-	{
-		strcpy(ui_default_Mode_ChassisMode->string,"CHASSIS:NORMAL");
-		mode = 0;
-	}
-	else	if(chassis_move.chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
-	{
-		strcpy(ui_default_Mode_ChassisMode->string,"CHASSIS:ROTATE");
-		mode = 1;
-	}
-	else	if(chassis_move.chassis_mode == CHASSIS_VECTOR_FLY)
-	{
-		strcpy(ui_default_Mode_ChassisMode->string,"CHASSIS:FLYING");
-		mode = 2;
-	}
-	
-	if(mode != last_mode)
-		_ui_update_default_Mode_0();
-		
-}
+
 
 void FricMode_Update(void)
 {
 	static uint8_t mode,last_mode;
 	last_mode = mode;
-	if(gimbal_data.FricState)
+	if(gimbal_data.FricState && Referee_System.ext_game_robot_state.power_management_shooter_output == 1)
 	{
-		ui_default_Mode_FricMode->start_x = 25;
-    ui_default_Mode_FricMode->start_y = 790;
-				ui_default_Mode_FricMode->color = 8;
-		ui_default_Mode_FricMode->font_size = 20;
-		strcpy(ui_default_Mode_FricMode->string,"FRIC:1");
+		ui_default_Fric_FricStatusR->rx = 300;
+		ui_default_Fric_FricStatusR->ry = 300;
+																			
+		ui_default_Fric_FricStatusL->rx = 300;
+		ui_default_Fric_FricStatusL->ry = 300;
+
 		mode = 0;
 	}
-	else
+	else if(Referee_System.ext_game_robot_state.power_management_shooter_output == 0 || gimbal_data.FricState == 0)
 	{
-		ui_default_Mode_FricMode->start_x = 735;
-    ui_default_Mode_FricMode->start_y = 790;
-		ui_default_Mode_FricMode->color = 5;
-		ui_default_Mode_FricMode->font_size = 80;
-		strcpy(ui_default_Mode_FricMode->string,"FRIC:0");
+		ui_default_Fric_FricStatusR->rx = 0;
+		ui_default_Fric_FricStatusR->ry = 0;
+		
+		ui_default_Fric_FricStatusL->rx = 0;
+		ui_default_Fric_FricStatusL->ry = 0;
 		mode = 1;
 	}
 	
 	if(mode != last_mode)
-		_ui_update_default_Mode_1();
-		
-}
-
-void SuperPowerState_Update(void)
-{
-	static uint8_t state,last_state;
-	last_state = state;
-	if(SuperPowerState == OPEN)
-	{
-		ui_default_Mode_SuperPower->font_size = 80;
-    ui_default_Mode_SuperPower->start_x = 725;
-    ui_default_Mode_SuperPower->start_y = 700;
-    ui_default_Mode_SuperPower->color = 6;
-		strcpy(ui_default_Mode_SuperPower->string,"CAP:OPEN");
-
-		state = 0;
-	}
-	else
-	{
-		ui_default_Mode_SuperPower->font_size = 20;
-    ui_default_Mode_SuperPower->start_x = 25;
-    ui_default_Mode_SuperPower->start_y = 750;
-    ui_default_Mode_SuperPower->color = 8;
-		strcpy(ui_default_Mode_SuperPower->string,"CAP:CLOSE");
-		state = 1;
-	}
-	
-	if(state != last_state)
-		_ui_update_default_Mode_2();
+	_ui_update_default_Fric_0();
 		
 }
 
@@ -134,12 +85,12 @@ static void EnemyColor_Update(void)
 	last_state = state;
 	if(gimbal_data.EnemyColor == BLUE)
 	{
-		strcpy(ui_default_AIMBOT_EnemyColor->string,"Enemy:BLUE");
+		ui_default_AIMBOT_EnemyColor->color = 6;
 		state = 0;
 	}
 	else
 	{
-		strcpy(ui_default_AIMBOT_EnemyColor->string,"Enemy:RED ");
+		ui_default_AIMBOT_EnemyColor->color = 5;
 		state = 1;
 	}
 	
@@ -149,35 +100,87 @@ static void EnemyColor_Update(void)
 
 static void CapBuffer_Update(void)
 {
-	ui_default_SuperPower_CapBuffer->number = SuperPower_data.voltage*1000;
-	
-	_ui_update_default_SuperPower_1();
+	if(SuperPowerState == OPEN)
+	{	
+		ui_default_CAP_Buffer->color = 1;
+	}
+	else
+	{
+		ui_default_CAP_Buffer->color = 8;
+	}
+	ui_default_CAP_Buffer->end_x = ((SuperPower_data.voltage-4.5f)/10.7f)*712 + ui_default_CAP_Buffer->start_x;
+	_ui_update_default_CAP_0();
 }
 
 
-static void Rotate_Update(uint8_t i)
+extern fp32 yaw_diff;
+static void ChassisStatus_Update(void)
 {
-	Armour_Func(i);
-	_ui_update_default_Armour_0();
+	static int16_t start_angle;
+	static int16_t end_angle;
+	
+	start_angle = (int16_t)(330 - yaw_diff);
+	zero_to_one_loop(&start_angle);
+	ui_default_ChassisStatus_RelativeAngle->start_angle = start_angle;
+
+	end_angle = (int16_t)(30 - yaw_diff);
+	zero_to_one_loop(&end_angle);
+	ui_default_ChassisStatus_RelativeAngle ->end_angle =end_angle;
+
+	if(chassis_move.chassis_mode == CHASSIS_VECTOR_FLY)
+	{
+		ui_default_ChassisStatus_ChassisRound->color = 5;
+		ui_default_ChassisStatus_ChassisRound->width = 15;
+	}
+	else
+	{
+		ui_default_ChassisStatus_ChassisRound->color = 7;
+		ui_default_ChassisStatus_ChassisRound->width = 3;
+	}
+	
+	_ui_update_default_ChassisStatus_0();
 }
 
 static void TrigMode_Update(void)
 {
-		static uint8_t state,last_state;
+	static uint8_t state,last_state;
 	last_state = state;
 	if(trig_control.trig_fire_mode == Single_fire)
 	{
-		strcpy(ui_default_ShootMode_ShootMode->string, "Single");
+		ui_default_TrigMode_TrigStatusL->color = 2;
+		ui_default_TrigMode_TrigStatusR->color = 2;
 		state = 0;
 	}
 	else
 	{
-		strcpy(ui_default_ShootMode_ShootMode->string, "Serial");
+		ui_default_TrigMode_TrigStatusL->color = 7;
+		ui_default_TrigMode_TrigStatusR->color = 7;
 		state = 1;
 	}
 	
 	if(state != last_state)
-		_ui_update_default_ShootMode_0();
+		_ui_update_default_TrigMode_0();
+}
+
+static void ControlMode_Update(void)
+{
+	static uint8_t state,last_state;
+	last_state = state;
+	
+	if(gimbal_data.ControlMode == Rc)
+	{
+		ui_default_Control_ControlMode->width = 100;
+		state = 1;
+	}
+	else if(gimbal_data.ControlMode == ImageTransfer)
+	{
+		state = 0;
+		ui_default_Control_ControlMode->width = 0;
+	}
+		
+	
+	if(state != last_state)
+	_ui_update_default_Control_0();
 }
 void ui_init(void)
 {

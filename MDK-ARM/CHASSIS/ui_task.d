@@ -58,16 +58,14 @@ chassis\ui_task.o: ../application/UI/ui_interface.h
 chassis\ui_task.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\stdio.h
 chassis\ui_task.o: ../application/UI/ui_types.h
 chassis\ui_task.o: ../bsp/boards/bsp_usart.h
-chassis\ui_task.o: ../application/UI/ui_default_Mode_0.h
-chassis\ui_task.o: ../application/UI/ui_default_Mode_1.h
-chassis\ui_task.o: ../application/UI/ui_default_Mode_2.h
 chassis\ui_task.o: ../application/UI/ui_default_Shoot_0.h
-chassis\ui_task.o: ../application/UI/ui_default_Body_0.h
+chassis\ui_task.o: ../application/UI/ui_default_Fric_0.h
+chassis\ui_task.o: ../application/UI/ui_default_TrigMode_0.h
 chassis\ui_task.o: ../application/UI/ui_default_AIMBOT_0.h
-chassis\ui_task.o: ../application/UI/ui_default_SuperPower_0.h
-chassis\ui_task.o: ../application/UI/ui_default_SuperPower_1.h
-chassis\ui_task.o: ../application/UI/ui_default_Armour_0.h
 chassis\ui_task.o: ../application/UI/ui_default_ShootMode_0.h
+chassis\ui_task.o: ../application/UI/ui_default_CAP_0.h
+chassis\ui_task.o: ../application/UI/ui_default_ChassisStatus_0.h
+chassis\ui_task.o: ../application/UI/ui_default_Control_0.h
 chassis\ui_task.o: ..\application\chassis_task.h
 chassis\ui_task.o: ../bsp/Can_receive.h
 chassis\ui_task.o: ../Core/Inc/can.h

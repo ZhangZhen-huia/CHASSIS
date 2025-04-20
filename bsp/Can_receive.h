@@ -64,7 +64,7 @@ extern SuperPower_data_t SuperPower_data;
 void canfilter_init_start(void);
 const motor_measure_t *get_gimbal_trigger_motor_measure_point(void);
 void CAN_cmd_trig(int16_t current);
-void CAN_cmd_shootdata(fp32 bullet_speed,uint16_t shoot_heat);
+void CAN_cmd_ChassisMode(uint8_t mode);
 void CAN_cmd_SuperPower(uint8_t max_chassis_power, uint16_t power_buffer ,uint8_t mode, uint16_t voletage, uint16_t current );
 
 const motor_measure_t *get_chassis_drive_motor_measure_point(uint8_t ID);

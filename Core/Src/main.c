@@ -177,7 +177,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-extern uint16_t shoot_time;//多少毫秒打一次，毫秒为单位
+
 /* USER CODE END 4 */
 
 /**
@@ -190,28 +190,35 @@ extern uint16_t shoot_time;//多少毫秒打一次，毫秒为单位
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	static uint16_t cnt;
   /* USER CODE BEGIN Callback 0 */
+	static uint16_t cnt;
+	static uint16_t shoot_time;//打多少毫秒
+
 	if(htim->Instance == TIM5)
 	{
-//			/*-- 获取裁判系统热量限制 --*/
-//	uint16_t shoot_cooling_limit = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_limit;	
-//	/*-- 获取裁判系统当前枪口热量 --*/
-//	uint16_t shoot_cooling_heat = trig_mode->trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat; 
-//	
-//	uint16_t shoot_cooling_rate = trig_mode->trig_referee->ext_game_robot_state.shooter_cooling_rate;
-//	
-		shoot_time = (trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat-40)/(10.f/1000.f * TRIG_BASE_SPEED - trig_control.trig_referee->ext_game_robot_state.shooter_cooling_rate/10.f/1000.f);
-		if((cnt++) > shoot_time)
-		{
-			trig_control.Fire = 0;
-			cnt = 0;
+		
+		//当前最大热量限制
+		//射击热量每100ms冷却一次，每一次冷却热量	冷却值/10
+		//打一发弹丸	+10 
+		//当前热量 + (shoot_time/1000.0f*波胆频率)*10 -  每秒冷却值/10*	shoot_time/1000.0f = 最大热量限制 
+		//shoot_time(10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f) = 最大热量限制 - 当前热量
+		//shoot_time =最大热量限制 / (10/1000.0f*波胆频率 - 每秒冷却值/10/1000.0f)
+		shoot_time = (trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat-40)/(10.f/1000.f * TRIG_BASE_SPEED - (trig_control.trig_referee->ext_game_robot_state.shooter_cooling_rate-5)/10.f/1000.f);
+		if(gimbal_data.FireFlag)
+		{	
+			cnt++;
 		}
-		else
-		{
-			trig_control.Fire = 1;
-		}
-		if(trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat <= 30)
+			if(cnt >= (shoot_time-30))
+			{
+				trig_control.Fire = 0;
+				cnt = 0;
+				
+			}
+			else
+			{
+				trig_control.Fire = 1;
+			}
+		if(trig_control.trig_referee->ext_game_robot_state.shooter_cooling_limit - trig_control.trig_referee->ext_power_heat_data.shooter_id1_17mm_cooling_heat <= 40)
 			trig_control.Fire = 0;
 	}
   /* USER CODE END Callback 0 */

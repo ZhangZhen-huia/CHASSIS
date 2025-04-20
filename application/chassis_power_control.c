@@ -18,7 +18,6 @@ static uint16_t SuperPower_Strategy(void);
 
 void chassis_power_feedback(Chassis_Power_limit_t *power_control)
 {
-	get_chassis_power_and_buffer(&power_control->Chassis_judge_power,&power_control->power_buffer_out);
 	power_control->Chassis_Max_power = Referee_System.ext_game_robot_state.chassis_power_limit;
 	Chassis_power();
 }
@@ -194,7 +193,7 @@ static uint16_t SuperPower_Strategy(void)
 	}
 	else
 	{
-		if(Referee_System.ext_power_heat_data.chassis_power_buffer >= 25)
+		if(Referee_System.ext_power_heat_data.chassis_power_buffer >= 35)
 		{
 				SuperPowerState = OPEN;
 				return (Referee_System.ext_game_robot_state.robot_level+2)*30;
@@ -214,7 +213,6 @@ static void Chassis_power(void)
 	PowerLimit.chassis_power_data_debug.data3 = chassis_move.motor_chassis[2].chassis_motor_measure->rpm;	
 	
 	PowerLimit.chassis_power_data_debug.data4 = chassis_move.motor_chassis[3].chassis_motor_measure->rpm;	
-	PowerLimit.chassis_power_data_debug.data5 = PowerLimit.Chassis_judge_power;
 	PowerLimit.chassis_power_data_debug.data6 = PowerLimit.Chassis_Max_power;
 }
 

@@ -36,10 +36,10 @@ void key_task(void const * argument)
 
 void Key_Scan(void)
 {
-	uint16_t Key_Temp,Key_Down,Key_Up;
-	static uint16_t Key_Last;
+	uint32_t Key_Temp,Key_Down,Key_Up;
+	static uint32_t Key_Last;
 	
-	Key_Temp = gimbal_data.rc_data.rc_key_v;
+	Key_Temp = ((uint32_t)gimbal_data.rc_data.rc_key_v )+((uint32_t)gimbal_data.ImghandleKey<<16);
 	Key_Down = Key_Temp & (Key_Last ^ Key_Temp);//异或运算，相同为0，不同为1     
 	Key_Up 	= ~Key_Temp & (Key_Last ^ Key_Temp);//异或运算，相同为0，不同为1 
 	Key_Last = Key_Temp;
@@ -130,6 +130,30 @@ void Key_Scan(void)
 	else
 		Key_ScanValue.Key_Value.CTRL = 0;
 	
+	if(Key_Up == IMG_TRANSFER_KEY_FN1)
+	{
+		Key_ScanValue.Key_Value.FN_1 = 1;
+	}
+	else
+		Key_ScanValue.Key_Value.FN_1 = 0;
+	if(Key_Up == IMG_TRANSFER_KEY_FN2)
+	{
+		Key_ScanValue.Key_Value.FN_2 = 1;
+	}
+	else
+		Key_ScanValue.Key_Value.FN_2 = 0;	
+	if(Key_Up == IMG_TRANSFER_KEY_PAUSE)
+	{
+		Key_ScanValue.Key_Value.PAUSE = 1;
+	}
+	else
+		Key_ScanValue.Key_Value.PAUSE = 0;	
+	if(Key_Up == IMG_TRANSFER_KEY_TRIGGER)
+	{
+		Key_ScanValue.Key_Value.TRIGGER = 1;
+	}
+	else
+		Key_ScanValue.Key_Value.TRIGGER = 0;		
 	
 	Key_ScanValue.Key_Value.CTRL_F = Key_ScanValue.Key_Value.CTRL & Key_ScanValue.Key_Value.F;
 	Key_ScanValue.Key_Value.CTRL_B = Key_ScanValue.Key_Value.CTRL & Key_ScanValue.Key_Value.B;

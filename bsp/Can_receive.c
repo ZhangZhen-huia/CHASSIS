@@ -120,6 +120,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖÐ¶
 				 memcpy(&SuperPower_data.voltage,&rx_data2[0],4);
 				 memcpy(&SuperPower_data.ouput_type, &rx_data2[4],1);
 				detect_hook(SUPERPOWER_TOE);
+				break;		
+
+
+			
 		}
 	}
 }
@@ -227,24 +231,19 @@ void CAN_cmd_SuperPower(uint8_t max_chassis_power, uint16_t power_buffer ,uint8_
 	
 }
 
-void CAN_cmd_shootdata(fp32 bullet_speed,uint16_t shoot_heat)
+void CAN_cmd_ChassisMode(uint8_t mode)
 {
 	
 	CAN_TxHeaderTypeDef shootdata_tx_message;
-	uint8_t shootdata_send_data[4];	
+	uint8_t shootdata_send_data[1];	
 	uint32_t send_mail_box;
 	shootdata_tx_message.StdId = CHASSIS_ID;
 	shootdata_tx_message.IDE = CAN_ID_STD; 
 	shootdata_tx_message.RTR = CAN_RTR_DATA; 
-	shootdata_tx_message.DLC = 4; 
-	
-	bullet_speed = (uint16_t)(bullet_speed/25.f*65535);
-	
-  shootdata_send_data[0] =  (uint16_t)(bullet_speed) >> 8;
-  shootdata_send_data[1] =  (uint16_t)(bullet_speed);
+	shootdata_tx_message.DLC = 1; 
+		
+  shootdata_send_data[0] =  mode;
 
-	shootdata_send_data[2] = (uint16_t) (shoot_heat) >>8;
-  shootdata_send_data[3] = (uint16_t) (shoot_heat);
 
 	HAL_CAN_AddTxMessage(&hcan1, &shootdata_tx_message, shootdata_send_data, &send_mail_box); 
 }	

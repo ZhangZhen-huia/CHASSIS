@@ -37,11 +37,11 @@
 
 /* --------------------------------------舵轮1-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR1_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR1_SPEED_PID_KP                 20000.0f //30000.0f
 #define DRIVE_MOTOR1_SPEED_PID_KI                 200.0f
-#define DRIVE_MOTOR1_SPEED_PID_KD                 10.0f
+#define DRIVE_MOTOR1_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR1_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           2000.0f //最大输出电流
+#define DRIVE_MOTOR1_SPEED_PID_MAX_IOUT           0.0f //2000.0f //最大输出电流
 
 
 //航向电机角度环
@@ -81,11 +81,11 @@
 
 /* --------------------------------------舵轮2-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR2_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR2_SPEED_PID_KP                 20000.0f //30000.0f
 #define DRIVE_MOTOR2_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR2_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR2_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           3000.0f //最大输出电流
+#define DRIVE_MOTOR2_SPEED_PID_MAX_IOUT           0.0f //3000.0f //最大输出电流
 
 
 
@@ -123,11 +123,11 @@
 
 /* --------------------------------------舵轮3-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR3_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR3_SPEED_PID_KP                 20000.0f //30000.0f
 #define DRIVE_MOTOR3_SPEED_PID_KI                 200.0f
 #define DRIVE_MOTOR3_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR3_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           3000.0f //最大输出电流
+#define DRIVE_MOTOR3_SPEED_PID_MAX_IOUT           0.0f //3000.0f //最大输出电流
 
 
 //航向电机角度环
@@ -167,11 +167,11 @@
 
 /* --------------------------------------舵轮4-------------------------------------------------*/
 //驱动电机速度环
-#define DRIVE_MOTOR4_SPEED_PID_KP                 30000.0f
+#define DRIVE_MOTOR4_SPEED_PID_KP                 20000.0f //30000.0f
 #define DRIVE_MOTOR4_SPEED_PID_KI                 300.0f
 #define DRIVE_MOTOR4_SPEED_PID_KD                 0.0f
 #define DRIVE_MOTOR4_SPEED_PID_MAX_OUT            16384.0f //最大输出值
-#define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           500.0f //最大输出电流
+#define DRIVE_MOTOR4_SPEED_PID_MAX_IOUT           0.0f //500.0f //最大输出电流
 
 
 //航向电机角度环
@@ -342,7 +342,7 @@ extern chassis_move_t chassis_move;//底盘运动数据
 #define CHASSIS_WZ_RC_SEN 					 0.0054507f
 
 
-#define CHASSIS_TASK_INIT_TIME 1000
+#define CHASSIS_TASK_INIT_TIME 2000
 #define CHASSIS_CONTROL_TIME_MS 1000
 #define CHASSIS_X_CHANNEL	2
 #define CHASSIS_Y_CHANNEL 3

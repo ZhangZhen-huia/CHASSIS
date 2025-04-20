@@ -8,7 +8,7 @@
 #include "ui_interface.h"
 
 extern ui_interface_line_t *ui_default_Shoot_Sight1;
-extern ui_interface_line_t *ui_default_Shoot_Sight2;
+extern ui_interface_line_t *ui_default_Shoot_sight2;
 
 void _ui_init_default_Shoot_0();
 void _ui_update_default_Shoot_0();

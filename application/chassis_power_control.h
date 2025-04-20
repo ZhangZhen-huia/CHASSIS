@@ -30,21 +30,6 @@ k2µ÷£¬Ê¹Æä³µĞ¡ÍÓÂİ£¬Ê¹²ÃÅĞÏµÍ³¹¦ÂÊ´ïµ½¹¦ÂÊÉÏÏŞ¸½½ü£¬³¬¹¦ÂÊÊ±¼Ó´ók2.Ã»´ïµ½Ê±Ôò¼õĞ
 #define MAX_POWER 100
 
 
-typedef struct
-{
-	 fp32 K1;
-	 fp32 K2;
-
-
-	 fp32 constant;//,³£Êı
-		
-	 fp32 Cap_power_open;
-	 fp32 Cap_power_close;
-	
-}Chassis_Power_K_t;
-
-
-
 typedef enum
 {
 	OPEN,
@@ -58,16 +43,8 @@ extern SuperPowerState_e SuperPowerState;
 
 typedef struct
 {
-	fp32 power_buffer_set;//»º³åÄÜÁ¿pidÄ¿±êÖµ
-	fp32 power_buffer_out;//»º³åÄÜÁ¿pidÊä³öÏŞÖÆ
-
-	uint16_t grade_power_limit;//´ËÊ±µÈ¼¶µÄ¹¦ÂÊÏŞÖÆ
-	fp32 Max_input_power;//×î´ó¹¦ÂÊÏŞÖÆ
 	fp32 Chassis_Max_power;//µ×ÅÌ×î´ó¹¦ÂÊ
-	fp32 Chassis_judge_power;
 	DebugData chassis_power_data_debug;
-	fp32	factor_Course;
-	fp32	factor_Drive;
 }Chassis_Power_limit_t;
 
 

@@ -57,3 +57,4 @@ chassis\ui_default_aimbot_0.o: ../components/algorithm/Include/arm_math.h
 chassis\ui_default_aimbot_0.o: ../Drivers/CMSIS/Include/core_cm4.h
 chassis\ui_default_aimbot_0.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\string.h
 chassis\ui_default_aimbot_0.o: C:\Keil5 MDK\ARM\ARMCC\Bin\..\include\math.h
+chassis\ui_default_aimbot_0.o: ../application/communicate_task.h

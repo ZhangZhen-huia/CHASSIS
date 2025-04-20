@@ -7,7 +7,7 @@
 
 #include "ui_interface.h"
 
-extern ui_interface_string_t *ui_default_AIMBOT_EnemyColor;
+extern ui_interface_line_t *ui_default_AIMBOT_EnemyColor;
 
 void _ui_init_default_AIMBOT_0();
 void _ui_update_default_AIMBOT_0();

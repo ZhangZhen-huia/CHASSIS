@@ -15,6 +15,7 @@ gimbal_data_t gimbal_data;
 
 static void dispose_gimbal_mode(gimbal_data_t *gimbal_data);
 static void SuperPower_Control(void);
+static void ChassisModeTransfer(void);
 
 
 void communicate_task(void const * argument)
@@ -25,6 +26,8 @@ void communicate_task(void const * argument)
 	{
 		dispose_gimbal_mode(&gimbal_data);
 		SuperPower_Control();
+		ChassisModeTransfer();
+
 		osDelay(10);
 	}
 }
@@ -34,14 +37,25 @@ void communicate_task(void const * argument)
 void get_gimbal_data(gimbal_data_t *gimbal_data,uint8_t *buf)
 {
 	
-	gimbal_data->rc_data.vx_set 	= (buf[0]-33)*20;
-	gimbal_data->rc_data.vy_set 	= (buf[1]-33)*20;
-	gimbal_data->rc_data.wz_set		= 0;
-
-	gimbal_data->rc_err 					= buf[2];
-	gimbal_data->rc_data.rc_sl 		= buf[3];
-	gimbal_data->rc_data.rc_sr 		= buf[4];
 	gimbal_data->gimbal_mode 			= buf[5];
+	gimbal_data->rc_data.vx_set 	= (buf[0]-66)*20;
+	gimbal_data->rc_data.vy_set 	= (buf[1]-66)*20;
+	gimbal_data->rc_data.wz_set		= 0;
+	gimbal_data->rc_err 					= buf[2];
+	
+	if(gimbal_data->rc_err & 0x01)
+	{
+		gimbal_data->ControlMode = Rc;
+		gimbal_data->rc_data.rc_sl 		= buf[3];
+		gimbal_data->rc_data.rc_sr 		= buf[4];
+	}
+	else if(gimbal_data->rc_err & 0x02)
+	{
+		gimbal_data->ControlMode = ImageTransfer;
+		memcpy(&gimbal_data->ImghandleKey,&buf[3],2);
+	}
+
+
 	gimbal_data->rc_data.rc_key_v_last = gimbal_data->rc_data.rc_key_v;
 	memcpy(&gimbal_data->rc_data.rc_key_v,&buf[6],2);
 }
@@ -58,10 +72,6 @@ static void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 	else if(gimbal_data->gimbal_mode & 0x10)
 		gimbal_data->EnemyColor = BLUE;
 	
-	if(gimbal_data->rc_err & 0x01)
-		gimbal_data->ControlMode = Rc;
-	else if(gimbal_data->rc_err & 0x02)
-		gimbal_data->ControlMode = ImageTransfer;
 	
 	if(gimbal_data->rc_err & 0x04)
 		gimbal_data->Toe_is_errRc = 1;
@@ -88,7 +98,27 @@ static void SuperPower_Control(void)
 }
 
 
-
+extern uint8_t Dir;
+static void ChassisModeTransfer(void)
+{
+	uint8_t Mode;
+	if(chassis_move.chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
+	{
+		Mode |= 0x01;
+	}
+	else
+	{
+		Mode &= 0xFE;
+	}
+	if(Dir == 1)
+		Mode |= 0x02;
+	else
+		Mode &=0xFD;
+	
+	
+	
+	CAN_cmd_ChassisMode(Mode);
+}
 
 
 const gimbal_data_t * get_gimbal_data_point(void)

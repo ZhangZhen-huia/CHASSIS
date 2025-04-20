@@ -29,13 +29,16 @@ chassis_move_t chassis_move;
 static fp32 INIT_ECD[5] = {395.0f,1814.0f,5026.0f,3597.0f,7743.0f};
 
 fp32 yaw_diff=0;
+uint8_t Dir = 0;
 
 //底盘总任务
 void chassis_task(void const * argument)
 {
-    //等待陀螺仪任务更新陀螺仪数据
-		osDelay(CHASSIS_TASK_INIT_TIME);
-
+//	while(gimbal_data.GimbalInit == 0)
+//	{
+//		//等待云台初始化完成
+		vTaskDelay(CHASSIS_TASK_INIT_TIME);
+//	}
     //底盘初始化
     chassis_init(&chassis_move);
 
@@ -321,13 +324,18 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//小陀螺模式，左下
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
 		{
-			
+		
+			if(chassis_move_control->last_chassis_mode != CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
+			{
+				Dir++;
+				Dir%=2;
+			}
 			fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
-			
-				
+			if(Dir)
+			{	
 				if(chassis_move_control->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT  )
 				{
 					if(Key_ScanValue.Key_Value.W || Key_ScanValue.Key_Value.A || Key_ScanValue.Key_Value.S || Key_ScanValue.Key_Value.D)
@@ -337,9 +345,20 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 				}
 				else
 					chassis_move_control->wz_set = 2.0f;
-		
-				
-				
+			}
+			else
+			{
+				if(chassis_move_control->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT  )
+				{
+					if(Key_ScanValue.Key_Value.W || Key_ScanValue.Key_Value.A || Key_ScanValue.Key_Value.S || Key_ScanValue.Key_Value.D)
+						chassis_move_control->wz_set = -1.0f;	
+					else
+						chassis_move_control->wz_set = -2.5f;	
+				}
+				else
+					chassis_move_control->wz_set = -2.0;
+			}
+
 			 chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
 			 chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
 			 chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
@@ -463,8 +482,6 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 				drct[3]=1;
 		wheel_speed[3] = drct[3]*sqrt(pow((vy_set + wz_set*0.707f),2)+pow(vx_set - wz_set*0.707f,2));
 
-		PowerLimit.factor_Course = pow((sin(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))),2);
-		PowerLimit.factor_Drive = pow((cos(Find_min_Angle(chassis_move.course_angle[0],wheel_angle[0]))),2);
 	}
 	else
 	{

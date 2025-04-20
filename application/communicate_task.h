@@ -46,6 +46,7 @@ typedef struct
 	uint8_t Toe_is_errRc;
 	uint8_t Toe_is_errImageTransfer;
 	EnemyColor_e EnemyColor;
+	uint16_t ImghandleKey ;
 }gimbal_data_t;
 
 

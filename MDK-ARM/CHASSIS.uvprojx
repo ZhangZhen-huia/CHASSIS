@@ -834,14 +834,14 @@
               <FilePath>..\application\chassis_power_control.c</FilePath>
             </File>
             <File>
-              <FileName>chassis_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\chassis_task.c</FilePath>
-            </File>
-            <File>
               <FileName>INS_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\INS_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>chassis_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\chassis_task.c</FilePath>
             </File>
             <File>
               <FileName>detect_task.c</FileName>
@@ -989,29 +989,14 @@
           <GroupName>UI</GroupName>
           <Files>
             <File>
-              <FileName>ui.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\application\UI\ui.h</FilePath>
+              <FileName>ui_default_AIMBOT_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_AIMBOT_0.c</FilePath>
             </File>
             <File>
-              <FileName>ui_default_Mode_0.c</FileName>
+              <FileName>ui_default_CAP_0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Mode_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_interface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_interface.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_Mode_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Mode_1.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_Mode_2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Mode_2.c</FilePath>
+              <FilePath>..\application\UI\ui_default_CAP_0.c</FilePath>
             </File>
             <File>
               <FileName>ui_default_Shoot_0.c</FileName>
@@ -1019,34 +1004,39 @@
               <FilePath>..\application\UI\ui_default_Shoot_0.c</FilePath>
             </File>
             <File>
-              <FileName>ui_default_Body_0.c</FileName>
+              <FileName>ui_default_TrigMode_0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Body_0.c</FilePath>
+              <FilePath>..\application\UI\ui_default_TrigMode_0.c</FilePath>
             </File>
             <File>
-              <FileName>ui_default_AIMBOT_0.c</FileName>
+              <FileName>ui_default_Fric_0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_AIMBOT_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_SuperPower_0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_SuperPower_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_SuperPower_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_SuperPower_1.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_Armour_0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Armour_0.c</FilePath>
+              <FilePath>..\application\UI\ui_default_Fric_0.c</FilePath>
             </File>
             <File>
               <FileName>ui_default_ShootMode_0.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\UI\ui_default_ShootMode_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_Control_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_Control_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_default_ChassisStatus_0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_default_ChassisStatus_0.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\application\UI\ui_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\application\UI\ui.h</FilePath>
             </File>
           </Files>
         </Group>

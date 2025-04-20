@@ -38,7 +38,7 @@
 
 
 //定义期望基础拨弹盘拨弹速度 弹/s
-#define TRIG_BASE_SPEED 30.0f
+#define TRIG_BASE_SPEED 20.0f
 
 //最终爆发模式,拼命打弹，能打出来多是是多少
 #define TRIG_EXPLOSION_SPEED 					30.0f
