@@ -117,13 +117,14 @@ static void trig_feedback_update(shoot_control_t *feedback_update)
   */
 static void trig_motor_speed_set(shoot_control_t * control_loop)
 {	 
-	static uint8_t mode_flag;
-	if(Key_ScanValue.Key_Value.Q)
-	{
-		if(++mode_flag==2)mode_flag = 0;
-		if(mode_flag==0)control_loop->trig_fire_mode = Serial_fire;
-		else control_loop->trig_fire_mode = Single_fire;
-	}
+//	static uint8_t mode_flag;
+//	if(Key_ScanValue.Key_Value.Q)
+//	{
+//		if(++mode_flag==2)mode_flag = 0;
+//		if(mode_flag==0)control_loop->trig_fire_mode = Serial_fire;
+	control_loop->trig_fire_mode = Serial_fire;
+//		else control_loop->trig_fire_mode = Single_fire;
+//	}
 			/*不同发射模式下的目标值设定*/
 		if(control_loop->trig_fire_mode == Serial_fire)//Serial_fire
 		{

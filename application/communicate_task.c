@@ -83,6 +83,12 @@ static void dispose_gimbal_mode(gimbal_data_t *gimbal_data)
 	else 
 		gimbal_data->Toe_is_errImageTransfer = 0;		
 	
+	if(gimbal_data->gimbal_mode & 0x20)
+		gimbal_data->IS_AIMBOT = 1;
+	else
+		gimbal_data->IS_AIMBOT = 0;
+	
+
 }
 
 static void SuperPower_Control(void)
@@ -99,6 +105,7 @@ static void SuperPower_Control(void)
 
 
 extern uint8_t Dir;
+uint8_t RotateGrade=0;
 static void ChassisModeTransfer(void)
 {
 	uint8_t Mode;
@@ -113,8 +120,12 @@ static void ChassisModeTransfer(void)
 	if(Dir == 1)
 		Mode |= 0x02;
 	else
-		Mode &=0xFD;
+		Mode &= 0xFD;
 	
+	if(RotateGrade)
+		Mode |= 0x04;
+	else
+		Mode &= 0xFB;//1111 1011
 	
 	
 	CAN_cmd_ChassisMode(Mode);

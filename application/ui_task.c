@@ -12,7 +12,7 @@
 void FricMode_Update(void);
 static void EnemyColor_Update(void);
 static void CapBuffer_Update(void);
-static void TrigMode_Update(void);
+//static void TrigMode_Update(void);
 static void ChassisStatus_Update(void);
 static void ControlMode_Update(void);
 
@@ -38,9 +38,8 @@ void ui_task(void const * argument)
 		EnemyColor_Update();
 		CapBuffer_Update();
 		ChassisStatus_Update();
-		TrigMode_Update();
+//		TrigMode_Update();
 		ControlMode_Update();
-
 		if(gimbal_data.rc_data.rc_key_v & KEY_PRESSED_OFFSET_B)
 			ui_init();
 		osDelay(30);
@@ -52,49 +51,72 @@ void ui_task(void const * argument)
 
 void FricMode_Update(void)
 {
-	static uint8_t mode,last_mode;
+	static uint8_t mode,last_mode,state,last_state,mode1,last_mode1;
 	last_mode = mode;
+	last_state = state;
+	last_mode1 = mode1;
 	if(gimbal_data.FricState && Referee_System.ext_game_robot_state.power_management_shooter_output == 1)
 	{
-		ui_default_Fric_FricStatusR->rx = 300;
-		ui_default_Fric_FricStatusR->ry = 300;
+		ui_default_Shoot_FricStatusR->rx = 300;
+		ui_default_Shoot_FricStatusR->ry = 300;
 																			
-		ui_default_Fric_FricStatusL->rx = 300;
-		ui_default_Fric_FricStatusL->ry = 300;
+		ui_default_Shoot_FricStatusL->rx = 300;
+		ui_default_Shoot_FricStatusL->ry = 300;
 
 		mode = 0;
 	}
 	else if(Referee_System.ext_game_robot_state.power_management_shooter_output == 0 || gimbal_data.FricState == 0)
 	{
-		ui_default_Fric_FricStatusR->rx = 0;
-		ui_default_Fric_FricStatusR->ry = 0;
+		ui_default_Shoot_FricStatusR->rx = 0;
+		ui_default_Shoot_FricStatusR->ry = 0;
 		
-		ui_default_Fric_FricStatusL->rx = 0;
-		ui_default_Fric_FricStatusL->ry = 0;
+		ui_default_Shoot_FricStatusL->rx = 0;
+		ui_default_Shoot_FricStatusL->ry = 0;
 		mode = 1;
 	}
+		
+	if(gimbal_data.IS_AIMBOT)
+	{
+		mode1 = 0;
+		ui_default_Shoot_FricStatusR->color = 0;
+		ui_default_Shoot_FricStatusL->color = 0;
+	}
+	else
+	{
+		mode1 = 1;
+		ui_default_Shoot_FricStatusR->color = 8;
+		ui_default_Shoot_FricStatusL->color = 8;
+	}
+	if(chassis_move.chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
+	{
+		ui_default_Shoot_TrigStatusL->color = 2;
+		ui_default_Shoot_TrigStatusR->color = 2;
+		state = 0;
+	}
+	else
+	{
+		ui_default_Shoot_TrigStatusL->color = 7;
+		ui_default_Shoot_TrigStatusR->color = 7;
+		state = 1;
+	}
 	
-	if(mode != last_mode)
-	_ui_update_default_Fric_0();
+	if((mode != last_mode) || (state != last_state) || (mode1 != last_mode1))
+	_ui_update_default_Shoot_0();
 		
 }
 
 static void EnemyColor_Update(void)
 {
-	static uint8_t state,last_state;
-	last_state = state;
 	if(gimbal_data.EnemyColor == BLUE)
 	{
 		ui_default_AIMBOT_EnemyColor->color = 6;
-		state = 0;
 	}
 	else
 	{
 		ui_default_AIMBOT_EnemyColor->color = 5;
-		state = 1;
 	}
 	
-	if(state != last_state)
+	ui_default_AIMBOT_EnemyColor->end_y = ui_default_AIMBOT_EnemyColor->start_y + FricSpeed*5.0f;
 		_ui_update_default_AIMBOT_0();
 }
 
@@ -121,11 +143,11 @@ static void ChassisStatus_Update(void)
 	
 	start_angle = (int16_t)(330 - yaw_diff);
 	zero_to_one_loop(&start_angle);
-	ui_default_ChassisStatus_RelativeAngle->start_angle = start_angle;
+	ui_default_ChassisStatus_Rotate->start_angle = start_angle;
 
 	end_angle = (int16_t)(30 - yaw_diff);
 	zero_to_one_loop(&end_angle);
-	ui_default_ChassisStatus_RelativeAngle ->end_angle =end_angle;
+	ui_default_ChassisStatus_Rotate ->end_angle =end_angle;
 
 	if(chassis_move.chassis_mode == CHASSIS_VECTOR_FLY)
 	{
@@ -137,29 +159,8 @@ static void ChassisStatus_Update(void)
 		ui_default_ChassisStatus_ChassisRound->color = 7;
 		ui_default_ChassisStatus_ChassisRound->width = 3;
 	}
-	
-	_ui_update_default_ChassisStatus_0();
-}
 
-static void TrigMode_Update(void)
-{
-	static uint8_t state,last_state;
-	last_state = state;
-	if(trig_control.trig_fire_mode == Single_fire)
-	{
-		ui_default_TrigMode_TrigStatusL->color = 2;
-		ui_default_TrigMode_TrigStatusR->color = 2;
-		state = 0;
-	}
-	else
-	{
-		ui_default_TrigMode_TrigStatusL->color = 7;
-		ui_default_TrigMode_TrigStatusR->color = 7;
-		state = 1;
-	}
-	
-	if(state != last_state)
-		_ui_update_default_TrigMode_0();
+	_ui_update_default_ChassisStatus_0();
 }
 
 static void ControlMode_Update(void)
@@ -182,6 +183,10 @@ static void ControlMode_Update(void)
 	if(state != last_state)
 	_ui_update_default_Control_0();
 }
+
+
+	
+	
 void ui_init(void)
 {
 	ui_self_id = Referee_System.ext_game_robot_state.robot_id;

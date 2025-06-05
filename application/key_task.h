@@ -11,6 +11,9 @@
 #define IMG_TRANSFER_KEY_TRIGGER	(uint32_t)(1<<18)
 #define IMG_TRANSFER_KEY_PAUSE	(uint32_t)(1<<19)
 
+#define IMG_TRANSFER_SW_RIGHT	(uint32_t)(1<<24)
+#define IMG_TRANSFER_SW_LEFT	(uint32_t)(1<<25)
+
 typedef struct
 {
 	uint8_t W;
@@ -49,6 +52,6 @@ typedef struct
 
 
 extern Key_Scan_t Key_ScanValue;
-
+extern fp32 FricSpeed;
 
 #endif

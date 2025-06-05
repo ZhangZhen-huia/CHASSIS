@@ -28,6 +28,7 @@ void chassis_power_control(void)
 {
 
 		float Current_To_Out = 16384.0f / 3.0f;
+		fp32 radioTemp;
 		fp32 a,b,c,temp;
 		fp32 course_consume_power = 0,drive_consume_power = 0;
 		fp32 course_initial_give_power[4],drive_initial_give_power[4];
@@ -44,7 +45,7 @@ void chassis_power_control(void)
 		
 		
 		/*-- 开启超电，大幅度超功率 --*/
-		if((chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT)&& (SuperPowerState == OPEN))
+		if(OPEN_SUPERPOWER && (SuperPowerState == OPEN))
 		{
 			sum_available_power = PowerLimit.Chassis_Max_power + SuperPower_Strategy();//获取可用功率
 			
@@ -84,10 +85,12 @@ void chassis_power_control(void)
 		}
 		
 		/*--	分配总功率	 --*/
-				course_available_power = sum_available_power  * 0.2f; 
-				drive_available_power = sum_available_power *  0.8f;
+//				course_available_power = sum_available_power  * 0.2f; 
+//				drive_available_power = sum_available_power *  0.8f;
+		radioTemp = PowerLimit.RadioCourse * PowerLimit.RadioCourse + PowerLimit.RadioDrive * PowerLimit.RadioDrive;
 		
-	
+				course_available_power = sum_available_power  * PowerLimit.RadioCourse * PowerLimit.RadioCourse/radioTemp; 
+				drive_available_power = sum_available_power *  PowerLimit.RadioDrive * PowerLimit.RadioDrive/radioTemp;	
 		
 		
 		/*-- 判断是否超功率 --*/
@@ -109,6 +112,7 @@ void chassis_power_control(void)
 				/*-- 3508超出可用的功率才进行功率重新分配 --*/
 				if(drive_factor != 1)
 				{
+					
 					a = POWER_3508_K1;
 					b	= TOQUE_COEFFICIENT_3508*chassis_move.motor_chassis[i].chassis_motor_measure->rpm;
 					c = POWER_3508_K2*chassis_move.motor_chassis[i].chassis_motor_measure->rpm * chassis_move.motor_chassis[i].chassis_motor_measure->rpm - drive_available_power/4.0f/*drive_initial_give_power[i] * drive_factor*/ + POWER_CONSTANT;	//二元一次方程的c

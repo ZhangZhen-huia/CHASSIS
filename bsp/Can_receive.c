@@ -39,6 +39,8 @@ void canfilter_init_start(void)
 	
     HAL_CAN_Start(&hcan1);								//Ê¹ÄÜCAN1¿ØÖÆÆ÷
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);//Ê¹ÄÜCANµÄ¸÷ÖÖÖĞ¶Ï
+		HAL_CAN_ActivateNotification(&hcan1, CAN_IT_BUSOFF);//Ê¹ÄÜCAN1µÄ×ÜÏß¹Ø±ÕÖĞ¶Ï
+	  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_ERROR);
 	
 	
     can_filter_st.SlaveStartFilterBank = 14;   //Ë«CANÄ£Ê½ÏÂ¹æ¶¨CANµÄÖ÷´ÓÄ£Ê½µÄ¹ıÂËÆ÷·ÖÅä£¬´Ó¹ıÂËÆ÷Îª14
@@ -46,6 +48,9 @@ void canfilter_init_start(void)
     HAL_CAN_ConfigFilter(&hcan2, &can_filter_st);		//HAL¿âÅäÖÃ¹ıÂËÆ÷º¯Êı
     HAL_CAN_Start(&hcan2);								//Ê¹ÄÜCAN2¿ØÖÆÆ÷
     HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);//Ê¹ÄÜCANµÄ¸÷ÖÖÖĞ¶Ï
+		HAL_CAN_ActivateNotification(&hcan2, CAN_IT_BUSOFF);//Ê¹ÄÜCAN2µÄ×ÜÏß¹Ø±ÕÖĞ¶Ï
+		HAL_CAN_ActivateNotification(&hcan2, CAN_IT_ERROR);
+
 }
 
 
@@ -119,6 +124,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖĞ¶
 			case SUPERPOWER_RX_ID:
 				 memcpy(&SuperPower_data.voltage,&rx_data2[0],4);
 				 memcpy(&SuperPower_data.ouput_type, &rx_data2[4],1);
+			//				 memcpy(&SuperPower_data.current_power, &rx_data2[4],4);
 				detect_hook(SUPERPOWER_TOE);
 				break;		
 
@@ -128,7 +134,28 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*hcan)//  CAN FIFO0µÄÖĞ¶
 	}
 }
 
-
+void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan) {
+    if (hcan->Instance == CAN2) {
+        if (__HAL_CAN_GET_FLAG(hcan, CAN_FLAG_BOF) != RESET) {
+            // CAN2½øÈëBus-Off×´Ì¬
+            // Çå³ıBus-Off±êÖ¾
+            __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_BOF);
+						HAL_CAN_Stop(&hcan2);
+            MX_CAN2_Init();
+						canfilter_init_start();
+        }
+    }
+		 if (hcan->Instance == CAN1) {
+        if (__HAL_CAN_GET_FLAG(hcan, CAN_FLAG_BOF) != RESET) {
+            // CAN2½øÈëBus-Off×´Ì¬
+            // Çå³ıBus-Off±êÖ¾
+            __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_BOF);
+						HAL_CAN_Stop(&hcan1);
+            MX_CAN1_Init();
+						canfilter_init_start();
+        }
+    }
+}
 
 void CAN_cmd_drive(int16_t M1, int16_t M2, int16_t M3, int16_t M4)
 {
@@ -211,7 +238,7 @@ void CAN_cmd_SuperPower(uint8_t max_chassis_power, uint16_t power_buffer ,uint8_
 	Cap_tx_message.StdId = SUPERPOWER_TX_ID;
 	Cap_tx_message.IDE = CAN_ID_STD;
 	Cap_tx_message.RTR = CAN_RTR_DATA;
-	Cap_tx_message.DLC =	0x08;
+	Cap_tx_message.DLC =	0x08;//0x04
 	
 	
 	Capdata_send_data[0] = max_chassis_power;//µ±Ç°µÈ¼¶µØÅÌÏŞÖÆ×î´ó¹¦ÂÊ
@@ -227,6 +254,13 @@ void CAN_cmd_SuperPower(uint8_t max_chassis_power, uint16_t power_buffer ,uint8_
 	Capdata_send_data[6] = current>>8;//²ÃÅĞÏµÍ³·´À¡µÄÊä³öµçÁ÷´óĞ¡
 	Capdata_send_data[7] = current;		
 	
+	/*
+	Capdata_send_data[0] = max_chassis_power;
+	Capdata_send_data[1] = power_buffer >> 8;
+	Capdata_send_data[2] = power_buffer;
+	
+	Capdata_send_data[3] = mode;
+	*/
 	HAL_CAN_AddTxMessage(&hcan2,&Cap_tx_message,Capdata_send_data,&send_mail_box);
 	
 }

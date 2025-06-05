@@ -59,3 +59,4 @@ chassis\ins_task.o: ../components/controller/pid.h
 chassis\ins_task.o: ../components/algorithm/MahonyAHRS.h
 chassis\ins_task.o: ../bsp/boards/bsp_spi.h
 chassis\ins_task.o: ..\application\communicate_task.h
+chassis\ins_task.o: ../bsp/boards/bsp_buzzer.h

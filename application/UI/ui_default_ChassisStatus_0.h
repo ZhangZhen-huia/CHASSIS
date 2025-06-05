@@ -8,7 +8,8 @@
 #include "ui_interface.h"
 
 extern ui_interface_round_t *ui_default_ChassisStatus_ChassisRound;
-extern ui_interface_arc_t *ui_default_ChassisStatus_RelativeAngle;
+extern ui_interface_arc_t *ui_default_ChassisStatus_Rotate;
+extern ui_interface_line_t *ui_default_ChassisStatus_Flag;
 
 void _ui_init_default_ChassisStatus_0();
 void _ui_update_default_ChassisStatus_0();

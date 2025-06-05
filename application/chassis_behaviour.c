@@ -50,6 +50,8 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 			{
 				if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_F)
 					 chassis_behaviour_mode = CHASSIS_FLY; 
+				else if(chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_Q)
+					 chassis_behaviour_mode = CHASSIS_ALONE; 
 				else
 				{
 					if(flag == 1)
@@ -154,6 +156,10 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 		{
 			chassis_move_mode->chassis_mode = CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW; 
 		}
+		else if(chassis_behaviour_mode == CHASSIS_ALONE)
+		{
+			chassis_move_mode->chassis_mode = CHASSIS_VECTOR_ALONE; 
+		}
 		
 }
 
@@ -177,17 +183,9 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, 
         return;
     }
 		
-		
-		//飞坡或者跟随云台模式
-    if (chassis_behaviour_mode == CHASSIS_DIRECTION_FOLLOW_GIMBAL_YAW || chassis_behaviour_mode == CHASSIS_FLY )
-    {
-        chassis_agv_direction_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
-    }
-		//底盘小陀螺模式
-    else if (chassis_behaviour_mode == CHASSIS_TOP_FOLLOW_GIMBAL_YAW)
-    {
-        chassis_agv_top_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
-    }
+	
+      chassis_agv_direction_follow_gimbal_yaw_control(vx_set, vy_set, angle_set, chassis_move_rc_to_vector);
+
 
 
 

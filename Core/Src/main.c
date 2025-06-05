@@ -103,7 +103,7 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim5);
-
+	Buzzer_Init();
 	
 	remote_control_init();
 	canfilter_init_start();

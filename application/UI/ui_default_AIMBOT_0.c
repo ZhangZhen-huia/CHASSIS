@@ -26,15 +26,15 @@ void _ui_init_default_AIMBOT_0() {
 
     ui_default_AIMBOT_EnemyColor->figure_tpye = 0;
     ui_default_AIMBOT_EnemyColor->layer = 0;
-    ui_default_AIMBOT_EnemyColor->start_x = 50;
-    ui_default_AIMBOT_EnemyColor->start_y = 708;
-    ui_default_AIMBOT_EnemyColor->end_x = 110;
+    ui_default_AIMBOT_EnemyColor->start_x = 80;
+    ui_default_AIMBOT_EnemyColor->start_y = 608;
+    ui_default_AIMBOT_EnemyColor->end_x = 80;
     ui_default_AIMBOT_EnemyColor->end_y = 708;
 		if(gimbal_data.EnemyColor == BLUE)
 				ui_default_AIMBOT_EnemyColor->color = 6;
 		else if(gimbal_data.EnemyColor == RED)
 				ui_default_AIMBOT_EnemyColor->color = 5;
-    ui_default_AIMBOT_EnemyColor->width = 150;
+    ui_default_AIMBOT_EnemyColor->width = 50;
 
 
     CAT(ui_proc_, CAT(FRAME_OBJ_NUM, _frame))(&ui_default_AIMBOT_0);

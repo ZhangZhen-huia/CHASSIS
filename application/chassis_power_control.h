@@ -5,6 +5,10 @@
 #include "vofa_task.h"
 
 
+
+#define OPEN_SUPERPOWER  ((chassis_move.get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT ) || (chassis_move.get_gimbal_data->ImghandleKey & (IMG_TRANSFER_SW_RIGHT >> 16)))
+
+
 #define TOQUE_COEFFICIENT_3508 1.99688994e-6f
 #define TOQUE_COEFFICIENT_6020 0.8130f//1.3568115234375e-4f
 /*
@@ -45,6 +49,10 @@ typedef struct
 {
 	fp32 Chassis_Max_power;//底盘最大功率
 	DebugData chassis_power_data_debug;
+	fp32 RadioCourseArray[4];
+	fp32 RadioDriveArray[4];
+	fp32 RadioCourse;
+	fp32 RadioDrive;
 }Chassis_Power_limit_t;
 
 

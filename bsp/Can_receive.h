@@ -23,6 +23,16 @@ typedef struct
 }SuperPower_data_t;
 
 
+
+////超级电容数据结构体
+//typedef struct
+//{
+//   fp32      	voltage;
+//	 fp32   		current_power;
+
+//}SuperPower_data_t;
+
+
 typedef enum
 {
 /*----------can1发送id----------*/

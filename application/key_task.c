@@ -5,7 +5,9 @@
 
 void Key_Scan(void);
 Key_Scan_t Key_ScanValue;
+void FricSpeeed_Control(void);
 
+fp32 FricSpeed = 18.0f;
 
 //uint8_t Key_Function(uint16_t key);
 
@@ -16,6 +18,8 @@ void key_task(void const * argument)
 	{
 		/*-- 5ms扫描一次按键(因为Can传输有延迟，这里就增加频率,然后使用Key_Down) --*/
 		Key_Scan();
+		FricSpeeed_Control();
+
 		osDelay(5);
     
 	}
@@ -165,4 +169,20 @@ void Key_Scan(void)
 
 
 
+void FricSpeeed_Control(void)
+{
+	if(gimbal_data.FricState)
+	{
+		if(Key_ScanValue.Key_Value.C)
+			FricSpeed-=0.5f;
+		if(Key_ScanValue.Key_Value.B)
+			FricSpeed+=0.5f;
+		
+		if(FricSpeed > 21.5f)
+			FricSpeed = 21.5f;
+		if(FricSpeed < 15.5f )
+			FricSpeed = 15.5f;
+	}
 
+		
+}

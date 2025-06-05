@@ -10,6 +10,7 @@
       <TargetName>CHASSIS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pArmCC>5060528::V5.06 update 5 (build 528)::ARMCC</pArmCC>
       <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
@@ -1002,21 +1003,6 @@
               <FileName>ui_default_Shoot_0.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\application\UI\ui_default_Shoot_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_TrigMode_0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_TrigMode_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_Fric_0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_Fric_0.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_default_ShootMode_0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\application\UI\ui_default_ShootMode_0.c</FilePath>
             </File>
             <File>
               <FileName>ui_default_Control_0.c</FileName>

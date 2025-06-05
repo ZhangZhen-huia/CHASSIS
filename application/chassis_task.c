@@ -22,23 +22,30 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 
 static void chassis_set_mode(chassis_move_t *chassis_move_mode);
 static void chassis_set_contorl(chassis_move_t *chassis_move_control);
-
+void SearchMax(fp32 *Max,fp32 *Data);
+uint32_t turnback_cnt = 0;
 chassis_move_t chassis_move;
 
 
-static fp32 INIT_ECD[5] = {395.0f,1814.0f,5026.0f,3597.0f,7743.0f};
-
+fp32 INIT_ECD[5] = {395.0f,1814.0f,5026.0f,3597.0f,0.0f};
 fp32 yaw_diff=0;
 uint8_t Dir = 0;
 
 //底盘总任务
 void chassis_task(void const * argument)
 {
-//	while(gimbal_data.GimbalInit == 0)
-//	{
-//		//等待云台初始化完成
+
+	while(yaw_motor.ecd == 0)
+	{
+		osDelay(100);
+	}
+	INIT_ECD[4] = yaw_motor.ecd;
+	while(gimbal_data.GimbalInit == 0)
+	{
+		//等待云台初始化完成
 		vTaskDelay(CHASSIS_TASK_INIT_TIME);
-//	}
+		
+	}
     //底盘初始化
     chassis_init(&chassis_move);
 
@@ -47,7 +54,7 @@ void chassis_task(void const * argument)
     {
         vTaskDelay(CHASSIS_CONTROL_TIME_MS);//保证全部初始化完毕
     }
-		
+
     while (1)
 		{
 			//底盘控制模式选择
@@ -242,7 +249,6 @@ static fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd)
     return relative_ecd * MOTOR_ECD_TO_RAD;
 }
 
-
 /**
   * @brief          底盘测量数据更新，包括电机速度，欧拉角度，机器人速度
   * @param[out]     gimbal_feedback_update:"gimbal_control"变量指针.
@@ -262,9 +268,11 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	
 	feedback_update->chassis_yaw = feedback_update->chassis_bmi088_data->INS_angle[INS_YAW_ADDRESS_OFFSET];
 
+
 	
-		yaw_diff = motor_ecd_to_angle_change(yaw_motor.ecd,INIT_ECD[4]);
-	
+
+	yaw_diff = motor_ecd_to_angle_change(yaw_motor.ecd,INIT_ECD[4]);
+
 	
 	for(i=0;i<4;i++)
 	feedback_update->course_angle[i] = Angle_Limit((feedback_update->motor_chassis[4+i].chassis_motor_measure->ecd - INIT_ECD[i])*360/8192,360);
@@ -275,7 +283,7 @@ static void chassis_feedback_update(chassis_move_t *feedback_update)
 	#endif
 }
 
-
+extern uint8_t RotateGrade;
 /**
   * @brief          设置底盘控制设置值, 三运动控制值是通过chassis_behaviour_control_set函数设置的
   * @param[out]     chassis_move_update:"chassis_move"变量指针.
@@ -298,70 +306,71 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		//跟随云台yaw,左上
 		if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_DIRECTION_FOLLOW_GIMBAL_YAW)
     {
-			fp32 angle_diff;
+			static fp32 angle_diff;
 			angle_diff=rad_format(yaw_diff* PI / 180.0f);
-			
 			chassis_move_control->vx_set = vy_set * cos(angle_diff) - vx_set * sin(angle_diff);
 			chassis_move_control->vy_set = vy_set * sin(angle_diff) + vx_set * cos(angle_diff);
-			
-			if(fabs(angle_diff)*57.2957f > 5)
-			{
+
 				PID_calc(&chassis_move_control->yaw_pid,angle_diff,0);
 				chassis_move_control->wz_set = chassis_move_control->yaw_pid.out;
-			}
-			else
-				chassis_move_control->wz_set=0;
-		
-			
 
-			
-			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
-			chassis_move_control->vy_set = -fp32_constrain(vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-			chassis_move_control->vx_set = fp32_constrain(vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
-			
-		}
+				chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
+				chassis_move_control->vy_set = fp32_constrain(vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+				chassis_move_control->vx_set = -fp32_constrain(vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+
+	}
+
 		
 		//小陀螺模式，左下
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
 		{
 		
-			if(chassis_move_control->last_chassis_mode != CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
-			{
-				Dir++;
-				Dir%=2;
-			}
+//			if(chassis_move_control->last_chassis_mode != CHASSIS_VECTOR_TOP_FOLLOW_GIMBAL_YAW)
+//			{
+//				Dir++;
+//				Dir%=2;4
+			Dir = 0;
+//			}
 			fp32 angle_diff=yaw_diff* PI / 180.0f;
 			 
 			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
 			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
 			if(Dir)
 			{	
-				if(chassis_move_control->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT  )
+				if(OPEN_SUPERPOWER)
 				{
+					RotateGrade = 1;
 					if(Key_ScanValue.Key_Value.W || Key_ScanValue.Key_Value.A || Key_ScanValue.Key_Value.S || Key_ScanValue.Key_Value.D)
 						chassis_move_control->wz_set = 1.0f;	
 					else
 						chassis_move_control->wz_set = 2.5f;	
 				}
 				else
-					chassis_move_control->wz_set = 2.0f;
+				{
+					RotateGrade = 0;
+					chassis_move_control->wz_set = 1.8f;
+				}
 			}
 			else
 			{
-				if(chassis_move_control->get_gimbal_data->rc_data.rc_key_v & KEY_PRESSED_OFFSET_SHIFT  )
+				if(OPEN_SUPERPOWER  )
 				{
+					RotateGrade = 1;
 					if(Key_ScanValue.Key_Value.W || Key_ScanValue.Key_Value.A || Key_ScanValue.Key_Value.S || Key_ScanValue.Key_Value.D)
 						chassis_move_control->wz_set = -1.0f;	
 					else
 						chassis_move_control->wz_set = -2.5f;	
 				}
 				else
-					chassis_move_control->wz_set = -2.0;
+				{
+					RotateGrade = 0;
+					chassis_move_control->wz_set = -1.8;
+				}
 			}
 
 			 chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
-			 chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-			 chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+			 chassis_move_control->vx_set = -fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+			 chassis_move_control->vy_set = -fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 			
 		}
 		
@@ -375,7 +384,19 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 			
     }
 		
-		
+		//底盘不跟随
+		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_ALONE)
+		{
+			fp32 angle_diff=yaw_diff* PI / 180.0f;
+			 
+			chassis_move_control->vx_set = -vx_set * sin(angle_diff) + vy_set * cos(angle_diff);
+			chassis_move_control->vy_set = -vx_set * cos(angle_diff) - vy_set * sin(angle_diff);
+
+
+			 chassis_move_control->wz_set = 0;
+			 chassis_move_control->vx_set = -fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+			 chassis_move_control->vy_set = -fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+		}
 
 		//飞坡模式，左中
 		else if(chassis_move_control->chassis_mode == CHASSIS_VECTOR_FLY)
@@ -399,8 +420,8 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 
 			
 			chassis_move_control->wz_set = fp32_constrain(chassis_move_control->wz_set, chassis_move_control->wz_min_speed, chassis_move_control->wz_max_speed);
-			chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
-			chassis_move_control->vy_set = -fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+			chassis_move_control->vx_set = -fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+			chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 			
 		}
 }
@@ -524,10 +545,16 @@ static void chassis_vector_to_agv_calculate(fp32 wheel_angle[4],fp32 wheel_speed
 			}
 		}	
 
+
 	for(uint8_t i=0;i<4;i++)	
-	wheel_speed[i] = fp32_constrain(wheel_speed[i], chassis_move.vy_min_speed, chassis_move.vy_max_speed);
-
-
+	{
+		wheel_speed[i] = fp32_constrain(wheel_speed[i], chassis_move.vy_min_speed, chassis_move.vy_max_speed);
+		PowerLimit.RadioDriveArray[i] = arm_cos_f32(Find_min_Angle(chassis_move.course_angle[i],wheel_angle[i])*PI/180.0f);
+		PowerLimit.RadioCourseArray[i] = arm_sin_f32(Find_min_Angle(chassis_move.course_angle[i],wheel_angle[i])*PI/180.0f);
+	}
+	SearchMax(&PowerLimit.RadioDrive,PowerLimit.RadioDriveArray);
+	SearchMax(&PowerLimit.RadioCourse,PowerLimit.RadioCourseArray);
+	
 }
 
 
@@ -639,6 +666,15 @@ static uint8_t chassis_motor_detect(void)
 				 || toe_is_error(COURSE_MOTOR1_TOE) || toe_is_error(COURSE_MOTOR2_TOE) || toe_is_error(COURSE_MOTOR3_TOE) || toe_is_error(COURSE_MOTOR4_TOE);
 }
 
+
+void SearchMax(fp32 *Max,fp32 *Data)
+{
+	*Max = Data[0];
+	for(uint8_t i=1;Data[i] != '\0';i++)
+	{
+		*Max = *Max > Data[i] ? *Max:Data[i];
+	}
+}
 
 /* ----------------------------------------------------------------------- */
 /* -------------------------------vofa调参-------------------------------- */

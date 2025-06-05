@@ -7,18 +7,18 @@
 #include "bsp_spi.h"
 #include "stm32f4xx_hal_spi.h"
 #include "communicate_task.h"
-
+#include "bsp_buzzer.h"
 bmi088_real_data_t bmi088_real_data;
 
 //static uint8_t first_temperate;
-static const fp32 imu_temp_PID[3] = {TEMPERATURE_PID_KP, TEMPERATURE_PID_KI, TEMPERATURE_PID_KD};
-static pid_type_def imu_temp_pid;
+//static const fp32 imu_temp_PID[3] = {TEMPERATURE_PID_KP, TEMPERATURE_PID_KI, TEMPERATURE_PID_KD};
+//static pid_type_def imu_temp_pid;
 
 fp32 INS_quat[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 fp32 INS_angle[3] = {0.0f, 0.0f, 0.0f};      //euler angle, unit rad.欧拉角 单位 rad
 fp32 gyro_offset[3];
 
-
+uint8_t init_flag = 0;
 void AHRS_init(fp32 quat[4]);
 void get_angle(fp32 q[4], fp32 *yaw, fp32 *pitch, fp32 *roll);
 //static void imu_temp_control(fp32 temp);
@@ -42,7 +42,7 @@ void INS_task(void const * argument)
 	//读三轴角速度和加速度，温度
 	BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
 	
-	PID_init(&imu_temp_pid,DATA_NORMAL, imu_temp_PID, TEMPERATURE_PID_MAX_OUT, TEMPERATURE_PID_MAX_IOUT,NONE);
+//	PID_init(&imu_temp_pid,DATA_NORMAL, imu_temp_PID, TEMPERATURE_PID_MAX_OUT, TEMPERATURE_PID_MAX_IOUT,NONE);
 	
 	//四元数初始化
 	AHRS_init(INS_quat);
@@ -72,8 +72,14 @@ void INS_task(void const * argument)
 		}		
 
 		bmi088_real_data.INS_angle[1] *= -1.0f;
-		//Chassis_data_transfer();
-	//	CAN_cmd_INS(bmi088_real_data.INS_angle[0], -bmi088_real_data.INS_angle[1], bmi088_real_data.gyro[2], bmi088_real_data.gyro[1]);
+		
+		if(!init_flag)
+		{
+			buzzer_on(1, 5000);
+			osDelay(500);
+			buzzer_off();
+			init_flag = 1;
+		}
 		//计算周期为2ms（与四元数解算中的解算频率有关）
 		osDelay(1);
 	}

@@ -15,7 +15,7 @@ extern int ui_self_id;
 void print_message(const uint8_t* message, int length);
 
 #define SEND_MESSAGE(message, length) Referee_DMA_TX(message, length); \
-osDelay(100)
+osDelay(30)
 
 void ui_proc_1_frame(ui_1_frame_t *msg);
 void ui_proc_2_frame(ui_2_frame_t *msg);

@@ -7,12 +7,13 @@
 #define FRAME_ID 0
 #define GROUP_ID 1
 #define START_ID 0
-#define OBJ_NUM 2
-#define FRAME_OBJ_NUM 2
+#define OBJ_NUM 3
+#define FRAME_OBJ_NUM 5
 
 CAT(ui_, CAT(FRAME_OBJ_NUM, _frame_t)) ui_default_ChassisStatus_0;
 ui_interface_round_t *ui_default_ChassisStatus_ChassisRound = (ui_interface_round_t *)&(ui_default_ChassisStatus_0.data[0]);
-ui_interface_arc_t *ui_default_ChassisStatus_RelativeAngle = (ui_interface_arc_t *)&(ui_default_ChassisStatus_0.data[1]);
+ui_interface_arc_t *ui_default_ChassisStatus_Rotate = (ui_interface_arc_t *)&(ui_default_ChassisStatus_0.data[1]);
+ui_interface_line_t *ui_default_ChassisStatus_Flag = (ui_interface_line_t *)&(ui_default_ChassisStatus_0.data[2]);
 
 void _ui_init_default_ChassisStatus_0() {
     for (int i = 0; i < OBJ_NUM; i++) {
@@ -33,16 +34,25 @@ void _ui_init_default_ChassisStatus_0() {
     ui_default_ChassisStatus_ChassisRound->color = 7;
     ui_default_ChassisStatus_ChassisRound->width = 3;
 
-    ui_default_ChassisStatus_RelativeAngle->figure_tpye = 4;
-    ui_default_ChassisStatus_RelativeAngle->layer = 0;
-    ui_default_ChassisStatus_RelativeAngle->rx = 300;
-    ui_default_ChassisStatus_RelativeAngle->ry = 300;
-    ui_default_ChassisStatus_RelativeAngle->start_x = 963;
-    ui_default_ChassisStatus_RelativeAngle->start_y = 539;
-    ui_default_ChassisStatus_RelativeAngle->color = 8;
-    ui_default_ChassisStatus_RelativeAngle->width = 20;
-    ui_default_ChassisStatus_RelativeAngle->start_angle = 350;
-    ui_default_ChassisStatus_RelativeAngle->end_angle = 10;
+    ui_default_ChassisStatus_Rotate->figure_tpye = 4;
+    ui_default_ChassisStatus_Rotate->layer = 0;
+    ui_default_ChassisStatus_Rotate->rx = 300;
+    ui_default_ChassisStatus_Rotate->ry = 300;
+    ui_default_ChassisStatus_Rotate->start_x = 963;
+    ui_default_ChassisStatus_Rotate->start_y = 539;
+    ui_default_ChassisStatus_Rotate->color = 8;
+    ui_default_ChassisStatus_Rotate->width = 20;
+    ui_default_ChassisStatus_Rotate->start_angle = 350;
+    ui_default_ChassisStatus_Rotate->end_angle = 10;
+
+//    ui_default_ChassisStatus_Flag->figure_tpye = 0;
+//    ui_default_ChassisStatus_Flag->layer = 0;
+//    ui_default_ChassisStatus_Flag->start_x = 927;
+//    ui_default_ChassisStatus_Flag->start_y = 709;
+//    ui_default_ChassisStatus_Flag->end_x = 927;
+//    ui_default_ChassisStatus_Flag->end_y = 759;
+//    ui_default_ChassisStatus_Flag->color = 7;
+//    ui_default_ChassisStatus_Flag->width = 50;
 
 
     CAT(ui_proc_, CAT(FRAME_OBJ_NUM, _frame))(&ui_default_ChassisStatus_0);
